@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="AutoCare — Serviços automotivos no seu endereço. Protótipo v11 + 6 fixes.">
+  <title>AutoCare · Protótipo v11</title>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // AutoCare — Supabase config
+    const _supabase = supabase.createClient(
+      'https://djzczgabtbnxyyfguise.supabase.co',
+      'sb_publishable_ja6fB1NeJq3kQ2ZTVzPZXA__ii6zj-0'
+    )
+  </script><!--
+    AutoCare Prototype v11 · Vila Madalena Trial
+    52 screens · 76 functions · 25 services · 6 fixes
+    Standalone: open index.html in any browser — no server needed.
+    Modular source: see src/ folder
+  -->
+  <style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1565C0;--blue-light:#E3F2FD;--text:#1a1a1a;--muted:#666;--border:#e0e0e0;--white:#fff;--green:#2E7D32;--green-light:#E8F5E9;--orange:#E65100;--orange-light:#FFF3E0;--red:#C62828;--red-light:#FFEBEE;--yellow:#F57F17;--yellow-light:#FFFDE7;--purple:#6A1B9A;--purple-light:#F3E5F5}
+body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
+.app{max-width:390px;margin:0 auto;background:var(--white);min-height:600px;border-radius:16px;overflow:hidden;border:.5px solid var(--border);position:relative}
+.topbar{background:var(--blue);color:#fff;padding:14px 16px 12px;display:flex;align-items:center;gap:10px}
+.back{cursor:pointer;font-size:18px;opacity:.9}
+.topbar h1{font-size:16px;font-weight:500;flex:1}
+.av-top{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--white)}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+.screen{display:none;padding:16px;overflow-y:auto;max-height:540px}
+.screen.active{display:block}
+.screen.full{padding:0;max-height:600px;overflow-y:auto}
+.card{background:var(--white);border:.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-orange{background:var(--orange-light);color:var(--orange)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-yellow{background:var(--yellow-light);color:var(--yellow)}
+.badge-gray{background:#f0f0f0;color:#888}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:500;cursor:pointer;transition:.15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-outline{background:var(--white);color:var(--blue);border:1px solid var(--blue)}
+.btn-outline-red{background:var(--white);color:var(--red);border:1px solid var(--red)}
+.btn-sm{padding:7px 14px;font-size:12px;width:auto;border-radius:8px}
+.btn-ghost-sm{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 10px;font-size:11px;border-radius:8px;cursor:pointer}
+.input{width:100%;padding:10px 12px;border:.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--white);color:var(--text);margin-bottom:10px}
+.input:focus{outline:none;border-color:var(--blue)}
+.label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.divider{border:none;border-top:.5px solid var(--border);margin:12px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--blue-light);border-radius:10px;padding:12px;text-align:center}
+.stat .n{font-size:20px;font-weight:500;color:var(--blue)}
+.stat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.cat{background:var(--blue-light);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer}
+.cat .icon{font-size:20px;margin-bottom:4px}
+.cat .name{font-size:11px;font-weight:500;color:var(--blue)}
+.svc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:.5px solid var(--border);cursor:pointer}
+.svc-item:last-child{border-bottom:none}
+.nav{display:flex;background:var(--white);border-top:.5px solid var(--border);padding:8px 0 4px}
+.nav-item{flex:1;text-align:center;cursor:pointer;padding:4px 0}
+.nav-item .ni{font-size:18px}
+.nav-item .nl{font-size:10px;color:var(--muted);margin-top:2px}
+.nav-item.active .nl{color:var(--blue)}
+.tag-cat{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;background:var(--blue-light);color:var(--blue);margin:2px 2px 0 0;font-weight:500}
+.map-mock{background:#E3F2FD;border-radius:10px;height:70px;display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:12px;margin-bottom:10px}
+.modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;border-radius:16px}
+.modal{background:var(--white);border-radius:16px;padding:20px;width:340px;max-height:85vh;overflow-y:auto}
+.modal h2{font-size:15px;font-weight:500;margin-bottom:14px}
+.toggle{width:40px;height:22px;border-radius:11px;background:var(--border);cursor:pointer;position:relative;transition:.2s;flex-shrink:0}
+.toggle.on{background:var(--blue)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s}
+.toggle.on::after{left:20px}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-chip{padding:5px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:.5px solid var(--border);background:var(--white);color:var(--muted);white-space:nowrap}
+.filter-chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.action-row{display:flex;gap:6px;margin-top:10px}
+.action-btn{flex:1;padding:7px 0;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer}
+.ab-edit{background:var(--blue-light);color:var(--blue)}
+.ab-del{background:var(--red-light);color:var(--red)}
+.ab-view{background:var(--blue-light);color:var(--blue)}
+.ab-approve{background:var(--green-light);color:var(--green)}
+.ab-suspend{background:var(--orange-light);color:var(--orange)}
+.ab-reject{background:var(--red-light);color:var(--red)}
+.info-box{border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px}
+.info-blue{background:var(--blue-light);color:var(--blue)}
+.info-yellow{background:var(--yellow-light);color:var(--yellow)}
+.info-green{background:var(--green-light);color:var(--green)}
+.info-orange{background:var(--orange-light);color:var(--orange)}
+.info-red{background:var(--red-light);color:var(--red)}
+.splash{background:var(--blue);min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
+.splash-logo{width:72px;height:72px;background:rgba(255,255,255,.15);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px}
+.btn-white{background:#fff;color:var(--blue);font-weight:500;margin-bottom:10px}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.auth-header{background:var(--blue);padding:40px 24px 20px;text-align:center}
+.auth-header h2{color:#fff;font-size:20px;font-weight:500}
+.auth-header p{color:rgba(255,255,255,.8);font-size:13px;margin-top:4px}
+.auth-body{padding:20px}
+.step-dots{display:flex;gap:4px;margin-bottom:20px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.step-dot.active{background:var(--blue);width:24px;border-radius:4px}
+.step-dot.done{background:var(--blue)}
+.progress-wrap{display:flex;gap:4px;margin-bottom:18px}
+.progress-step{flex:1;height:4px;border-radius:2px;background:var(--border)}
+.progress-step.done{background:var(--blue)}
+.progress-step.active{background:#90CAF9}
+.veh-option{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:8px}
+.veh-option.selected{border-color:var(--blue);background:var(--blue-light)}
+.veh-icon{width:36px;height:36px;background:var(--blue-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.addr-option{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:8px}
+.addr-option.selected{border-color:var(--blue);background:var(--blue-light)}
+.addr-icon{width:36px;height:36px;background:var(--blue-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.photo-upload{border:1.5px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;margin-bottom:10px}
+.photo-box{border:1.5px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:.15s}
+.photo-box:hover{border-color:var(--blue);background:var(--blue-light)}
+.photo-box.uploaded{border-color:var(--green);background:var(--green-light);border-style:solid}
+.slots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.slot{border:1.5px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer}
+.slot:hover{border-color:var(--blue);background:var(--blue-light)}
+.slot.selected{border-color:var(--blue);background:var(--blue);color:#fff}
+.slot.booked{background:#f5f5f5;color:#bbb;cursor:not-allowed;border-color:#f0f0f0}
+.slot.parts-wait{background:var(--orange-light);color:var(--orange);cursor:not-allowed;border-color:#FFCCBC}
+.slot.parts-locked{background:#f5f5f5;color:#bbb;cursor:not-allowed;border-color:#f0f0f0}
+.slot .sh{font-size:13px;font-weight:500}
+.slot .sd{font-size:10px;margin-top:2px;opacity:.8}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cal-day{font-size:12px;padding:6px 3px;border-radius:8px;cursor:pointer}
+.cal-day.other{color:#ccc;cursor:default}
+.cal-day.has-slots{background:var(--blue-light);color:var(--blue);font-weight:500}
+.cal-day.selected{background:var(--blue);color:#fff;font-weight:500}
+.cal-day.no-slots{color:#bbb}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0}
+.av-b{background:#1565C0}.av-g{background:#2E7D32}.av-o{background:#E65100}.av-p{background:#6A1B9A}.av-r{background:#C62828}
+.prov-card{border:.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.doc-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:.5px solid var(--border)}
+.doc-item:last-child{border-bottom:none}
+.region-chip{display:inline-block;padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;margin:0 4px 6px 0}
+.region-chip.selected{border-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:500}
+.spec-chip{border:1.5px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer}
+.spec-chip.selected{border-color:var(--blue);background:var(--blue-light)}
+.spec-chip .si{font-size:20px;margin-bottom:4px}
+.spec-chip .sl{font-size:11px;font-weight:500;color:var(--muted)}
+.spec-chip.selected .sl{color:var(--blue)}
+.upload-btn{background:var(--blue-light);color:var(--blue);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer}
+.profile-header{background:var(--blue);padding:20px 16px;display:flex;align-items:center;gap:14px;margin:-16px -16px 16px}
+.profile-av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:#fff}
+.chk-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)}
+.chk-item:last-child{border-bottom:none}
+.chk-box{width:24px;height:24px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.chk-box.checked{background:var(--green);border-color:var(--green);color:#fff;font-size:13px}
+.offer-card{background:var(--white);border:2px solid var(--blue);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center}
+.offer-badge{display:inline-block;background:var(--blue);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:500;margin-bottom:14px}
+.countdown-ring{width:80px;height:80px;margin:0 auto 14px;position:relative}
+.countdown-ring svg{transform:rotate(-90deg)}
+.countdown-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:500;color:var(--blue)}
+.countdown-num.urgent{color:var(--red)}
+.notif-banner{background:var(--blue);color:#fff;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.nb-icon{font-size:24px;flex-shrink:0}
+.nb-text .t{font-size:13px;font-weight:500}
+.nb-text .s{font-size:11px;opacity:.85;margin-top:2px}
+.nb-badge{background:var(--red);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;flex-shrink:0}
+.job-card{border:.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}
+.job-card.urgent{border-left:3px solid var(--red)}
+.job-card.waiting{border-left:3px solid var(--yellow)}
+.job-card.confirmed{border-left:3px solid var(--green)}
+.status-pipeline{display:flex;margin-bottom:16px}
+.sp-step{flex:1;text-align:center;position:relative}
+.sp-step:not(:last-child)::after{content:'';position:absolute;top:13px;right:0;width:100%;height:2px;background:var(--border);z-index:0}
+.sp-step.done::after{background:var(--blue)}
+.sp-dot{width:26px;height:26px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative;z-index:1;border:2px solid var(--border);background:var(--white);color:var(--muted)}
+.sp-step.done .sp-dot{background:var(--blue);border-color:var(--blue);color:#fff}
+.sp-step.active .sp-dot{background:var(--white);border-color:var(--blue);color:var(--blue)}
+.sp-label{font-size:10px;color:var(--muted)}
+.sp-step.done .sp-label,.sp-step.active .sp-label{color:var(--blue);font-weight:500}
+.supply-nav{display:flex;background:#f5f7fa;border-radius:10px;padding:4px;gap:4px;margin-bottom:14px}
+.snav-item{flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)}
+.snav-item.active{background:var(--white);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.supply-screen{display:none}
+.supply-screen.active{display:block}
+.svc-card{border:.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px}
+.menu-item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--white);border:.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:8px}
+.menu-icon{width:34px;height:34px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:16px}
+.menu-text .t{font-size:13px;font-weight:500}
+.menu-text .s{font-size:11px;color:var(--muted)}
+.rank-card{border:.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.score-ring{width:56px;height:56px;position:relative;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;font-weight:700}
+.hist-item{display:flex;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.hist-icon{width:36px;height:36px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cancel-option{display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:8px}
+.cancel-option.selected{border-color:var(--red);background:var(--red-light)}
+.star-row{display:flex;gap:6px;justify-content:center;margin:10px 0}
+.star-row span{font-size:30px;cursor:pointer;color:#ddd}
+.star-row span.lit{color:#FFA000}
+
+/* ===== FIX 1: AGENDA FLEXÍVEL ===== */
+.agenda-day-row{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:.5px solid var(--border)}
+.agenda-day-row:last-child{border-bottom:none}
+.agenda-day-label{width:32px;font-size:13px;font-weight:500;flex-shrink:0}
+.agenda-time-inputs{display:flex;align-items:center;gap:6px;flex:1}
+.time-input{border:.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:12px;width:70px;background:var(--white);color:var(--text)}
+.time-input:focus{outline:none;border-color:var(--blue)}
+.agenda-day-row.disabled .agenda-time-inputs{opacity:.35;pointer-events:none}
+
+/* ===== FIX 2: VISÃO DE SLOTS DO DIA ===== */
+.day-slot-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px}
+.day-slot-row.free{background:var(--green-light)}
+.day-slot-row.occupied{background:#f5f5f5}
+.day-slot-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-free{background:var(--green)}
+.dot-occ{background:#bbb}
+
+/* ===== FIX 3: PAGAMENTOS ===== */
+.pay-item{border:.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.pay-status{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.ps-released{background:var(--green-light);color:var(--green)}
+.ps-pending{background:var(--yellow-light);color:var(--yellow)}
+.ps-waiting{background:var(--orange-light);color:var(--orange)}
+
+/* ===== FIX 5: VEÍCULO FORM ===== */
+.veh-form-section{border:.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+
+@keyframes prog2{from{width:0}to{width:100%}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="topbar" id="topbar" style="display:none">
+    <span class="back" id="backBtn" style="display:none">&#8592;</span>
+    <h1 id="topTitle">AutoCare</h1>
+    <div class="av-top" id="avatarEl">MC</div>
+  </div>
+  <div class="tabs" id="viewTabs" style="display:none">
+    <div class="tab" onclick="switchView('client')">Cliente</div>
+    <div class="tab" onclick="switchView('provider')">Prestador</div>
+    <div class="tab active" onclick="switchView('admin')">Admin</div>
+  </div>
+  <div id="screens">
+
+    <!-- ===== CLIENT SPLASH ===== -->
+    <div class="screen full active" id="s-splash" style="padding:0">
+      <div class="splash">
+        <div class="splash-logo">🚗</div>
+        <h1 style="color:#fff;font-size:26px;font-weight:500;margin-bottom:8px">AutoCare</h1>
+        <p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:40px;line-height:1.6">Serviços automotivos no seu endereço.<br>Rápido, seguro e sem surpresas.</p>
+        <button class="btn btn-white" onclick="showLoginScreen('client')">Entrar na conta</button>
+        <div style="height:10px"></div>
+        <button class="btn btn-ghost" onclick="goScreen('s-reg1')">Criar conta grátis</button>
+        <div style="margin-top:20px;font-size:11px;color:rgba(255,255,255,.5)">Vila Madalena · São Paulo</div>
+      </div>
+    </div>
+
+    <!-- CLIENT REG -->
+    <div class="screen full" id="s-reg1" style="padding:0">
+      <div class="auth-header"><h2>Criar conta</h2><p>Passo 1 de 3</p></div>
+      <div class="auth-body">
+        <div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+        <div class="label">Nome completo</div><input class="input" placeholder="Seu nome">
+        <div class="label">E-mail</div><input class="input" type="email" placeholder="seu@email.com">
+        <div class="label">Telefone</div><input class="input" type="tel" placeholder="(11) 99999-9999">
+        <div class="label">Senha</div><input class="input" type="password" placeholder="Mínimo 6 caracteres">
+        <button class="btn btn-primary" onclick="goScreen('s-reg2')">Continuar →</button>
+        <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)">Já tem conta? <span style="color:var(--blue);cursor:pointer" onclick="doLogin('client')">Entrar</span></div>
+      </div>
+    </div>
+    <div class="screen full" id="s-reg2" style="padding:0">
+      <div class="auth-header"><h2>Endereço principal</h2><p>Passo 2 de 3</p></div>
+      <div class="auth-body">
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
+        <div class="info-box info-blue">📍 Usado para encontrar prestadores na sua região.</div>
+        <div class="label">CEP</div><input class="input" placeholder="05430-000">
+        <div class="label">Rua</div><input class="input" placeholder="Rua Harmonia">
+        <div class="label">Número</div><input class="input" placeholder="120">
+        <div class="label">Bairro</div>
+        <select class="input"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="goScreen('s-reg1')">← Voltar</button>
+          <button class="btn btn-primary" onclick="goScreen('s-reg3')">Continuar →</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen full" id="s-reg3" style="padding:0">
+      <div class="auth-header"><h2>Endereço de trabalho</h2><p>Passo 3 de 3 · Opcional</p></div>
+      <div class="auth-body">
+        <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div>
+        <div class="info-box info-orange">💼 Adicione agora ou depois no perfil.</div>
+        <div class="label">CEP</div><input class="input" placeholder="01310-100">
+        <div class="label">Rua</div><input class="input" placeholder="Av. Paulista">
+        <div class="label">Bairro</div><select class="input"><option>Bela Vista</option><option>Consolação</option><option>Jardins</option></select>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="goScreen('s-reg2')">← Voltar</button>
+          <button class="btn btn-outline" style="flex:1" onclick="doLogin('client')">Pular</button>
+          <button class="btn btn-primary" style="flex:2" onclick="doLogin('client')">Concluir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENT HOME -->
+    <div class="screen" id="s-home">
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;color:var(--muted)">Olá, Marcello 👋</div>
+        <div style="font-size:16px;font-weight:500">O que seu carro precisa?</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">📍 Vila Madalena · São Paulo</div>
+      </div>
+      <input class="input" placeholder="Buscar serviço...">
+      <div class="cat-grid" id="catGrid"></div>
+      <hr class="divider">
+      <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS RECENTES</div>
+      <div class="card" style="cursor:pointer" onclick="goScreen('s-job-status')">
+        <div class="row"><span style="font-size:13px;font-weight:500">Troca de óleo + filtro</span><span class="badge badge-orange">Em andamento</span></div>
+        <div style="font-size:12px;color:var(--muted)">VW Gol 2019 · 06 mai · 11:00 · Vila Madalena</div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="goScreen('s-vehicle-history')">
+        <div class="row"><span style="font-size:13px;font-weight:500">Higienização interna</span><span class="badge badge-green">Concluído</span></div>
+        <div style="font-size:12px;color:var(--muted)">Toyota Corolla · 20 abr · R$ 150</div>
+      </div>
+    </div>
+
+    <!-- SERVIÇOS -->
+    <div class="screen" id="s-svc-list">
+      <div style="font-size:15px;font-weight:500;margin-bottom:2px" id="svcCatTitle">Categoria</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Vila Madalena · prestadores disponíveis</div>
+      <div class="card" id="svcList"></div>
+    </div>
+
+    <!-- JOB FLOW -->
+    <div class="screen" id="jf-vehicle"><div class="progress-wrap" id="jp1"></div><div style="font-size:14px;font-weight:500;margin-bottom:2px" id="jfSvcName">Serviço</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="jfSvcMeta"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Qual veículo?</div><div id="vehList"></div><button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="goScreen('s-add-vehicle')">+ Adicionar veículo</button><button class="btn btn-primary" onclick="jfGo('jf-problem',2)">Continuar →</button></div>
+    <div class="screen" id="jf-problem"><div class="progress-wrap" id="jp2"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Descreva o problema</div><textarea class="input" id="jfDesc" rows="4" placeholder="Ex: Óleo no nível mínimo..."></textarea><div class="photo-upload" onclick="showToast('📷 Foto adicionada!')"><div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para adicionar fotos (opcional)</div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goToPartCheck()">Continuar →</button></div></div>
+    <div class="screen" id="jf-parts"><div class="progress-wrap" id="jp3"></div><div style="text-align:center;padding:14px 0"><div style="font-size:28px;margin-bottom:8px">📦</div><div style="font-size:15px;font-weight:500;margin-bottom:4px">Verificando peças...</div><div style="font-size:12px;color:var(--muted)">Consultando fornecedores em SP</div><div style="margin:14px auto;width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;background:var(--blue)" id="partsBar"></div></div></div><div class="card" id="partsCard" style="display:none"><div class="row"><span style="font-size:13px;font-weight:500" id="partItemName">Peça</span><span class="badge badge-green">✓ Disponível</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partLeadInfo"></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Preço estimado</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="partTotalPrice">R$ -</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partBreak"></div></div><div class="card" id="partsLeadWarning" style="display:none;background:var(--orange-light);border-color:#FFCCBC"><div style="font-size:12px;font-weight:500;color:var(--orange);margin-bottom:4px">⏱ Horários consideram entrega da peça</div><div style="font-size:11px;color:var(--orange)" id="partsLeadExplain"></div></div><div class="card" id="partsAdminWarning" style="display:none;background:var(--red-light);border-color:#FFCDD2"><div style="font-size:12px;font-weight:500;color:var(--red);margin-bottom:4px">🔒 Peça aguardando confirmação do admin</div><div style="font-size:11px;color:var(--red)">Os horários serão liberados após o admin confirmar a disponibilidade da peça no supply chain.</div></div><button class="btn btn-primary" id="partsContinueBtn" style="display:none;margin-top:8px" onclick="jfGo('jf-address',4)">Escolher endereço →</button></div>
+    <div class="screen" id="jf-address"><div class="progress-wrap" id="jp4"></div><div style="font-size:13px;font-weight:500;margin-bottom:14px">Onde será o serviço?</div><div class="addr-option selected" id="ja-home" onclick="selectJobAddr('home','Vila Madalena','Rua Harmonia, 120')"><div class="addr-icon">🏠</div><div><div style="font-size:13px;font-weight:500">Casa</div><div style="font-size:11px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div></div><div class="addr-option" id="ja-work" onclick="selectJobAddr('work','Bela Vista','Av. Paulista, 1000')"><div class="addr-icon">💼</div><div><div style="font-size:13px;font-weight:500">Trabalho</div><div style="font-size:11px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div><div class="addr-option" id="ja-other" onclick="selectJobAddr('other','','')"><div class="addr-icon">📍</div><div><div style="font-size:13px;font-weight:500">Outro endereço</div></div></div><div id="otherAddrForm" style="display:none;margin-top:4px"><div class="label">Bairro</div><select class="input" id="otherBairro" onchange="selectJobAddr('other',this.value,this.value)"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select></div><div class="card" id="addrMatchCard" style="background:var(--blue-light);margin-top:8px"><div style="font-size:12px;font-weight:500;color:var(--blue)" id="addrMatchTitle">✓ Prestadores disponíveis</div><div style="font-size:11px;color:var(--blue);margin-top:2px" id="addrMatchDetail"></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="jfGo('jf-schedule',5)">Escolher horário →</button></div>
+    <div class="screen" id="jf-schedule">
+      <div class="progress-wrap" id="jp5"></div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">Data e horário</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px" id="schedInfo">📍 Vila Madalena</div>
+      <div class="card" style="padding:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;font-weight:500" id="calMonthLabel">Maio 2025</span><div style="display:flex;gap:6px"><button class="btn-ghost-sm" onclick="changeCalMonth(-1)">‹</button><button class="btn-ghost-sm" onclick="changeCalMonth(1)">›</button></div></div>
+        <div class="cal-grid" style="margin-bottom:6px"><div style="font-size:10px;color:var(--muted)">D</div><div style="font-size:10px;color:var(--muted)">S</div><div style="font-size:10px;color:var(--muted)">T</div><div style="font-size:10px;color:var(--muted)">Q</div><div style="font-size:10px;color:var(--muted)">Q</div><div style="font-size:10px;color:var(--muted)">S</div><div style="font-size:10px;color:var(--muted)">S</div></div>
+        <div class="cal-grid" id="calDays"></div>
+      </div>
+      <div id="slotsSection" style="display:none">
+        <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px" id="slotsDateLabel">Horários disponíveis</div>
+        <div id="slotsLegend" style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <span style="font-size:10px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:3px;display:inline-block"></span>Disponível</span>
+          <span style="font-size:10px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--orange-light);border:1.5px solid #FFCCBC;border-radius:3px;display:inline-block"></span>Aguard. peça</span>
+          <span style="font-size:10px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#f5f5f5;border:1.5px solid #f0f0f0;border-radius:3px;display:inline-block"></span>Bloqueado</span>
+        </div>
+        <div class="slots-grid" id="slotsGrid"></div>
+      </div>
+      <div id="noSlotsMsg" style="display:none;text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum horário disponível.<br>Tente outro dia.</div>
+      <button class="btn btn-primary" id="schedContinueBtn" style="display:none;margin-top:12px" onclick="jfGo('jf-confirm',6)">Confirmar horário →</button>
+    </div>
+    <div class="screen" id="jf-confirm"><div class="progress-wrap" id="jp6"></div><div style="font-size:15px;font-weight:500;margin-bottom:14px">Resumo do pedido</div><div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-size:13px;font-weight:500" id="cfSvc">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span id="cfVeh">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Local</span><span id="cfAddr" style="font-size:12px">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span id="cfDate">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Horário</span><span id="cfTime">-</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:14px;font-weight:500">Total</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="cfPrice">R$ -</span></div></div><div class="info-box info-yellow">⏳ Após pagamento, prestador alocado em até 15 min por ranking e disponibilidade.</div><div style="display:flex;gap:8px;margin-bottom:10px"><div class="card" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--blue)" id="payCard" onclick="selectPay('card')"><div style="font-size:18px">💳</div><div style="font-size:12px;font-weight:500;color:var(--blue)">Cartão</div></div><div class="card" style="flex:1;text-align:center;cursor:pointer" id="payPix" onclick="selectPay('pix')"><div style="font-size:18px">⚡</div><div style="font-size:12px;font-weight:500">Pix</div></div></div><button class="btn btn-primary" onclick="createJob()">✓ Confirmar e pagar</button></div>
+    <div class="screen" id="jf-created"><div style="text-align:center;padding:24px 0 16px"><div style="font-size:48px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Job criado!</div><div style="font-size:13px;color:var(--muted)" id="jobCreatedInfo">-</div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">O QUE ACONTECE AGORA</div><div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0">✓</div><span style="font-size:13px;font-weight:500;color:var(--green)">Pagamento confirmado</span></div><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0">⏳</div><div><span style="font-size:13px;font-weight:500;color:var(--yellow)">Alocando prestador</span><div style="font-size:11px;color:var(--muted)">Por ranking · até 15 min</div></div></div><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;flex-shrink:0">3</div><div><span style="font-size:13px;color:var(--muted)">Execução do serviço</span><div style="font-size:11px;color:var(--muted)" id="jcDate">-</div></div></div></div></div><button class="btn btn-primary" onclick="goScreen('s-job-status')">Acompanhar job</button><div style="height:8px"></div><button class="btn btn-outline" onclick="goScreen('s-home')">Voltar para home</button></div>
+
+    <!-- JOB STATUS CLIENT -->
+    <div class="screen" id="s-job-status">
+      <div style="font-size:15px;font-weight:500;margin-bottom:12px">Status do job</div>
+      <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Aceito</div></div><div class="sp-step active"><div class="sp-dot">▶</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Concluído</div></div></div>
+      <div class="card"><div style="display:flex;align-items:center;gap:10px"><div class="av av-b">CR</div><div><div style="font-size:13px;font-weight:500">Carlos Ribeiro</div><div style="font-size:11px;color:var(--muted)">⭐ 8.7 · 48 jobs</div></div><span class="badge badge-orange" style="margin-left:auto">Executando</span></div></div>
+      <div class="map-mock"><span style="width:10px;height:10px;background:var(--blue);border-radius:50%;display:inline-block;margin-right:6px"></span>Vila Madalena · Prestador no local</div>
+      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span>Troca de óleo + filtro</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>06 mai · 11:00</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;color:var(--muted)">Valor</span><span style="color:var(--blue);font-weight:500">R$ 240</span></div></div>
+      <div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goScreen('s-cancel-client')">Cancelar job</button><button class="btn btn-primary btn-sm" style="flex:2" onclick="goScreen('s-approve')">Aprovar serviço ✓</button></div>
+    </div>
+
+    <!-- APROVAÇÃO -->
+    <div class="screen" id="s-approve">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Serviço concluído!</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Verifique e aprove para liberar o pagamento</div>
+      <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Executado</div></div><div class="sp-step active"><div class="sp-dot">?</div><div class="sp-label">Sua aprovação</div></div></div>
+      <div class="grid2" style="margin-bottom:14px"><div class="card" style="padding:10px;text-align:center"><div style="font-size:10px;font-weight:500;color:var(--muted);margin-bottom:6px">ANTES</div><div style="height:60px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:4px">🚗</div><div style="font-size:10px;color:var(--muted)">10:58</div></div><div class="card" style="padding:10px;text-align:center"><div style="font-size:10px;font-weight:500;color:var(--muted);margin-bottom:6px">DEPOIS</div><div style="height:60px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:4px">✨</div><div style="font-size:10px;color:var(--muted)">11:54</div></div></div>
+      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Prestador</span><span>Carlos Ribeiro</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Duração</span><span>52 min</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor cobrado</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ 240</span></div></div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">Como foi o serviço?</div>
+      <div class="card">
+        <div class="star-row" id="starRow"><span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span></div>
+        <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px" id="starLabel">Toque para avaliar</div>
+        <textarea class="input" rows="2" placeholder="Como foi o atendimento?"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="openClaimModal()">⚠️ Reclamação</button><button class="btn btn-green" style="flex:2" onclick="approveJob()">✓ Aprovar e pagar</button></div>
+    </div>
+    <div class="screen" id="s-approved"><div style="text-align:center;padding:20px 0"><div style="font-size:52px;margin-bottom:12px">🎉</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Obrigado!</div><div style="font-size:13px;color:var(--muted)">Pagamento de R$ 240 liberado.</div></div><div class="card" style="background:var(--green-light);border-color:#A5D6A7;text-align:center"><div style="font-size:13px;font-weight:500;color:var(--green)">✓ Serviço concluído com sucesso</div><div style="font-size:12px;color:var(--green);margin-top:4px">Garantia de 30 dias · Carlos Ribeiro</div></div><button class="btn btn-primary" onclick="goScreen('s-vehicle-history')">Ver histórico do veículo</button><div style="height:8px"></div><button class="btn btn-outline" onclick="goScreen('s-home')">Voltar para home</button></div>
+
+    <!-- CANCELAMENTO CLIENTE -->
+    <div class="screen" id="s-cancel-client">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Cancelar job</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Job #2047 · Troca de óleo + filtro · 06 mai 11:00</div>
+      <div class="info-box info-orange">⚠️ No trial: sem taxa de cancelamento.</div>
+      <div id="cancelReasons">
+        <div class="cancel-option" id="cr-1" onclick="selectCancelReason('cr-1')"><input type="radio" name="cr" style="margin-right:6px">Mudei de ideia</div>
+        <div class="cancel-option" id="cr-2" onclick="selectCancelReason('cr-2')"><input type="radio" name="cr" style="margin-right:6px">Preciso reagendar</div>
+        <div class="cancel-option" id="cr-3" onclick="selectCancelReason('cr-3')"><input type="radio" name="cr" style="margin-right:6px">Problema resolvido de outra forma</div>
+        <div class="cancel-option" id="cr-4" onclick="selectCancelReason('cr-4')"><input type="radio" name="cr" style="margin-right:6px">Outro motivo</div>
+      </div>
+      <div class="card" style="background:var(--blue-light);margin-top:8px"><div style="font-size:13px;font-weight:500;color:var(--blue);margin-bottom:4px">Quer reagendar?</div><button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="goScreen('s-reschedule')">Reagendar →</button></div>
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goBack()">Voltar</button><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="confirmCancel('client')">Confirmar cancelamento</button></div>
+    </div>
+
+    <!-- REAGENDAMENTO -->
+    <div class="screen" id="s-reschedule">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Reagendar job</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Troca de óleo + filtro · VW Gol 2019</div>
+      <div class="info-box info-blue">📅 Escolha uma nova data.</div>
+      <div class="card" style="padding:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;font-weight:500" id="reschedCalLabel">Maio 2025</span><div style="display:flex;gap:6px"><button class="btn-ghost-sm" onclick="changeCalMonth(-1)">‹</button><button class="btn-ghost-sm" onclick="changeCalMonth(1)">›</button></div></div>
+        <div class="cal-grid" style="margin-bottom:6px"><div style="font-size:10px;color:var(--muted)">D</div><div style="font-size:10px;color:var(--muted)">S</div><div style="font-size:10px;color:var(--muted)">T</div><div style="font-size:10px;color:var(--muted)">Q</div><div style="font-size:10px;color:var(--muted)">Q</div><div style="font-size:10px;color:var(--muted)">S</div><div style="font-size:10px;color:var(--muted)">S</div></div>
+        <div class="cal-grid" id="reschedDays"></div>
+      </div>
+      <div id="reschedSlots" style="display:none"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">Horários disponíveis</div><div class="slots-grid" id="reschedSlotsGrid"></div></div>
+      <button class="btn btn-primary" id="reschedConfirmBtn" style="display:none;margin-top:12px" onclick="confirmReschedule()">✓ Confirmar reagendamento</button>
+    </div>
+
+    <!-- HISTÓRICO DO VEÍCULO -->
+    <div class="screen" id="s-vehicle-history">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:15px;font-weight:500">Histórico do veículo</div><div style="display:flex;gap:6px"><button class="btn-ghost-sm" id="vhBtn1" onclick="switchVehicle(1)">Gol</button><button class="btn-ghost-sm" id="vhBtn2" onclick="switchVehicle(2)">Corolla</button></div></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="vhSubtitle">Toyota Corolla 2021 · XYZ-5678</div>
+      <div class="card" style="background:var(--blue-light);padding:12px 14px;margin-bottom:14px"><div style="display:flex;gap:8px;margin-bottom:8px"><div class="stat" style="flex:1;background:var(--white)"><div class="n" id="vhTotalSvcs">4</div><div class="l">Serviços</div></div><div class="stat" style="flex:1;background:var(--white)"><div class="n" id="vhTotalSpent">R$ 570</div><div class="l">Total gasto</div></div></div><div style="font-size:12px;color:var(--blue)" id="vhLastSvc">Último: Higienização interna · 20 abr</div></div>
+      <div id="vhList"></div>
+    </div>
+
+    <!-- ===== FIX 5: ADICIONAR VEÍCULO ===== -->
+    <div class="screen" id="s-add-vehicle">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Adicionar veículo</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Preencha os dados do veículo</div>
+      <div class="veh-form-section">
+        <div class="label">Marca</div>
+        <select class="input" id="vehMarca" onchange="updateModels()">
+          <option value="">Selecione a marca...</option>
+          <option>Chevrolet</option><option>Fiat</option><option>Ford</option><option>Honda</option>
+          <option>Hyundai</option><option>Jeep</option><option>Kia</option><option>Mitsubishi</option>
+          <option>Nissan</option><option>Peugeot</option><option>Renault</option><option>Suzuki</option>
+          <option>Toyota</option><option>Volkswagen</option>
+        </select>
+        <div class="label">Modelo</div>
+        <select class="input" id="vehModelo"><option value="">Selecione primeiro a marca</option></select>
+        <div class="label">Ano</div>
+        <select class="input" id="vehAno">
+          <option value="">Selecione...</option>
+          <option>2025</option><option>2024</option><option>2023</option><option>2022</option>
+          <option>2021</option><option>2020</option><option>2019</option><option>2018</option>
+          <option>2017</option><option>2016</option><option>2015</option>
+        </select>
+        <div class="label">Combustível</div>
+        <select class="input" id="vehComb"><option>Flex</option><option>Gasolina</option><option>Etanol</option><option>Diesel</option><option>Elétrico</option><option>Híbrido</option></select>
+      </div>
+      <div class="veh-form-section">
+        <div class="label">Placa</div>
+        <input class="input" id="vehPlaca" placeholder="ABC-1234 ou ABC1D23" oninput="this.value=this.value.toUpperCase()">
+        <div class="label">Cor (opcional)</div>
+        <select class="input" id="vehCor"><option value="">Selecione...</option><option>Branco</option><option>Prata</option><option>Preto</option><option>Cinza</option><option>Vermelho</option><option>Azul</option><option>Outro</option></select>
+        <div class="label">Apelido (opcional)</div>
+        <input class="input" id="vehApelido" placeholder="Ex: Meu Gol, Corolla do trabalho">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="goBack()">← Voltar</button>
+        <button class="btn btn-primary" onclick="saveVehicle()">✓ Adicionar veículo</button>
+      </div>
+    </div>
+
+    <!-- VEÍCULOS LIST -->
+    <div class="screen" id="s-vehicles">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:15px;font-weight:500">Meus veículos</div><button class="btn btn-primary btn-sm" onclick="goScreen('s-add-vehicle')">+ Adicionar</button></div>
+      <div id="vehicleListEl"></div>
+    </div>
+
+    <!-- PERFIL CLIENTE -->
+    <div class="screen" id="s-profile">
+      <div class="profile-header"><div class="profile-av">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px">📍 Vila Madalena</div></div></div>
+      <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">🏠 Casa</div><div style="font-size:12px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div><span class="badge badge-green">Principal</span></div></div>
+      <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">💼 Trabalho</div><div style="font-size:12px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div></div>
+      <hr class="divider">
+      <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div>
+    </div>
+
+    <!-- ===== PROVIDER AUTH ===== -->
+    <div class="screen full" id="p-splash" style="padding:0"><div class="splash"><div class="splash-logo">🔧</div><h1 style="color:#fff;font-size:24px;font-weight:500;margin-bottom:8px">AutoCare Parceiros</h1><p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:40px;line-height:1.6">Trabalhe com flexibilidade.<br>Atenda na sua região.</p><button class="btn btn-white" onclick="showLoginScreen('provider')">Já sou parceiro · Entrar</button><div style="height:10px"></div><button class="btn btn-ghost" onclick="goScreen('p-reg1')">Quero ser parceiro</button></div></div>
+
+    <!-- FIX 4: botão voltar em todos os passos do cadastro do prestador -->
+    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input class="input" placeholder="Seu nome"><div class="label">CPF</div><input class="input" placeholder="000.000.000-00"><div class="label">E-mail</div><input class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input class="input" type="password" placeholder="Mínimo 6 caracteres"><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-splash')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg2')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">❄️</div><div class="sl">Ar-cond.</div></div></div><div class="label">Anos de experiência</div><select class="input"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg1')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro. Peças entregues no seu endereço.</div><div class="label">Seu endereço base</div><input class="input" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg2')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg3')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg5')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg4')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-pending')">Enviar cadastro</button></div></div></div>
+    <div class="screen full" id="p-pending" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px">⏳</div><div style="font-size:20px;font-weight:500;margin-bottom:8px">Cadastro enviado!</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Análise em até <strong>48h</strong>.</div><button class="btn btn-outline" onclick="doLogin('provider')">Acompanhar status</button></div></div>
+
+    <!-- ===== AUTH LOGIN (REAL) ===== -->
+    <div class="screen full" id="auth-login" style="padding:0">
+      <div class="splash">
+        <div class="splash-logo" id="auth-login-icon">🚗</div>
+        <h1 style="color:#fff;font-size:22px;font-weight:500;margin-bottom:6px" id="auth-login-title">Entrar na conta</h1>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin-bottom:28px" id="auth-login-sub">AutoCare</p>
+        <div style="width:100%;max-width:320px;margin:0 auto">
+          <input id="auth-email" type="email" placeholder="Seu e-mail"
+            style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;
+                   margin-bottom:12px;box-sizing:border-box;outline:none">
+          <input id="auth-password" type="password" placeholder="Senha"
+            style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;
+                   margin-bottom:8px;box-sizing:border-box;outline:none">
+          <div id="auth-error" style="color:#ffcccc;font-size:13px;min-height:20px;
+                                       margin-bottom:12px;text-align:center"></div>
+          <button id="auth-submit-btn" class="btn btn-white" onclick="submitLogin()"
+            style="width:100%">Entrar</button>
+          <div style="height:10px"></div>
+          <button class="btn btn-ghost" onclick="goScreen(_authContext === 'client' ? 's-splash' : 'p-splash')"
+            style="width:100%">← Voltar</button>
+        </div>
+        <div style="margin-top:24px;font-size:11px;color:rgba(255,255,255,.4)">
+          AutoCare · Vila Madalena
+        </div>
+      </div>
+    </div>
+    <!-- ===== PROVIDER APP ===== -->
+    <div class="screen" id="p-dashboard">
+      <div style="margin-bottom:14px"><div style="font-size:13px;color:var(--muted)">Olá, Carlos 👋</div><div style="font-size:16px;font-weight:500">Dashboard · Prestador</div><div style="margin-top:4px"><span class="badge badge-green" style="font-size:10px">✓ Aprovado</span> <span style="font-size:11px;color:var(--muted)">📍 Vila Madalena, Pinheiros</span></div></div>
+      <div class="notif-banner" onclick="goScreen('p-offer')" id="offerNotif"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s">Troca de óleo · Vila Madalena · 07 mai 11:00 · R$ 240</div></div><div class="nb-badge">14:32</div></div>
+      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n">2</div><div class="l">Jobs confirmados</div></div><div class="stat"><div class="n">R$ 360</div><div class="l">Ganhos hoje</div></div></div>
+      <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS DE HOJE</div>
+      <div class="job-card confirmed" style="cursor:pointer" onclick="goScreen('p-job-exec')"><div class="row"><span style="font-size:13px;font-weight:500">Troca de bateria</span><span class="badge badge-orange">Em andamento</span></div><div style="font-size:12px;color:var(--muted)">Pinheiros · 14:00 · Honda Civic · R$ 440</div></div>
+      <div class="job-card confirmed"><div class="row"><span style="font-size:13px;font-weight:500">Calibragem</span><span class="badge badge-green">Confirmado</span></div><div style="font-size:12px;color:var(--muted)">Vila Madalena · 16:00 · VW Polo · R$ 20</div></div>
+    </div>
+
+    <!-- OFERTA PRESTADOR -->
+    <div class="screen" id="p-offer">
+      <div class="offer-card">
+        <div class="offer-badge">🔔 Nova oferta de job</div>
+        <div class="countdown-ring"><svg width="80" height="80" viewBox="0 0 80 80"><circle fill="none" stroke="#f0f0f0" stroke-width="6" cx="40" cy="40" r="34"/><circle fill="none" stroke="var(--blue)" stroke-width="6" stroke-linecap="round" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0" id="countdownArc"/></svg><div class="countdown-num" id="countdownNum">15:00</div></div>
+        <div style="font-size:12px;color:var(--muted)">Você tem 15 minutos para aceitar</div>
+      </div>
+      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-size:13px;font-weight:500">Troca de óleo + filtro</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>07 mai · 11:00</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Bairro</span><span>📍 Vila Madalena</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span>VW Gol 2019</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ 240</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px">Preço fixo · Não pode ser alterado</div></div>
+      <div class="card" style="background:var(--orange-light);border-color:#FFCCBC"><div style="font-size:12px;font-weight:500;color:var(--orange);margin-bottom:4px">📦 Peças incluídas</div><div style="font-size:12px;color:var(--orange)">Óleo motor 5W30 (4L) + Filtro de óleo</div><div style="font-size:11px;color:var(--orange);margin-top:4px">Entregues no seu endereço até 09:00</div></div>
+      <div style="display:flex;gap:10px;margin-top:4px"><button class="btn btn-outline-red" onclick="rejectOffer()">✗ Recusar</button><button class="btn btn-green" onclick="acceptOffer()">✓ Aceitar job</button></div>
+    </div>
+
+    <div class="screen" id="p-offer-accepted"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Job aceito!</div></div><div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-weight:500">Troca de óleo + filtro</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="font-size:16px;font-weight:500;color:var(--green)">R$ 240</span></div></div><div class="info-box info-orange">📦 Peças entregues no seu endereço até 09:00.</div><button class="btn btn-primary" onclick="goScreen('p-dashboard')">Ir para o dashboard</button></div>
+    <div class="screen" id="p-offer-rejected"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">😔</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Oferta recusada</div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">MOTIVO</div><div style="display:flex;flex-direction:column;gap:8px"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="radio" name="rr" checked><span style="font-size:13px">Indisponível neste horário</span></label><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="radio" name="rr"><span style="font-size:13px">Não consigo chegar neste bairro</span></label><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="radio" name="rr"><span style="font-size:13px">Não me sinto confortável com este serviço</span></label></div></div><div class="info-box info-yellow">⚠️ Recusas frequentes impactam seu ranking.</div><button class="btn btn-primary" onclick="confirmReject()">Confirmar recusa</button></div>
+
+    <!-- EXECUÇÃO DO JOB -->
+    <div class="screen" id="p-job-exec">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Executando Job #2048</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Troca de bateria · Honda Civic 2020 · Pinheiros</div>
+      <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step active"><div class="sp-dot">▶</div><div class="sp-label">Em andamento</div></div><div class="sp-step"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Concluído</div></div></div>
+      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Cliente</span><span>Ana Lima</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="color:var(--blue);font-weight:500;font-size:15px">R$ 440</span></div></div>
+      <div class="card" style="background:var(--green-light);border-color:#A5D6A7"><div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:4px">📦 Peça recebida</div><div style="font-size:12px;color:var(--green)">✓ Bateria 60Ah selada · 12:30</div></div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Checklist obrigatório</div>
+      <div class="card" style="padding:0 14px">
+        <div class="chk-item"><div class="chk-box" id="chk1" onclick="doChk(1)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">📷 Foto ANTES</div><div class="photo-box" style="margin-top:8px" id="photoBefore" onclick="uploadExecPhoto('before')"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:11px;color:var(--muted)">Toque para fotografar</div></div></div></div>
+        <div class="chk-item"><div class="chk-box" id="chk2" onclick="doChk(2)"></div><div><div style="font-size:13px;font-weight:500">▶ Iniciar execução</div><div id="startTimeEl" style="display:none;font-size:11px;color:var(--green);margin-top:4px"></div></div></div>
+        <div class="chk-item"><div class="chk-box" id="chk3" onclick="doChk(3)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">📷 Foto APÓS</div><div class="photo-box" style="margin-top:8px" id="photoAfter" onclick="uploadExecPhoto('after')"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:11px;color:var(--muted)">Toque para fotografar</div></div></div></div>
+        <div class="chk-item"><div class="chk-box" id="chk4" onclick="doChk(4)"></div><div><div style="font-size:13px;font-weight:500">🔧 Confirmar peças</div><div style="font-size:11px;color:var(--muted)">Bateria 60Ah selada</div></div></div>
+      </div>
+      <div id="chkWarning" style="display:none" class="info-box info-red"></div>
+      <button class="btn btn-green" style="margin-top:8px" onclick="finalizeExec()">✓ Finalizar job</button>
+      <div style="height:8px"></div>
+      <button class="btn btn-outline-red btn-sm" style="width:100%" onclick="goScreen('p-cancel')">Cancelar job</button>
+    </div>
+
+    <div class="screen" id="p-job-done"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">⏳</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Aguardando aprovação</div></div><div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Executado</div></div><div class="sp-step active"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Pago</div></div></div><div class="card"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor a receber</span><span style="color:var(--green);font-weight:500;font-size:15px">R$ 440</span></div></div><button class="btn btn-outline" onclick="goScreen('p-ranking')">Ver meu ranking</button></div>
+
+    <div class="screen" id="p-cancel"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Cancelar job</div><div class="info-box info-red">⚠️ Cancelamentos reduzem seu ranking.</div><div id="pCancelReasons"><div class="cancel-option" id="pc-1" onclick="selectPCancelReason('pc-1')"><input type="radio" name="pcr" style="margin-right:6px">Emergência pessoal</div><div class="cancel-option" id="pc-2" onclick="selectPCancelReason('pc-2')"><input type="radio" name="pcr" style="margin-right:6px">Veículo não acessível</div><div class="cancel-option" id="pc-3" onclick="selectPCancelReason('pc-3')"><input type="radio" name="pcr" style="margin-right:6px">Problema com as peças</div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goBack()">Voltar</button><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="confirmCancel('provider')">Confirmar</button></div></div>
+
+    <!-- RANKING PRESTADOR -->
+    <div class="screen" id="p-ranking">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Meu ranking</div>
+      <div class="card" style="text-align:center;background:var(--blue-light)"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">SCORE GERAL</div><div style="font-size:48px;font-weight:700;color:var(--blue)">8.7</div><div style="font-size:13px;color:var(--blue);margin-top:4px">🥇 Prestador Ouro</div></div>
+      <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px">BREAKDOWN</div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes (40%)</span><span style="color:var(--green);font-weight:500">9.4</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:94%;height:100%;border-radius:3px;background:var(--green)"></div></div></div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Taxa de conclusão (25%)</span><span style="color:var(--green);font-weight:500">9.6</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:96%;height:100%;border-radius:3px;background:var(--green)"></div></div></div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade (20%)</span><span style="color:var(--blue);font-weight:500">8.0</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:80%;height:100%;border-radius:3px;background:var(--blue)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Reclamações (15%)</span><span style="color:var(--green);font-weight:500">9.0</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:90%;height:100%;border-radius:3px;background:var(--green)"></div></div></div>
+      </div>
+      <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">IMPACTO NO DISPATCH</div><div style="font-size:13px;color:var(--green)">✓ Você é o primeiro a receber ofertas em Vila Madalena e Pinheiros</div></div>
+    </div>
+
+    <!-- ===== FIX 1+2: AGENDA FLEXÍVEL COM VISÃO DO DIA ===== -->
+    <div class="screen" id="p-agenda">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Minha agenda</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Configure seus horários de atendimento</div>
+      <div class="info-box info-blue">💡 Flexível — trabalhe os dias e horários que preferir, inclusive noturnos ou aos fins de semana.</div>
+
+      <!-- Sub-tabs agenda -->
+      <div class="supply-nav" style="margin-bottom:14px">
+        <div class="snav-item active" id="atab-config" onclick="switchAgendaTab('config')">Configurar</div>
+        <div class="snav-item" id="atab-view" onclick="switchAgendaTab('view')">Ver hoje</div>
+      </div>
+
+      <!-- Tab: configurar horários flexíveis -->
+      <div id="agenda-config">
+        <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">DIAS E HORÁRIOS DE ATENDIMENTO</div>
+        <div class="card" style="padding:0 14px" id="agendaDaysCard"></div>
+        <div class="info-box info-orange" style="margin-top:10px">📦 Peças são entregues no seu endereço base antes do horário do serviço.</div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="saveAgenda()">Salvar agenda</button>
+      </div>
+
+      <!-- Tab: visão do dia com slots ocupados/livres -->
+      <div id="agenda-view" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:500" id="agendaViewDate">Hoje · Terça, 6 mai</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-ghost-sm" onclick="changeAgendaDay(-1)">‹</button>
+            <button class="btn-ghost-sm" onclick="changeAgendaDay(1)">›</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <div class="stat" style="flex:1;padding:10px"><div class="n" id="agFreeCount" style="color:var(--green)">4</div><div class="l">Livres</div></div>
+          <div class="stat" style="flex:1;padding:10px"><div class="n" id="agOccCount" style="color:var(--orange)">2</div><div class="l">Ocupados</div></div>
+          <div class="stat" style="flex:1;padding:10px"><div class="n" id="agEarnCount" style="color:var(--blue)">R$ 660</div><div class="l">Ganhos</div></div>
+        </div>
+        <div id="agendaDaySlots"></div>
+      </div>
+    </div>
+
+    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500">Carlos Ribeiro</div><div style="color:rgba(255,255,255,.8);font-size:12px">carlos@email.com</div><span class="badge badge-green" style="margin-top:4px;display:inline-block">✓ Aprovado · Score 8.7</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px"><span class="badge badge-blue">🔧 Mecânico</span><span class="badge badge-blue">⚡ Eletricista</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge badge-blue">Vila Madalena</span><span class="badge badge-blue">Pinheiros</span><span class="badge badge-blue">Jardins</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
+
+    <!-- ===== ADMIN ===== -->
+    <div class="screen active" id="a-dashboard">
+      <div style="font-size:16px;font-weight:500;margin-bottom:14px">Painel Admin</div>
+      <div class="grid2" style="margin-bottom:10px"><div class="stat"><div class="n">12</div><div class="l">Jobs hoje</div></div><div class="stat"><div class="n">R$ 2.840</div><div class="l">Receita hoje</div></div></div>
+      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n" style="color:var(--yellow)">4</div><div class="l">Prestadores pendentes</div></div><div class="stat"><div class="n" style="color:var(--orange)">3</div><div class="l">Cotações pendentes</div></div></div>
+      <div style="background:var(--red-light);border:1px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--red)">🚨 1 job sem prestador · Intervenção necessária</div></div>
+      <div style="background:var(--orange-light);border:1px solid #FFCCBC;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--orange)">⚠️ 2 reclamações aguardando análise</div></div>
+      <div class="menu-item" onclick="goScreen('a-services')"><div class="menu-icon">🔧</div><div class="menu-text"><div class="t">Catálogo de serviços</div><div class="s">25 serviços ativos</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-providers')"><div class="menu-icon">👨‍🔧</div><div class="menu-text"><div class="t">Gestão de prestadores</div><div class="s">Aprovar · Suspender · Rejeitar</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-dispatch')"><div class="menu-icon">📡</div><div class="menu-text"><div class="t">Dispatch · Jobs</div><div class="s">Alocação · Aceite · Realocação</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-supply')"><div class="menu-icon">📦</div><div class="menu-text"><div class="t">Supply Chain</div><div class="s">Fornecedores · Peças · Cotações</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-ranking')"><div class="menu-icon">⭐</div><div class="menu-text"><div class="t">Ranking de prestadores</div><div class="s">Score · Tiers · Dispatch priority</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s">2 pendentes</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-jobs')"><div class="menu-icon">📄</div><div class="menu-text"><div class="t">Jobs</div><div class="s">12 hoje</div></div></div>
+      <!-- FIX 3: Pagamentos funciona agora -->
+      <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s">R$ 2.840 hoje · 8 transações</div></div></div>
+      <hr class="divider">
+      <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div>
+    </div>
+
+    <!-- ADMIN SERVIÇOS -->
+    <div class="screen" id="a-services"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:15px;font-weight:500">Catálogo</div><button class="btn btn-primary btn-sm" onclick="openSvcForm(null)">+ Novo</button></div><div class="filter-row" id="filterRow"></div><div id="adminSvcList"></div></div>
+
+    <!-- ADMIN PRESTADORES -->
+    <div class="screen" id="a-providers"><div style="font-size:15px;font-weight:500;margin-bottom:12px">Prestadores</div><div class="filter-row" id="provFilterRow"></div><div id="providerList"></div></div>
+    <div class="screen" id="a-provider-detail"><div id="provDetailContent"></div></div>
+
+    <!-- ADMIN DISPATCH -->
+    <div class="screen" id="a-dispatch">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Dispatch · Jobs</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Alocação por ranking · 15 min por oferta</div>
+      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n" style="color:var(--yellow)">2</div><div class="l">Aguardando aceite</div></div><div class="stat"><div class="n" style="color:var(--green)">5</div><div class="l">Confirmados</div></div></div>
+      <div style="background:var(--red-light);border:1px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:13px;font-weight:500;color:var(--red)">🚨 Job #2055 sem prestador · Martelinho · Moema</div></div>
+      <div class="filter-row" id="dispatchFilter"></div>
+      <div id="dispatchList"></div>
+    </div>
+    <div class="screen" id="a-dispatch-detail"><div id="dispatchDetailContent"></div></div>
+
+    <!-- ADMIN SUPPLY -->
+    <div class="screen" id="a-supply">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Supply Chain</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Gestão manual · Peças com entrega incluída</div>
+      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n">3</div><div class="l">Fornecedores</div></div><div class="stat"><div class="n" style="color:var(--orange)">3</div><div class="l">Cotações pendentes</div></div></div>
+      <div class="info-box info-orange">📦 3 jobs aguardando confirmação de peças. Confirme para liberar a agenda do cliente.</div>
+      <div class="supply-nav"><div class="snav-item active" id="snav-q" onclick="switchSupply('q')">Cotações</div><div class="snav-item" id="snav-p" onclick="switchSupply('p')">Peças</div><div class="snav-item" id="snav-s" onclick="switchSupply('s')">Fornecedores</div></div>
+      <div class="supply-screen active" id="ss-q"><div class="filter-row" id="quotFilter"></div><div id="quotationList"></div></div>
+      <div class="supply-screen" id="ss-p"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Peças</div><button class="btn btn-primary btn-sm" onclick="showToast('+ Nova peça')">+ Nova</button></div><div id="partList"></div></div>
+      <div class="supply-screen" id="ss-s"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Fornecedores</div></div><div id="supplierList"></div></div>
+    </div>
+
+    <!-- ADMIN RANKING -->
+    <div class="screen" id="a-ranking">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Ranking de prestadores</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Score define prioridade no dispatch</div>
+      <div class="card" style="background:#f9f9f9"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">FÓRMULA</div><div style="font-size:12px;line-height:1.8"><span style="color:var(--green)">Nota × 40%</span> + <span style="color:var(--blue)">Conclusão × 25%</span> + <span style="color:var(--orange)">Pontualidade × 20%</span> + <span style="color:var(--muted)">Reclamações × 15%</span></div></div>
+      <div class="filter-row" id="rankFilter"></div>
+      <div id="rankingList"></div>
+    </div>
+    <div class="screen" id="a-provider-rank"><div id="provRankContent"></div></div>
+
+    <!-- ADMIN RECLAMAÇÕES -->
+    <div class="screen" id="a-claims"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Reclamações e garantias</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Análise manual · Impacta ranking</div><div class="filter-row" id="claimsFilter"></div><div id="claimsList"></div></div>
+    <div class="screen" id="a-claim-detail"><div id="claimDetailContent"></div></div>
+
+    <!-- ADMIN JOBS -->
+    <div class="screen" id="a-jobs">
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Jobs de hoje</div>
+      <div class="job-card confirmed"><div class="row"><span style="font-size:13px;font-weight:500">#2047 · Troca de óleo</span><span class="badge badge-orange">Em andamento</span></div><div style="font-size:12px;color:var(--muted)">Marcello · Vila Madalena · 11:00 · R$ 240</div></div>
+      <div class="job-card waiting"><div class="row"><span style="font-size:13px;font-weight:500">#2051 · Filtro de ar</span><span class="badge badge-yellow">Aguardando aceite</span></div><div style="font-size:12px;color:var(--muted)">Roberto · Jardins · 09:00 · R$ 92</div></div>
+      <div class="job-card urgent"><div class="row"><span style="font-size:13px;font-weight:500">#2055 · Martelinho</span><span class="badge badge-red">Sem prestador</span></div><div style="font-size:12px;color:var(--muted)">Pedro · Moema · 10:00 · R$ 200</div></div>
+      <div class="job-card"><div class="row"><span style="font-size:13px;font-weight:500">#2046 · Check-up</span><span class="badge badge-green">Concluído</span></div><div style="font-size:12px;color:var(--muted)">Lúcia · Vila Madalena · 09:00 · R$ 120</div></div>
+    </div>
+
+    <!-- ===== FIX 3: PAGAMENTOS ===== -->
+    <div class="screen" id="a-payments">
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Pagamentos de hoje</div>
+      <div class="grid2" style="margin-bottom:14px">
+        <div class="stat"><div class="n" style="color:var(--green)">R$ 2.840</div><div class="l">Total recebido</div></div>
+        <div class="stat"><div class="n" style="color:var(--orange)">R$ 440</div><div class="l">Aguard. aprovação</div></div>
+      </div>
+      <div class="supply-nav">
+        <div class="snav-item active" id="ptab-today" onclick="switchPayTab('today')">Hoje</div>
+        <div class="snav-item" id="ptab-pending" onclick="switchPayTab('pending')">Pendentes</div>
+        <div class="snav-item" id="ptab-all" onclick="switchPayTab('all')">Todos</div>
+      </div>
+      <div id="paymentsList"></div>
+    </div>
+
+  </div><!-- end screens -->
+
+  <div class="nav" id="bottomNav" style="display:none">
+    <div class="nav-item active" id="nav-home" onclick="navTo('home')"><div class="ni">🏠</div><div class="nl">Home</div></div>
+    <div class="nav-item" id="nav-vehicles" onclick="navTo('vehicles')"><div class="ni">🚗</div><div class="nl">Veículos</div></div>
+    <div class="nav-item" id="nav-history" onclick="navTo('history')"><div class="ni">📋</div><div class="nl">Histórico</div></div>
+    <div class="nav-item" id="nav-profile" onclick="navTo('profile')"><div class="ni">👤</div><div class="nl">Perfil</div></div>
+  </div>
+  <div class="nav" id="provNav" style="display:none">
+    <div class="nav-item active" id="pnav-dash" onclick="pNavTo('dash')"><div class="ni">🏠</div><div class="nl">Início</div></div>
+    <div class="nav-item" id="pnav-exec" onclick="pNavTo('exec')"><div class="ni">🔧</div><div class="nl">Job</div></div>
+    <div class="nav-item" id="pnav-ranking" onclick="pNavTo('ranking')"><div class="ni">⭐</div><div class="nl">Ranking</div></div>
+    <div class="nav-item" id="pnav-agenda" onclick="pNavTo('agenda')"><div class="ni">📅</div><div class="nl">Agenda</div></div>
+    <div class="nav-item" id="pnav-profile" onclick="pNavTo('profile')"><div class="ni">👤</div><div class="nl">Perfil</div></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()"><h2 id="modalTitle"></h2><div id="modalContent"></div></div>
+</div>
+<script>
+// ============ CONSTANTS ============
+const CATEGORIES=['Manutenção','Elétrica','Pneus','Funilaria','Estética','Ar-condicionado','Inspeção','Reparos Rápidos','Lavagem'];
+const CAT_ICONS={'Manutenção':'🔧','Elétrica':'⚡','Pneus':'🛞','Funilaria':'🎨','Estética':'✨','Ar-condicionado':'❄️','Inspeção':'🔍','Reparos Rápidos':'🔩','Lavagem':'🚿'};
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const WEEKDAYS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const WEEKDAYS_SHORT=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const SLOT_MIN=30;
+const DAY_KEYS=['dom','seg','ter','qua','qui','sex','sab'];
+const AUTH_SCREENS=['s-splash','s-reg1','s-reg2','s-reg3','p-splash','p-reg1','p-reg2','p-reg3','p-reg4','p-reg5','p-pending'];
+const PROV_TYPES=['Mecânico','Eletricista','Eletricista/Mecânico','Funileiro','Detailer','Lavador'];
+const MODELS_BY_BRAND={
+  'Chevrolet':['Onix','Onix Plus','Tracker','Cruze','S10','Spin','Montana','Equinox'],
+  'Fiat':['Pulse','Fastback','Cronos','Argo','Mobi','Toro','Strada','Doblo'],
+  'Ford':['Territory','Bronco Sport','Ranger','Ka','EcoSport','Maverick'],
+  'Honda':['Civic','HR-V','CR-V','City','Fit','WR-V','Accord'],
+  'Hyundai':['HB20','HB20S','Creta','Tucson','Santa Fe','Azera'],
+  'Jeep':['Compass','Renegade','Commander','Wrangler','Gladiator'],
+  'Kia':['Sportage','Stonic','Carnival','Cerato','Seltos'],
+  'Mitsubishi':['Eclipse Cross','Outlander','ASX','L200 Triton','Pajero'],
+  'Nissan':['Kicks','Frontier','Sentra','Versa'],
+  'Peugeot':['208','2008','3008','5008','Partner'],
+  'Renault':['Kwid','Sandero','Logan','Duster','Oroch','Captur'],
+  'Suzuki':['Jimny','Vitara','S-Cross','Swift'],
+  'Toyota':['Corolla','Corolla Cross','Hilux','SW4','Yaris','RAV4','Prius'],
+  'Volkswagen':['Gol','Polo','Virtus','T-Cross','Nivus','Tiguan','Amarok','Saveiro'],
+};
+
+// ============ CATALOG ============
+let catalog=[];
+let nextSvcId=26,activeFilter='Todos',provFilter='Todos',editingId=null;
+
+// ─── INICIALIZAÇÃO SUPABASE ───────────────────────────────────────────────────
+async function initSupabase(){
+  await Promise.all([
+    // Serviços
+    _supabase.from('services').select('*').eq('active',true).order('legacy_id')
+      .then(({data,error})=>{
+        if(error){console.error('Erro serviços:',error);return;}
+        catalog=data.map(row=>({
+          id:       row.legacy_id,
+          uuid:     row.id,
+          name:     row.name,
+          cat:      row.category,
+          price:    Number(row.price),
+          time:     row.duration_min,
+          slots:    row.slots,
+          parts:    row.requires_parts,
+          provider: row.provider_type,
+          leadTimeH:row.part_lead_time_h||0,
+          active:   row.active
+        }));
+        console.log(`✓ ${catalog.length} serviços carregados`);
+      }),
+    // Prestadores
+    loadProviders(),
+    // Fornecedores
+    loadSuppliers()
+  ]);
+  // Re-renderizar tela atual
+  if(currentScreen==='s-home')buildCatGrid();
+  if(currentScreen==='a-services')buildAdminCatalog();
+  if(currentScreen==='a-providers')buildProviderList();
+}
+// ============ VEHICLES (FIX 5) ============
+let vehicles=[
+  {id:1,marca:'Volkswagen',modelo:'Gol',ano:'2019',comb:'Flex',placa:'ABC-1234',cor:'Branco',apelido:'Meu Gol'},
+  {id:2,marca:'Toyota',modelo:'Corolla',ano:'2021',comb:'Flex',placa:'XYZ-5678',cor:'Prata',apelido:'Corolla'},
+];
+let nextVehId=3;
+function updateModels(){
+  const marca=document.getElementById('vehMarca').value;
+  const sel=document.getElementById('vehModelo');
+  sel.innerHTML=marca?'<option value="">Selecione o modelo...</option>':'<option value="">Selecione primeiro a marca</option>';
+  if(MODELS_BY_BRAND[marca]){MODELS_BY_BRAND[marca].forEach(m=>{const o=document.createElement('option');o.textContent=m;sel.appendChild(o);});}
+}
+function saveVehicle(){
+  const marca=document.getElementById('vehMarca').value,modelo=document.getElementById('vehModelo').value,ano=document.getElementById('vehAno').value,placa=document.getElementById('vehPlaca').value.trim();
+  if(!marca||!modelo||!ano){showToast('⚠️ Preencha marca, modelo e ano');return;}
+  if(!placa){showToast('⚠️ Preencha a placa');return;}
+  const comb=document.getElementById('vehComb').value,cor=document.getElementById('vehCor').value,apelido=document.getElementById('vehApelido').value.trim();
+  vehicles.push({id:nextVehId++,marca,modelo,ano,comb,placa,cor,apelido});
+  showToast(`✓ ${marca} ${modelo} adicionado!`);
+  buildVehicleListScreen();buildVehOptions();
+  goBack();
+}
+function buildVehicleListScreen(){
+  const el=document.getElementById('vehicleListEl');if(!el)return;el.innerHTML='';
+  vehicles.forEach(v=>{
+    const svcCount=v.id<=2?[3,4][v.id-1]:0;
+    const d=document.createElement('div');d.className='veh-option';d.style.cssText='border-style:solid;cursor:pointer';
+    d.innerHTML=`<div class="veh-icon">🚗</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${v.marca} ${v.modelo}${v.apelido?` · <span style="color:var(--muted)">${v.apelido}</span>`:''}</div><div style="font-size:12px;color:var(--muted)">${v.ano} · ${v.placa} · ${v.comb}</div><div style="font-size:11px;color:var(--blue);margin-top:2px">${svcCount} serviços realizados</div></div><span class="badge badge-blue">Ativo</span>`;
+    d.onclick=()=>goScreen('s-vehicle-history');el.appendChild(d);
+  });
+}
+function buildVehOptions(){
+  const el=document.getElementById('vehList');if(!el)return;el.innerHTML='';
+  vehicles.forEach((v,i)=>{
+    const d=document.createElement('div');d.className='veh-option'+(i===0?' selected':'');d.id='vopt-'+v.id;
+    d.innerHTML=`<div class="veh-icon">🚗</div><div><div style="font-size:13px;font-weight:500">${v.marca} ${v.modelo}</div><div style="font-size:11px;color:var(--muted)">${v.ano} · ${v.placa} · ${v.comb}</div></div>`;
+    d.onclick=()=>{document.querySelectorAll('.veh-option').forEach(e=>e.classList.remove('selected'));d.classList.add('selected');jobState.vehicle={id:v.id,label:`${v.marca} ${v.modelo} ${v.ano}`,plate:v.placa};};
+    el.appendChild(d);
+  });
+  if(vehicles.length>0)jobState.vehicle={id:vehicles[0].id,label:`${vehicles[0].marca} ${vehicles[0].modelo} ${vehicles[0].ano}`,plate:vehicles[0].placa};
+}
+
+// ============ FIX 1: AGENDA FLEXÍVEL ============
+let providerAgenda={
+  dom:{on:false,start:'08:00',end:'18:00'},
+  seg:{on:true,start:'08:00',end:'18:00'},
+  ter:{on:true,start:'08:00',end:'18:00'},
+  qua:{on:true,start:'08:00',end:'18:00'},
+  qui:{on:true,start:'08:00',end:'18:00'},
+  sex:{on:true,start:'08:00',end:'18:00'},
+  sab:{on:true,start:'08:00',end:'13:00'},
+};
+function buildAgendaConfig(){
+  const card=document.getElementById('agendaDaysCard');if(!card)return;card.innerHTML='';
+  const labels={dom:'Dom',seg:'Seg',ter:'Ter',qua:'Qua',qui:'Qui',sex:'Sex',sab:'Sáb'};
+  DAY_KEYS.forEach(dk=>{
+    const ag=providerAgenda[dk];
+    const row=document.createElement('div');row.className='agenda-day-row'+(ag.on?'':' disabled');row.id='arow-'+dk;
+    row.innerHTML=`
+      <div class="agenda-day-label">${labels[dk]}</div>
+      <div class="toggle ${ag.on?'on':''}" id="atog-${dk}" onclick="toggleAgendaDay('${dk}')"></div>
+      <div class="agenda-time-inputs" id="atime-${dk}">
+        <input type="time" class="time-input" id="astart-${dk}" value="${ag.start}" onchange="updateAgendaTime('${dk}','start',this.value)">
+        <span style="font-size:11px;color:var(--muted)">até</span>
+        <input type="time" class="time-input" id="aend-${dk}" value="${ag.end}" onchange="updateAgendaTime('${dk}','end',this.value)">
+      </div>`;
+    card.appendChild(row);
+  });
+}
+function toggleAgendaDay(dk){
+  providerAgenda[dk].on=!providerAgenda[dk].on;
+  const tog=document.getElementById('atog-'+dk);if(tog)tog.classList.toggle('on',providerAgenda[dk].on);
+  const row=document.getElementById('arow-'+dk);if(row)row.classList.toggle('disabled',!providerAgenda[dk].on);
+}
+function updateAgendaTime(dk,field,val){providerAgenda[dk][field]=val;}
+function saveAgenda(){showToast('✓ Agenda salva! Slots atualizados.');}
+function switchAgendaTab(tab){
+  document.getElementById('agenda-config').style.display=tab==='config'?'block':'none';
+  document.getElementById('agenda-view').style.display=tab==='view'?'block':'none';
+  ['config','view'].forEach(t=>{const el=document.getElementById('atab-'+t);if(el)el.classList.toggle('active',t===tab);});
+  if(tab==='view')buildAgendaDayView();
+}
+
+// ============ FIX 2: VISÃO SLOTS DO DIA ============
+let agendaViewOffset=0;
+const BOOKED_TODAY=['09:00','09:30','14:00','14:30'];
+const BOOKED_TOMORROW=['10:00'];
+function changeAgendaDay(dir){agendaViewOffset+=dir;buildAgendaDayView();}
+function buildAgendaDayView(){
+  const now=new Date(2025,4,6);
+  now.setDate(now.getDate()+agendaViewOffset);
+  const dk=DAY_KEYS[now.getDay()];
+  const ag=providerAgenda[dk];
+  const dateLabel=document.getElementById('agendaViewDate');
+  if(dateLabel)dateLabel.textContent=`${agendaViewOffset===0?'Hoje · ':''}${WEEKDAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()].substring(0,3)}`;
+  const booked=agendaViewOffset===0?BOOKED_TODAY:agendaViewOffset===1?BOOKED_TOMORROW:[];
+  const el=document.getElementById('agendaDaySlots');if(!el)return;
+  if(!ag.on){el.innerHTML='<div class="info-box info-yellow" style="text-align:center">Dia não configurado como dia de trabalho.</div>';document.getElementById('agFreeCount').textContent='0';document.getElementById('agOccCount').textContent='0';document.getElementById('agEarnCount').textContent='R$ 0';return;}
+  el.innerHTML='';
+  const startM=t2m(ag.start),endM=t2m(ag.end);
+  let freeCount=0,occCount=0,earn=0;
+  for(let m=startM;m<endM;m+=SLOT_MIN){
+    const time=m2t(m),endT=m2t(m+SLOT_MIN);
+    const isOcc=booked.includes(time);
+    if(isOcc){occCount++;earn+=220;}else{freeCount++;}
+    const row=document.createElement('div');row.className=`day-slot-row ${isOcc?'occupied':'free'}`;
+    row.innerHTML=`<div class="day-slot-dot ${isOcc?'dot-occ':'dot-free'}"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div>${isOcc?`<span class="badge badge-orange" style="font-size:10px">Job confirmado</span>`:`<span class="badge badge-green" style="font-size:10px">Livre</span>`}`;
+    el.appendChild(row);
+  }
+  document.getElementById('agFreeCount').textContent=freeCount;
+  document.getElementById('agOccCount').textContent=occCount;
+  document.getElementById('agEarnCount').textContent=`R$ ${earn}`;
+}
+
+// ============ FIX 3: PAGAMENTOS ============
+const payments=[
+  {id:1,jobId:'#2047',service:'Troca de óleo + filtro',client:'Marcello Costa',value:240,status:'released',method:'Cartão',time:'11:54',provider:'Carlos Ribeiro'},
+  {id:2,jobId:'#2046',service:'Check-up geral',client:'Lúcia Carvalho',value:120,status:'released',method:'Pix',time:'09:47',provider:'Carlos Ribeiro'},
+  {id:3,jobId:'#2044',service:'Higienização interna',client:'Fernanda Dias',value:150,status:'released',method:'Pix',time:'08:30',provider:'Maria Lima'},
+  {id:4,jobId:'#2043',service:'Calibragem',client:'Roberto Souza',value:20,status:'released',method:'Cartão',time:'08:00',provider:'João Santos'},
+  {id:5,jobId:'#2048',service:'Troca de bateria',client:'Ana Lima',value:440,status:'waiting',method:'Cartão',time:'14:00',provider:'Carlos Ribeiro'},
+  {id:6,jobId:'#2049',service:'Scanner OBD',client:'Pedro Monteiro',value:80,status:'waiting',method:'Pix',time:'15:30',provider:'João Santos'},
+  {id:7,jobId:'#2051',service:'Troca de filtro de ar',client:'Roberto Andrade',value:92,status:'pending',method:'Cartão',time:'09:00',provider:'—'},
+  {id:8,jobId:'#2055',service:'Martelinho PDR',client:'Pedro Lima',value:200,status:'pending',method:'Pix',time:'10:00',provider:'—'},
+];
+let payTab='today';
+function switchPayTab(tab){
+  payTab=tab;
+  ['today','pending','all'].forEach(t=>{const el=document.getElementById('ptab-'+t);if(el)el.classList.toggle('active',t===tab);});
+  buildPayments();
+}
+function buildPayments(){
+  const el=document.getElementById('paymentsList');if(!el)return;el.innerHTML='';
+  let filtered=payments;
+  if(payTab==='pending')filtered=payments.filter(p=>p.status==='waiting'||p.status==='pending');
+  const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovação',cls:'ps-waiting'},pending:{label:'Sem prestador',cls:'ps-pending'}};
+  filtered.forEach(p=>{
+    const cfg=statusCfg[p.status];
+    const d=document.createElement('div');d.className='pay-item';
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${p.jobId} · ${p.service}</span><span class="pay-status ${cfg.cls}">${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${p.client} · ${p.time} · ${p.method}</div><div class="row" style="margin-top:8px;margin-bottom:0"><span style="font-size:12px;color:var(--muted)">${p.provider}</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ ${p.value}</span></div>`;
+    el.appendChild(d);
+  });
+  const total=filtered.reduce((a,p)=>a+(p.status==='released'?p.value:0),0);
+  if(filtered.length>0){const s=document.createElement('div');s.className='card';s.style.background='var(--blue-light)';s.innerHTML=`<div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Total liberado</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ ${total}</span></div>`;el.appendChild(s);}
+}
+
+// ============ PROVIDERS ============
+let PROVIDERS=[];
+
+async function loadProviders(){
+  const {data,error}=await _supabase
+    .from('providers')
+    .select(`
+      id, user_id, specialties, regions, status, score,
+      stats, availability,
+      users (name, email, phone)
+    `);
+  if(error){console.error('Erro ao carregar prestadores:',error);return;}
+  PROVIDERS=data.map(row=>({
+    id:        row.id,
+    name:      row.users?.name||'',
+    initials:  (row.users?.name||'??').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
+    color:     ['av-b','av-g','av-o','av-p','av-r'][Math.floor(Math.random()*5)],
+    specialty: row.specialties||[],
+    region:    row.regions||[],
+    status:    row.status,
+    score:     Number(row.score||0),
+    available: row.status==='approved',
+    email:     row.users?.email||'',
+    phone:     row.users?.phone||'',
+    stats:     row.stats||{notaMedia:0,jobsConcluidos:0,jobsTotal:0,pontualidade:0,reclamacoes:0,cancelamentos:0},
+    avail:     row.availability||{},
+    booked:    {},
+    joinDate:  '',
+    docs:      {rg:true,endereco:true,selfie:true,banco:true}
+  }));
+  console.log(`✓ ${PROVIDERS.length} prestadores carregados do Supabase`);
+}
+
+// ============ SUPPLY DATA ============
+let suppliers=[];
+
+async function loadSuppliers(){
+  const {data,error}=await _supabase
+    .from('suppliers')
+    .select('*')
+    .eq('active',true);
+  if(error){console.error('Erro ao carregar fornecedores:',error);return;}
+  suppliers=data.map(row=>({
+    id:       row.id,
+    name:     row.name,
+    contact:  row.contact||'',
+    region:   row.region,
+    cats:     row.categories||[],
+    leadTimeH:row.lead_time_h,
+    active:   row.active
+  }));
+  console.log(`✓ ${suppliers.length} fornecedores carregados do Supabase`);
+}
+const parts=[
+  {id:1,name:'Óleo motor 5W30 (1L)',cat:'Fluidos',supplierId:1,price:38,unit:'litro',available:true},
+  {id:2,name:'Filtro de óleo universal',cat:'Filtros',supplierId:1,price:25,unit:'unid',available:true},
+  {id:3,name:'Filtro de ar (pequeno)',cat:'Filtros',supplierId:1,price:32,unit:'unid',available:true},
+  {id:4,name:'Bateria 60Ah selada',cat:'Elétrica',supplierId:1,price:320,unit:'unid',available:true},
+  {id:5,name:'Palheta dianteira (par)',cat:'Reparos',supplierId:1,price:42,unit:'par',available:true},
+];
+let quotations=[
+  {id:1,jobId:'#2047',service:'Troca de óleo + filtro',client:'Marcello Costa',bairro:'Vila Madalena',scheduledDate:'06 mai · 11:00',parts:[{partId:1,qty:4,unitPrice:38,total:152},{partId:2,qty:1,unitPrice:25,total:25}],status:'confirmed',supplierId:1,totalParts:177,confirmedAt:'05 mai · 09:30',leadTimeH:2},
+  {id:2,jobId:'#2048',service:'Troca de bateria',client:'Ana Lima',bairro:'Pinheiros',scheduledDate:'06 mai · 14:00',parts:[{partId:4,qty:1,unitPrice:320,total:320}],status:'pending',supplierId:null,totalParts:320,confirmedAt:null,leadTimeH:null},
+  {id:3,jobId:'#2051',service:'Troca de filtro de ar',client:'Roberto Souza',bairro:'Jardins',scheduledDate:'07 mai · 09:00',parts:[{partId:3,qty:1,unitPrice:32,total:32}],status:'pending',supplierId:null,totalParts:32,confirmedAt:null,leadTimeH:null},
+];
+
+// ============ DISPATCH DATA ============
+const dispatchJobs=[
+  {id:2047,service:'Troca de óleo + filtro',client:'Marcello Costa',bairro:'Vila Madalena',date:'06 mai',time:'11:00',price:240,dispatch:{status:'confirmed',providerId:1,offeredTo:[1],currentOfferId:null,offerExpires:null,history:[{providerId:1,action:'accepted',at:'08:15'}]}},
+  {id:2051,service:'Troca de filtro de ar',client:'Roberto Souza',bairro:'Jardins',date:'07 mai',time:'09:00',price:92,dispatch:{status:'offering',providerId:null,offeredTo:[1],currentOfferId:1,offerExpires:'08:47',history:[]}},
+  {id:2055,service:'Martelinho de ouro',client:'Pedro Monteiro',bairro:'Moema',date:'07 mai',time:'10:00',price:200,dispatch:{status:'no_provider',providerId:null,offeredTo:[],currentOfferId:null,offerExpires:null,history:[]}},
+  {id:2046,service:'Check-up geral',client:'Lúcia Carvalho',bairro:'Vila Madalena',date:'06 mai',time:'09:00',price:120,dispatch:{status:'completed',providerId:1,offeredTo:[1],currentOfferId:null,offerExpires:null,history:[{providerId:1,action:'accepted',at:'06:00'}]}},
+];
+
+// ============ CLAIMS ============
+const claims=[
+  {id:1,jobId:'#2044',service:'Troca de palhetas',client:'Fernanda Dias',provider:'Carlos Ribeiro',providerId:1,date:'03 mai',type:'Serviço não foi realizado corretamente',desc:'As palhetas ainda estão deixando marcas no vidro.',status:'pending',impact:'score'},
+  {id:2,jobId:'#2039',service:'Higienização interna',client:'Roberto Andrade',provider:'Lucas Prado',providerId:5,date:'28 abr',type:'Comportamento inadequado',desc:'Prestador foi grosseiro durante o atendimento.',status:'pending',impact:'suspension'},
+  {id:3,jobId:'#2031',service:'Troca de filtro de ar',client:'Ana Lima',provider:'João Santos',providerId:2,date:'20 abr',type:'Serviço não realizado corretamente',desc:'Filtro não foi trocado, apenas limpo.',status:'resolved',resolution:'Score reduzido. Prestador notificado.',impact:'score'},
+];
+
+// ============ VEHICLE HISTORY ============
+const vehicleHistory={
+  1:{name:'VW Gol 2019',plate:'ABC-1234',svcs:[
+    {id:1,date:'15 abr 2025',svc:'Troca de óleo + filtro',prov:'Carlos Ribeiro',price:240,nota:5,status:'completed',foto:true},
+    {id:2,date:'10 mar 2025',svc:'Scanner / diagnóstico OBD',prov:'Carlos Ribeiro',price:80,nota:4,status:'completed',foto:true},
+    {id:3,date:'05 fev 2025',svc:'Calibragem',prov:'João Santos',price:20,nota:5,status:'completed',foto:false},
+  ]},
+  2:{name:'Toyota Corolla 2021',plate:'XYZ-5678',svcs:[
+    {id:1,date:'20 abr 2025',svc:'Higienização interna',prov:'Maria Lima',price:150,nota:5,status:'completed',foto:true},
+    {id:2,date:'15 mar 2025',svc:'Polimento leve',prov:'Maria Lima',price:200,nota:5,status:'completed',foto:true},
+    {id:3,date:'10 fev 2025',svc:'Troca de filtro de cabine',prov:'Carlos Ribeiro',price:80,nota:5,status:'completed',foto:true},
+    {id:4,date:'05 jan 2025',svc:'Check-up geral',prov:'João Santos',price:120,nota:4,status:'completed',foto:false},
+  ]},
+};
+
+// ============ STATE ============
+let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},description:'',bairro:'Vila Madalena',addrLabel:'Rua Harmonia, 120',selectedDate:null,selectedSlot:null,price:0};
+let calMonth=4,calYear=2025;
+let currentView='admin',navHistory=[],currentScreen='a-dashboard';
+let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',claimsFilter='Todos',currentSupply='q';
+let currentStar=0,chkState={1:false,2:false,3:false,4:false};
+let selectedVehicle=2,countdownInterval=null,countdownSecs=900;
+
+// ============ SCORE ENGINE ============
+function calcScore(p){
+  if(!p.stats||p.stats.jobsTotal===0)return 0;
+  const nota=(p.stats.notaMedia/5)*10,conclusao=(p.stats.jobsConcluidos/p.stats.jobsTotal)*10,pontual=(p.stats.pontualidade/100)*10,reclam=Math.max(0,10-(p.stats.reclamacoes*1.5));
+  return+(nota*0.4+conclusao*0.25+pontual*0.2+reclam*0.15).toFixed(1);
+}
+function getTier(score){
+  if(score>=9)return{label:'Diamante',icon:'💎',color:'var(--purple)'};
+  if(score>=8)return{label:'Ouro',icon:'🥇',color:'#F57F17'};
+  if(score>=7)return{label:'Prata',icon:'🥈',color:'#666'};
+  return{label:'Bronze',icon:'🥉',color:'#CD7F32'};
+}
+
+// ============ HELPERS ============
+function t2m(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
+function m2t(m){return`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;}
+
+// ============ FIX 6: SLOT ENGINE COM AGENDA FLEXÍVEL E BLOQUEIO POR PEÇA ============
+function isPartsConfirmed(svcId){
+  // Serviços com peça só têm slots liberados se a cotação estiver confirmada
+  const svc=catalog.find(s=>s.id===svcId);
+  if(!svc||!svc.parts)return true; // sem peça = sempre liberado
+  const quot=quotations.find(q=>q.service===svc.name&&q.status==='confirmed');
+  return!!quot;
+}
+function getAvailableSlots(bairro,svcId,dateStr){
+  const svc=catalog.find(s=>s.id===svcId);if(!svc)return[];
+  const slotsNeeded=svc.slots,leadTimeH=svc.parts?svc.leadTimeH:0;
+  const partsOk=isPartsConfirmed(svcId);
+  const dow=new Date(dateStr+'T12:00:00').getDay(),dk=DAY_KEYS[dow];
+  const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&p.specialty.some(s=>svc.provider.includes(s))&&p.avail[dk]&&p.avail[dk].on);
+  const slotMap={};
+  matched.forEach(p=>{
+    const av=p.avail[dk];if(!av||!av.on)return;
+    const startM=t2m(av.start),endM=t2m(av.end),earliestM=startM+(leadTimeH*60);
+    const booked=p.booked[dateStr]||[];
+    for(let m=startM;m<endM;m+=SLOT_MIN){
+      const time=m2t(m);
+      if(!slotMap[time])slotMap[time]={available:false,booked:false,partsWait:false,partsLocked:false};
+      if(!partsOk){slotMap[time].partsLocked=true;continue;}
+      if(svc.parts&&m<earliestM){slotMap[time].partsWait=true;continue;}
+      let ok=true;
+      for(let s=0;s<slotsNeeded;s++){const sm=m+s*SLOT_MIN;if(sm>=endM){ok=false;break;}if(booked.includes(m2t(sm))){ok=false;break;}}
+      if(ok)slotMap[time].available=true;else if(!slotMap[time].available)slotMap[time].booked=true;
+    }
+  });
+  return Object.entries(slotMap).sort((a,b)=>a[0].localeCompare(b[0]));
+}
+function getDaysWithSlots(bairro,svcId,month,year){
+  const res={};const days=new Date(year,month+1,0).getDate();
+  for(let d=1;d<=days;d++){const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;res[d]=getAvailableSlots(bairro,svcId,ds).filter(([,v])=>v.available).length;}
+  return res;
+}
+
+// ============ CAT GRID ============
+function buildCatGrid(){
+  const g=document.getElementById('catGrid');if(!g)return;g.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    if(!catalog.some(s=>s.cat===cat&&s.active))return;
+    const d=document.createElement('div');d.className='cat';
+    d.innerHTML=`<div class="icon">${CAT_ICONS[cat]}</div><div class="name">${cat}</div>`;
+    d.onclick=()=>openCategory(cat);g.appendChild(d);
+  });
+}
+function openCategory(cat){
+  navHistory.push(currentScreen);
+  document.getElementById('svcCatTitle').textContent=`${CAT_ICONS[cat]} ${cat}`;
+  const list=document.getElementById('svcList');list.innerHTML='';
+  catalog.filter(s=>s.cat===cat&&s.active).forEach(s=>{
+    const pt=s.parts?`<span style="font-size:10px;background:var(--orange-light);color:var(--orange);padding:1px 5px;border-radius:4px;margin-left:4px">+peça</span>`:'';
+    const d=document.createElement('div');d.className='svc-item';
+    d.innerHTML=`<div><div style="font-size:13px;font-weight:500">${s.name}${pt}</div><div style="font-size:11px;color:var(--muted)">${s.time}min · ${s.provider}</div></div><div style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${s.price}</div>`;
+    d.onclick=()=>startJob(s);list.appendChild(d);
+  });
+  showScreen('s-svc-list');
+}
+
+// ============ JOB FLOW ============
+function buildProg(step){for(let i=1;i<=6;i++){const el=document.getElementById('jp'+i);if(!el)continue;el.innerHTML='';for(let j=1;j<=6;j++){const d=document.createElement('div');d.className='progress-step'+(j<step?' done':j===step?' active':'');el.appendChild(d);}}}
+function startJob(svc){
+  jobState.service=svc;jobState.price=svc.price;jobState.selectedDate=null;jobState.selectedSlot=null;
+  document.getElementById('jfSvcName').textContent=svc.name;
+  document.getElementById('jfSvcMeta').textContent=`${svc.cat} · R$ ${svc.price} · ${svc.time}min${svc.parts?` · peça ${svc.leadTimeH}h`:''}`;
+  buildProg(1);buildVehOptions();navHistory.push(currentScreen);showScreen('jf-vehicle');
+}
+function jfGo(screen,step){buildProg(step);navHistory.push(currentScreen);showScreen(screen);}
+function goToPartCheck(){
+  jobState.description=document.getElementById('jfDesc')?document.getElementById('jfDesc').value||'Serviço de rotina':'Serviço de rotina';
+  buildProg(3);
+  const svc=jobState.service;
+  if(svc&&svc.parts){
+    navHistory.push(currentScreen);showScreen('jf-parts');
+    const pb=document.getElementById('partsBar'),pc=document.getElementById('partsCard'),btn=document.getElementById('partsContinueBtn');
+    const pw=document.getElementById('partsLeadWarning'),padm=document.getElementById('partsAdminWarning');
+    [pc,btn,pw,padm].forEach(el=>{if(el)el.style.display='none';});
+    if(pb)pb.style.animation='none';
+    setTimeout(()=>{if(pb)pb.style.animation='prog2 1.5s ease forwards';},50);
+    setTimeout(()=>{
+      const extra=Math.round(svc.price*0.35);jobState.price=svc.price+extra;
+      if(document.getElementById('partItemName'))document.getElementById('partItemName').textContent=svc.name+' (peça)';
+      if(document.getElementById('partTotalPrice'))document.getElementById('partTotalPrice').textContent=`R$ ${jobState.price}`;
+      if(document.getElementById('partBreak'))document.getElementById('partBreak').textContent=`Serviço R$ ${svc.price} + Peça R$ ${extra}`;
+      if(document.getElementById('partLeadInfo'))document.getElementById('partLeadInfo').textContent=`Entrega em ${svc.leadTimeH}h ao prestador`;
+      if(pc)pc.style.display='block';
+      const confirmed=isPartsConfirmed(svc.id);
+      if(!confirmed){if(padm)padm.style.display='block';}
+      else{if(pw)pw.style.display='block';if(document.getElementById('partsLeadExplain'))document.getElementById('partsLeadExplain').textContent=`Fornecedor entrega em ${svc.leadTimeH}h. Horários ajustados automaticamente.`;}
+      if(btn)btn.style.display='block';
+    },1600);
+  } else {navHistory.push(currentScreen);showScreen('jf-address');}
+}
+function selectJobAddr(type,bairro,addrLabel){
+  document.querySelectorAll('.addr-option').forEach(e=>e.classList.remove('selected'));
+  const el=document.getElementById('ja-'+type);if(el)el.classList.add('selected');
+  document.getElementById('otherAddrForm').style.display=type==='other'?'block':'none';
+  if(!bairro)bairro='Vila Madalena';
+  jobState.bairro=bairro;jobState.addrLabel=addrLabel||bairro;
+  const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&jobState.service&&p.specialty.some(s=>jobState.service.provider.includes(s)));
+  const card=document.getElementById('addrMatchCard'),title=document.getElementById('addrMatchTitle'),detail=document.getElementById('addrMatchDetail');
+  if(matched.length>0){card.style.background='var(--blue-light)';title.style.color='var(--blue)';title.textContent='✓ Prestadores disponíveis';detail.textContent=`${matched.length} prestador(es) · ${bairro}`;}
+  else{card.style.background='var(--red-light)';title.style.color='var(--red)';title.textContent='⚠️ Sem prestadores';detail.textContent='Tente outro endereço';}
+}
+
+// ============ CALENDAR ============
+function buildCalendar(calId,daysId,svcId){
+  svcId=svcId||1;
+  const lbl=document.getElementById(calId);if(lbl)lbl.textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById(daysId);if(!grid)return;grid.innerHTML='';
+  const dws=getDaysWithSlots(jobState.bairro,svcId,calMonth,calYear);
+  const firstDay=new Date(calYear,calMonth,1).getDay(),daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  for(let i=0;i<firstDay;i++){const d=document.createElement('div');d.className='cal-day other';grid.appendChild(d);}
+  for(let d=1;d<=daysInMonth;d++){
+    const el=document.createElement('div');
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cnt=dws[d]||0,isSel=jobState.selectedDate===ds;
+    el.className='cal-day'+(isSel?' selected':cnt>0?' has-slots':' no-slots');
+    el.textContent=d;
+    if(cnt>0)el.onclick=()=>{jobState.selectedDate=ds;jobState.selectedSlot=null;buildCalendar(calId,daysId,svcId);showSlots(ds,svcId,daysId==='reschedDays'?'reschedSlotsGrid':'slotsGrid',daysId==='reschedDays');};
+    grid.appendChild(el);
+  }
+  const si=document.getElementById('schedInfo');if(si){const s=jobState.service;si.textContent=`📍 ${jobState.bairro}${s&&s.parts?` · peça ${s.leadTimeH}h antes`:''}${s&&s.parts&&!isPartsConfirmed(s.id)?' · 🔒 aguardando confirmação admin':''}`;}
+}
+function changeCalMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}
+  if(currentScreen==='jf-schedule')buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1);
+  if(currentScreen==='s-reschedule')buildCalendar('reschedCalLabel','reschedDays',1);
+}
+function showSlots(ds,svcId,gridId,isResched){
+  const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';
+  const svc=catalog.find(s=>s.id===svcId)||catalog[0];
+  getAvailableSlots(jobState.bairro,svcId,ds).forEach(([time,data])=>{
+    const d=document.createElement('div'),endTime=m2t(t2m(time)+svc.slots*SLOT_MIN);
+    if(data.available){
+      d.className='slot'+(jobState.selectedSlot===time?' selected':'');
+      d.innerHTML=`<div class="sh">${time}</div><div class="sd">até ${endTime}</div>`;
+      d.onclick=()=>{
+        document.querySelectorAll(`#${gridId} .slot.selected`).forEach(s=>s.classList.remove('selected'));
+        d.classList.add('selected');jobState.selectedSlot=time;
+        if(!isResched)fillConfirm(svc,time,endTime);
+        const btn=document.getElementById(isResched?'reschedConfirmBtn':'schedContinueBtn');if(btn)btn.style.display='block';
+      };
+    }else if(data.partsWait){d.className='slot parts-wait';d.innerHTML=`<div class="sh">${time}</div><div class="sd">⏱ peça</div>`;}
+    else if(data.partsLocked){d.className='slot parts-locked';d.innerHTML=`<div class="sh">${time}</div><div class="sd">🔒 bloq.</div>`;}
+    else{d.className='slot booked';d.innerHTML=`<div class="sh">${time}</div><div class="sd">Ocupado</div>`;}
+    grid.appendChild(d);
+  });
+  const ss=document.getElementById(isResched?'reschedSlots':'slotsSection');if(ss)ss.style.display='block';
+  const lbl=document.getElementById('slotsDateLabel');if(lbl){const dt=new Date(ds+'T12:00:00');lbl.textContent=`${dt.getDate()} de ${MONTHS[dt.getMonth()]} · horários disponíveis`;}
+}
+function fillConfirm(svc,time,endTime){
+  const dt=new Date(jobState.selectedDate+'T12:00:00');
+  document.getElementById('cfSvc').textContent=svc.name;
+  document.getElementById('cfVeh').textContent=jobState.vehicle.label;
+  document.getElementById('cfAddr').textContent=jobState.addrLabel;
+  document.getElementById('cfDate').textContent=`${dt.getDate()} de ${MONTHS[dt.getMonth()]}`;
+  document.getElementById('cfTime').textContent=`${time} – ${endTime}`;
+  document.getElementById('cfPrice').textContent=`R$ ${jobState.price}`;
+  buildProg(6);
+}
+function createJob(){
+  const s=jobState.service;if(!s)return;
+  document.getElementById('jobCreatedInfo').textContent=`${s.name} · ${jobState.addrLabel} · ${jobState.selectedDate} ${jobState.selectedSlot}`;
+  document.getElementById('jcDate').textContent=`${jobState.selectedDate} às ${jobState.selectedSlot}`;
+  showToast('✓ Job criado! Alocando prestador...');navHistory=[];showScreen('jf-created');
+}
+
+// ============ COUNTDOWN ============
+function startCountdown(){
+  if(countdownInterval)clearInterval(countdownInterval);
+  countdownSecs=900;updateCountdown();
+  countdownInterval=setInterval(()=>{countdownSecs--;if(countdownSecs<=0){clearInterval(countdownInterval);showToast('⏱ Tempo esgotado!');goScreen('p-dashboard');}else updateCountdown();},1000);
+}
+function updateCountdown(){
+  const el=document.getElementById('countdownNum'),arc=document.getElementById('countdownArc');if(!el||!arc)return;
+  const m=Math.floor(countdownSecs/60),s=countdownSecs%60;
+  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  arc.style.strokeDashoffset=213.6*(1-countdownSecs/900);
+  const urgent=countdownSecs<=120;el.className='countdown-num'+(urgent?' urgent':'');arc.style.stroke=urgent?'var(--red)':'var(--blue)';
+}
+function acceptOffer(){if(countdownInterval)clearInterval(countdownInterval);goScreen('p-offer-accepted');}
+function rejectOffer(){if(countdownInterval)clearInterval(countdownInterval);goScreen('p-offer-rejected');}
+function confirmReject(){showToast('Recusa registrada.');goScreen('p-dashboard');}
+
+// ============ EXECUÇÃO ============
+function doChk(n){
+  if(n===3&&!chkState[2]){showToast('⚠️ Inicie a execução primeiro (item 2)');return;}
+  if(n===4&&!chkState[3]){showToast('⚠️ Envie a foto depois primeiro');return;}
+  chkState[n]=!chkState[n];
+  const box=document.getElementById('chk'+n);if(!box)return;
+  box.classList.toggle('checked',chkState[n]);box.textContent=chkState[n]?'✓':'';
+  if(n===2&&chkState[2]){const el=document.getElementById('startTimeEl');if(el){el.style.display='block';const now=new Date();el.textContent=`▶ Iniciado às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;}}
+}
+function uploadExecPhoto(type){
+  const box=document.getElementById(type==='before'?'photoBefore':'photoAfter');if(!box)return;
+  box.classList.add('uploaded');box.innerHTML=`<div style="font-size:28px;margin-bottom:4px">📸</div><div style="font-size:11px;color:var(--green);font-weight:500">✓ Foto enviada</div>`;
+  const n=type==='before'?1:3;if(!chkState[n]){chkState[n]=true;const b=document.getElementById('chk'+n);if(b){b.classList.add('checked');b.textContent='✓';}}
+}
+function finalizeExec(){
+  const missing=[];
+  if(!chkState[1])missing.push('Foto antes');if(!chkState[2])missing.push('Início');if(!chkState[3])missing.push('Foto depois');if(!chkState[4])missing.push('Peças');
+  if(missing.length>0){const w=document.getElementById('chkWarning');if(w){w.style.display='block';w.textContent=`⚠️ Pendentes: ${missing.join(', ')}`;}showToast('⚠️ Complete todos os itens');return;}
+  goScreen('p-job-done');showToast('✓ Job finalizado! Aguardando aprovação.');
+}
+
+// ============ APROVAÇÃO ============
+function setStar(n){currentStar=n;document.querySelectorAll('#starRow span').forEach((s,i)=>{s.classList.toggle('lit',i<n);});const labels=['','Ruim 😞','Regular 😐','Bom 😊','Ótimo 😃','Excelente! 🌟'];document.getElementById('starLabel').textContent=labels[n]||'';}
+function approveJob(){if(currentStar===0){showToast('⭐ Avalie antes de aprovar');return;}goScreen('s-approved');showToast('✓ Aprovado! Pagamento liberado.');}
+function openClaimModal(){document.getElementById('modalTitle').textContent='Abrir reclamação / garantia';document.getElementById('modalContent').innerHTML=`<div class="info-box info-yellow">⚠️ Apenas para problemas reais. O admin analisa manualmente.</div><div class="label">Tipo</div><select class="input"><option>Serviço não foi realizado corretamente</option><option>Prestador não apareceu</option><option>Comportamento inadequado</option><option>Dano ao veículo</option><option>Problema dentro da garantia (30 dias)</option></select><div class="label">Descrição</div><textarea class="input" rows="3" placeholder="Descreva..."></textarea><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="submitClaim()">Enviar</button></div>`;document.getElementById('modalBg').style.display='flex';}
+function submitClaim(){closeModal();showToast('Reclamação enviada. Admin notificado em até 24h.');}
+
+// ============ CANCEL ============
+function selectCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
+function selectPCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
+function confirmCancel(who){showToast(who==='client'?'✓ Job cancelado.':'⚠️ Cancelado. Impacta ranking.');goScreen(who==='client'?'s-home':'p-dashboard');}
+function confirmReschedule(){showToast('✓ Reagendado! Prestador notificado.');goScreen('s-job-status');}
+
+// ============ VEHICLE HISTORY ============
+function buildVehicleHistory(){
+  const vh=vehicleHistory[selectedVehicle];if(!vh)return;
+  document.getElementById('vhSubtitle').textContent=`${vh.name} · ${vh.plate}`;
+  const totalSpent=vh.svcs.reduce((a,s)=>a+s.price,0);
+  document.getElementById('vhTotalSvcs').textContent=vh.svcs.length;
+  document.getElementById('vhTotalSpent').textContent=`R$ ${totalSpent}`;
+  document.getElementById('vhLastSvc').textContent=`Último: ${vh.svcs[0].svc} · ${vh.svcs[0].date}`;
+  const list=document.getElementById('vhList');if(!list)return;list.innerHTML='';
+  vh.svcs.forEach(s=>{
+    const svcObj=catalog.find(c=>c.name===s.svc)||{cat:'Manutenção'};
+    const icon=CAT_ICONS[svcObj.cat]||'🔧';const stars='★'.repeat(s.nota)+'☆'.repeat(5-s.nota);
+    const d=document.createElement('div');d.className='hist-item';
+    d.innerHTML=`<div class="hist-icon">${icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${s.svc}</div><div style="font-size:11px;color:var(--muted)">${s.date} · ${s.prov}</div><div style="font-size:11px;color:#FFA000;margin-top:2px">${stars}</div>${s.foto?`<div style="font-size:10px;color:var(--blue);margin-top:2px">📸 Fotos disponíveis</div>`:''}</div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${s.price}</div></div>`;
+    list.appendChild(d);
+  });
+}
+function switchVehicle(id){
+  selectedVehicle=id;
+  document.getElementById('vhBtn1').style.cssText=id===1?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
+  document.getElementById('vhBtn2').style.cssText=id===2?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
+  buildVehicleHistory();
+}
+
+// ============ ADMIN CATALOG ============
+function buildAdminCatalog(){
+  const list=document.getElementById('adminSvcList');if(!list)return;
+  const fr=document.getElementById('filterRow');if(fr){fr.innerHTML='';['Todos',...CATEGORIES].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===activeFilter?' active':'');d.textContent=f==='Todos'?`Todos (${catalog.length})`:f;d.onclick=()=>{activeFilter=f;buildAdminCatalog();};fr.appendChild(d);});}
+  list.innerHTML='';
+  (activeFilter==='Todos'?catalog:catalog.filter(s=>s.cat===activeFilter)).forEach(s=>{
+    const d=document.createElement('div');d.className='svc-card'+(s.active?'':' inactive');
+    d.innerHTML=`<div class="row" style="margin-bottom:4px"><span style="font-size:13px;font-weight:500">${s.name}</span><span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?'Ativo':'Inativo'}</span></div><div style="font-size:11px;color:var(--muted)">${s.cat} · ${s.provider} · ${s.time}min${s.parts?` · peça ${s.leadTimeH}h`:''}</div><div style="font-size:14px;font-weight:500;color:var(--blue);margin-top:6px">R$ ${s.price}</div><div class="action-row"><button class="action-btn ab-edit" onclick="openSvcForm(${s.id})">Editar</button><button class="action-btn ${s.active?'ab-suspend':'ab-approve'}" onclick="toggleSvc(${s.id})">${s.active?'Desativar':'Ativar'}</button><button class="action-btn ab-del" onclick="delSvc(${s.id})">Excluir</button></div>`;
+    list.appendChild(d);
+  });
+}
+function openSvcForm(id){
+  editingId=id;const s=id?catalog.find(x=>x.id===id):null;
+  document.getElementById('modalTitle').textContent=id?'Editar serviço':'Novo serviço';
+  document.getElementById('modalContent').innerHTML=`<div class="label">Nome</div><input class="input" id="f-name" value="${s?s.name:''}" placeholder="Nome"><div class="label">Categoria</div><select class="input" id="f-cat">${CATEGORIES.map(c=>`<option${s&&s.cat===c?' selected':''}>${c}</option>`).join('')}</select><div class="label">Prestador</div><select class="input" id="f-prov">${PROV_TYPES.map(p=>`<option${s&&s.provider===p?' selected':''}>${p}</option>`).join('')}</select><div class="label">Preço (R$)</div><input class="input" id="f-price" type="number" value="${s?s.price:''}" placeholder="180"><div class="label">Tempo (min)</div><input class="input" id="f-time" type="number" value="${s?s.time:''}" placeholder="30"><div class="label">Slots</div><input class="input" id="f-slots" type="number" value="${s?s.slots:1}"><div class="row" style="padding:8px 0"><span style="font-size:13px">Precisa de peça</span><div class="toggle ${s&&s.parts?'on':''}" id="f-parts" onclick="this.classList.toggle('on')"></div></div><div class="label">Lead time peça (h)</div><input class="input" id="f-lead" type="number" value="${s?s.leadTimeH:0}"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="saveSvc()">Salvar</button></div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+function saveSvc(){
+  const name=document.getElementById('f-name').value.trim(),price=parseInt(document.getElementById('f-price').value)||0;
+  if(!name||!price){alert('Preencha nome e preço');return;}
+  const hp=document.getElementById('f-parts').classList.contains('on');
+  const data={name,cat:document.getElementById('f-cat').value,provider:document.getElementById('f-prov').value,price,time:parseInt(document.getElementById('f-time').value)||30,slots:parseInt(document.getElementById('f-slots').value)||1,parts:hp,leadTimeH:parseInt(document.getElementById('f-lead').value)||0,active:true};
+  if(editingId){Object.assign(catalog.find(x=>x.id===editingId),data);}else{catalog.push({id:nextSvcId++,...data});}
+  closeModal();buildAdminCatalog();buildCatGrid();
+}
+function toggleSvc(id){const s=catalog.find(x=>x.id===id);if(!s)return;s.active=!s.active;buildAdminCatalog();buildCatGrid();}
+function delSvc(id){catalog=catalog.filter(x=>x.id!==id);buildAdminCatalog();buildCatGrid();}
+
+// ============ ADMIN PROVIDERS ============
+function buildProviderList(){
+  const fr=document.getElementById('provFilterRow'),list=document.getElementById('providerList');if(!fr||!list)return;
+  const cnt={Todos:PROVIDERS.length,Pendente:PROVIDERS.filter(p=>p.status==='pending').length,Aprovado:PROVIDERS.filter(p=>p.status==='approved').length,Suspenso:PROVIDERS.filter(p=>p.status==='suspended').length};
+  fr.innerHTML='';['Todos','Pendente','Aprovado','Suspenso'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===provFilter?' active':'');d.textContent=`${f} (${cnt[f]||0})`;d.onclick=()=>{provFilter=f;buildProviderList();};fr.appendChild(d);});
+  list.innerHTML='';
+  const sm={Todos:null,Pendente:'pending',Aprovado:'approved',Suspenso:'suspended'};
+  (provFilter==='Todos'?PROVIDERS:PROVIDERS.filter(p=>p.status===sm[provFilter])).forEach(p=>{
+    const cfg={approved:{label:'Aprovado',badge:'badge-green',icon:'✓'},pending:{label:'Pendente',badge:'badge-yellow',icon:'⏳'},suspended:{label:'Suspenso',badge:'badge-orange',icon:'⚠️'},rejected:{label:'Rejeitado',badge:'badge-red',icon:'✗'}}[p.status];
+    const score=calcScore(p),tier=getTier(score);
+    const d=document.createElement('div');d.className='prov-card';
+    d.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><div class="av ${p.color}">${p.initials}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.specialty.join(', ')} · ${p.region.join(', ')}</div>${p.stats.jobsTotal>0?`<div style="font-size:11px;margin-top:2px">${tier.icon} <span style="color:${tier.color};font-weight:500">${tier.label}</span> · Score ${score}</div>`:''}</div><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div class="action-row"><button class="action-btn ab-view" onclick="viewProvider(${p.id})">Ver detalhes</button>${p.status==='pending'?`<button class="action-btn ab-approve" onclick="changeStatus(${p.id},'approved')">Aprovar</button><button class="action-btn ab-reject" onclick="promptReject(${p.id})">Rejeitar</button>`:''} ${p.status==='approved'?`<button class="action-btn ab-suspend" onclick="promptSuspend(${p.id})">Suspender</button>`:''} ${p.status==='suspended'?`<button class="action-btn ab-approve" onclick="changeStatus(${p.id},'approved')">Reativar</button>`:''}</div>`;
+    list.appendChild(d);
+  });
+}
+function viewProvider(id){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  const cfg={approved:{label:'Aprovado',badge:'badge-green',icon:'✓'},pending:{label:'Pendente',badge:'badge-yellow',icon:'⏳'},suspended:{label:'Suspenso',badge:'badge-orange',icon:'⚠️'},rejected:{label:'Rejeitado',badge:'badge-red',icon:'✗'}}[p.status];
+  const score=calcScore(p),tier=getTier(score);
+  document.getElementById('provDetailContent').innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px;display:flex;align-items:center;gap:14px"><div class="av ${p.color}" style="width:52px;height:52px;font-size:18px">${p.initials}</div><div><div style="color:#fff;font-size:16px;font-weight:500">${p.name}</div><div style="color:rgba(255,255,255,.8);font-size:12px">${p.email||''}</div><span class="badge ${cfg.badge}" style="margin-top:6px">${cfg.icon} ${cfg.label}</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES & BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${p.specialty.map(s=>`<span class="badge badge-blue">${s}</span>`).join('')}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${p.region.map(r=>`<span class="badge badge-blue">📍 ${r}</span>`).join('')}</div></div>${p.stats.jobsTotal>0?`<div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">RANKING · Score ${score} · ${tier.icon} ${tier.label}</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes</span><span>${p.stats.notaMedia}★</span></div><div style="height:5px;border-radius:3px;background:#f0f0f0"><div style="width:${p.stats.notaMedia/5*100}%;height:100%;background:var(--green);border-radius:3px"></div></div></div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade</span><span>${p.stats.pontualidade}%</span></div><div style="height:5px;border-radius:3px;background:#f0f0f0"><div style="width:${p.stats.pontualidade}%;height:100%;background:var(--blue);border-radius:3px"></div></div></div><div style="display:flex;justify-content:space-between;font-size:12px"><span>Reclamações</span><span style="color:${p.stats.reclamacoes===0?'var(--green)':'var(--red)'}">${p.stats.reclamacoes}</span></div></div>`:''}<div class="card"><div class="row" style="margin-bottom:0"><span>Membro desde</span><span>${p.joinDate}</span></div></div>${p.status==='pending'?`<div style="display:flex;gap:8px"><button class="btn btn-green btn-sm" style="flex:1" onclick="changeStatus(${p.id},'approved')">✓ Aprovar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="promptReject(${p.id})">✗ Rejeitar</button></div>`:''}${p.status==='approved'?`<button class="btn btn-outline-red btn-sm" style="width:100%" onclick="promptSuspend(${p.id})">⚠️ Suspender</button>`:''}`;
+  navHistory.push(currentScreen);showScreen('a-provider-detail');
+}
+function changeStatus(id,status){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;p.status=status;closeModal();buildProviderList();if(currentScreen==='a-provider-detail')viewProvider(id);showToast(status==='approved'?`✓ ${p.name} aprovado!`:`Status atualizado`);}
+function promptReject(id){document.getElementById('modalTitle').textContent='Rejeitar';document.getElementById('modalContent').innerHTML=`<select class="input" id="rr"><option>Documentação incompleta</option><option>Documentos inválidos</option><option>Região fora de cobertura</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmRej(${id})">Confirmar</button></div>`;document.getElementById('modalBg').style.display='flex';}
+function confirmRej(id){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;p.status='rejected';closeModal();buildProviderList();showToast(`✗ ${p.name} rejeitado`);}
+function promptSuspend(id){document.getElementById('modalTitle').textContent='Suspender';document.getElementById('modalContent').innerHTML=`<select class="input" id="sr"><option>Reclamações recorrentes</option><option>Descumprimento das regras</option><option>Não comparecimento</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmSusp(${id})">Suspender</button></div>`;document.getElementById('modalBg').style.display='flex';}
+function confirmSusp(id){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;p.status='suspended';closeModal();buildProviderList();showToast(`⚠️ ${p.name} suspenso`);}
+
+// ============ ADMIN DISPATCH ============
+function buildDispatchList(){
+  const fr=document.getElementById('dispatchFilter'),list=document.getElementById('dispatchList');if(!fr||!list)return;
+  const DISPATCH_STATUS={confirmed:{label:'Confirmado',badge:'badge-green',icon:'✓'},offering:{label:'Aguardando aceite',badge:'badge-yellow',icon:'⏳'},no_provider:{label:'Sem prestador',badge:'badge-red',icon:'🚨'},completed:{label:'Concluído',badge:'badge-gray',icon:'✓'}};
+  const counts={Todos:dispatchJobs.length,'Aguardando':dispatchJobs.filter(j=>j.dispatch.status==='offering').length,'Confirmado':dispatchJobs.filter(j=>j.dispatch.status==='confirmed').length,'Sem prestador':dispatchJobs.filter(j=>j.dispatch.status==='no_provider').length,'Concluído':dispatchJobs.filter(j=>j.dispatch.status==='completed').length};
+  fr.innerHTML='';['Todos','Aguardando','Confirmado','Sem prestador','Concluído'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===dispatchFilterState?' active':'');d.textContent=`${f} (${counts[f]||0})`;d.onclick=()=>{dispatchFilterState=f;buildDispatchList();};fr.appendChild(d);});
+  list.innerHTML='';
+  const sm={'Todos':null,'Aguardando':'offering','Confirmado':'confirmed','Sem prestador':'no_provider','Concluído':'completed'};
+  (dispatchFilterState==='Todos'?dispatchJobs:dispatchJobs.filter(j=>j.dispatch.status===sm[dispatchFilterState])).forEach(job=>{
+    const cfg=DISPATCH_STATUS[job.dispatch.status],prov=PROVIDERS.find(p=>p.id===job.dispatch.providerId),currP=PROVIDERS.find(p=>p.id===job.dispatch.currentOfferId);
+    const d=document.createElement('div');d.className=`job-card ${job.dispatch.status==='no_provider'?'urgent':job.dispatch.status==='offering'?'waiting':'confirmed'}`;
+    let provInfo='';
+    if(job.dispatch.status==='confirmed'&&prov)provInfo=`<div style="font-size:11px;color:var(--green);margin-top:4px">✓ ${prov.name}</div>`;
+    if(job.dispatch.status==='offering'&&currP)provInfo=`<div style="font-size:11px;color:var(--yellow);margin-top:4px">⏳ Aguardando ${currP.name}</div>`;
+    if(job.dispatch.status==='no_provider')provInfo=`<div style="font-size:11px;color:var(--red);margin-top:4px">🚨 Intervenção manual</div>`;
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#${job.id} · ${job.service}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${job.client} · 📍 ${job.bairro} · ${job.date} ${job.time} · R$ ${job.price}</div>${provInfo}<div class="action-row"><button class="action-btn ab-view" onclick="viewDispatch(${job.id})">Ver detalhes</button>${job.dispatch.status==='no_provider'||job.dispatch.status==='offering'?`<button class="action-btn ab-suspend" onclick="openReallocModal(${job.id})">Realocar</button>`:''}</div>`;
+    list.appendChild(d);
+  });
+}
+function viewDispatch(id){
+  const job=dispatchJobs.find(j=>j.id===id);if(!job)return;
+  const DISPATCH_STATUS={confirmed:{label:'Confirmado',badge:'badge-green',icon:'✓'},offering:{label:'Aguardando aceite',badge:'badge-yellow',icon:'⏳'},no_provider:{label:'Sem prestador',badge:'badge-red',icon:'🚨'},completed:{label:'Concluído',badge:'badge-gray',icon:'✓'}};
+  const cfg=DISPATCH_STATUS[job.dispatch.status];
+  const steps=[{icon:'📄',title:'Job criado',sub:'Pagamento confirmado',state:'done'}];
+  job.dispatch.offeredTo.forEach(pid=>{const p=PROVIDERS.find(x=>x.id===pid);const h=job.dispatch.history.find(x=>x.providerId===pid);if(h&&h.action==='accepted')steps.push({icon:'✓',title:`Aceito · ${p?p.name:'?'}`,sub:h.at,state:'done'});else if(job.dispatch.currentOfferId===pid)steps.push({icon:'⏳',title:`Aguardando · ${p?p.name:'?'}`,sub:'15 min',state:'active'});});
+  if(job.dispatch.status==='confirmed')steps.push({icon:'✓',title:'Confirmado',sub:'Pronto',state:'done'});
+  else if(job.dispatch.status==='no_provider')steps.push({icon:'🚨',title:'Sem prestador',sub:'Intervenção necessária',state:'failed'});
+  const sh=steps.map(s=>`<div style="display:flex;gap:12px;padding-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:${s.state==='done'?'var(--green)':s.state==='active'?'var(--blue)':s.state==='failed'?'var(--red)':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#fff">${s.icon}</div><div><div style="font-size:13px;font-weight:500">${s.title}</div><div style="font-size:11px;color:var(--muted)">${s.sub}</div></div></div>`).join('');
+  document.getElementById('dispatchDetailContent').innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">#${job.id} · ${job.service}</div><span class="badge ${cfg.badge}" style="margin-top:8px">${cfg.icon} ${cfg.label}</span></div><div class="card">${sh}</div>${job.dispatch.status==='no_provider'||job.dispatch.status==='offering'?`<button class="btn btn-primary" onclick="openReallocModal(${job.id})">🔄 Realocar prestador</button><div style="height:8px"></div>`:''}<button class="btn btn-outline" onclick="goScreen('a-dispatch')">Voltar</button>`;
+  navHistory.push(currentScreen);showScreen('a-dispatch-detail');
+}
+let selectedReallocId=null;
+function openReallocModal(jobId){
+  const job=dispatchJobs.find(j=>j.id===jobId);if(!job)return;
+  const compat=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(job.bairro)&&p.available);
+  document.getElementById('modalTitle').textContent='Realocar prestador';
+  const opts=compat.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer" onclick="this.style.border='2px solid var(--blue)';this.style.background='var(--blue-light)';document.querySelectorAll('.realloc-opt').forEach(el=>{if(el!==this){el.style.border='1.5px solid var(--border)';el.style.background=''}});selectedReallocId=${p.id}" class="realloc-opt"><div class="av ${p.color}" style="width:32px;height:32px;font-size:11px">${p.initials}</div><div style="flex:1"><div style="font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--muted)">⭐ ${calcScore(p)} · ${p.specialty.join(', ')}</div></div></div>`).join('');
+  document.getElementById('modalContent').innerHTML=`<div class="info-box info-yellow">⏱ 15 min para aceitar após envio.</div>${opts||'<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Nenhum prestador disponível.</p>'}<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="confirmRealloc(${jobId})">Enviar oferta</button></div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+function confirmRealloc(jobId){
+  if(!selectedReallocId){showToast('Selecione um prestador');return;}
+  const job=dispatchJobs.find(j=>j.id===jobId),prov=PROVIDERS.find(p=>p.id===selectedReallocId);
+  if(!job||!prov)return;
+  job.dispatch.status='offering';job.dispatch.currentOfferId=selectedReallocId;
+  if(!job.dispatch.offeredTo.includes(selectedReallocId))job.dispatch.offeredTo.push(selectedReallocId);
+  selectedReallocId=null;closeModal();buildDispatchList();showToast(`✓ Oferta enviada para ${prov.name}!`);
+}
+
+// ============ ADMIN SUPPLY ============
+function switchSupply(tab){
+  currentSupply=tab;
+  document.querySelectorAll('.snav-item').forEach(el=>{if(el.id&&el.id.startsWith('snav-'))el.classList.remove('active');});
+  const sn=document.getElementById('snav-'+tab);if(sn)sn.classList.add('active');
+  document.querySelectorAll('.supply-screen').forEach(el=>el.classList.remove('active'));
+  const ss=document.getElementById('ss-'+tab);if(ss)ss.classList.add('active');
+  if(tab==='q')buildQuotations();if(tab==='p')buildPartsAdmin();if(tab==='s')buildSuppliersAdmin();
+}
+function buildQuotations(){
+  const fr=document.getElementById('quotFilter'),list=document.getElementById('quotationList');if(!fr||!list)return;
+  const cnt={Todos:quotations.length,Pendente:quotations.filter(q=>q.status==='pending').length,Confirmada:quotations.filter(q=>q.status==='confirmed').length};
+  fr.innerHTML='';['Todos','Pendente','Confirmada'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===quotFilter?' active':'');d.textContent=`${f} (${cnt[f]||0})`;d.onclick=()=>{quotFilter=f;buildQuotations();};fr.appendChild(d);});
+  list.innerHTML='';
+  const QUOT_STATUS={confirmed:{label:'Confirmada',badge:'badge-green',icon:'✓'},pending:{label:'Pendente',badge:'badge-yellow',icon:'⏳'}};
+  (quotFilter==='Todos'?quotations:quotations.filter(q=>q.status===(quotFilter==='Pendente'?'pending':'confirmed'))).forEach(q=>{
+    const cfg=QUOT_STATUS[q.status]||{label:q.status,badge:'badge-gray',icon:'?'},supp=suppliers.find(s=>s.id===q.supplierId);
+    const d=document.createElement('div');d.className='svc-card';
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${q.jobId} · ${q.service}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${q.client} · 📍 ${q.bairro} · ${q.scheduledDate}</div><div style="font-size:13px;font-weight:500;color:var(--blue);margin-top:6px">Total peças: R$ ${q.totalParts}</div>${q.status==='confirmed'?`<div style="font-size:11px;color:var(--green);margin-top:2px">✓ ${q.confirmedAt} · ${supp?supp.name:''} · ${q.leadTimeH}h ao prestador</div><div class="info-box info-green" style="margin-top:8px;font-size:11px">✓ Agenda do cliente liberada</div>`:''} ${q.status==='pending'?`<div class="info-box info-orange" style="margin-top:8px;font-size:11px">🔒 Agenda bloqueada até confirmação</div><div class="action-row"><button class="action-btn ab-approve" onclick="confirmQuot(${q.id})">Confirmar peça</button><button class="action-btn ab-del" onclick="showToast('Marcado como indisponível')">Indisponível</button></div>`:''}`;
+    list.appendChild(d);
+  });
+}
+function confirmQuot(id){
+  const q=quotations.find(x=>x.id===id);if(!q)return;
+  document.getElementById('modalTitle').textContent='Confirmar peça com fornecedor';
+  const opts=suppliers.filter(s=>s.active).map(s=>`<option value="${s.id}">${s.name} (${s.leadTimeH}h)</option>`).join('');
+  document.getElementById('modalContent').innerHTML=`<div class="info-box info-orange">📦 Peças entregues no endereço do prestador antes do serviço.</div><div class="label">Fornecedor</div><select class="input" id="confSupp"><option value="">Selecione...</option>${opts}</select><div class="info-box info-green">✓ Ao confirmar: agenda do cliente é liberada automaticamente.</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-green btn-sm" style="flex:1" onclick="doConfirmQuot(${id})">Confirmar e liberar agenda</button></div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+function doConfirmQuot(id){
+  const q=quotations.find(x=>x.id===id);if(!q)return;
+  const suppId=parseInt(document.getElementById('confSupp').value)||1,supp=suppliers.find(s=>s.id===suppId);
+  q.supplierId=suppId;q.leadTimeH=supp?supp.leadTimeH:2;q.status='confirmed';q.confirmedAt='agora';
+  closeModal();buildQuotations();showToast(`✓ Peças confirmadas! Agenda do cliente liberada.`);
+}
+function buildPartsAdmin(){const list=document.getElementById('partList');if(!list)return;list.innerHTML='';parts.forEach(p=>{const supp=suppliers.find(s=>s.id===p.supplierId);const d=document.createElement('div');d.className='svc-card';d.innerHTML=`<div class="row"><span style="font-size:13px;font-weight:500">${p.name}</span><span style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${p.price}</span></div><div style="font-size:11px;color:var(--muted)">${p.cat} · ${p.unit}${supp?` · ${supp.name}`:''}</div>`;list.appendChild(d);});}
+function buildSuppliersAdmin(){const list=document.getElementById('supplierList');if(!list)return;list.innerHTML='';suppliers.forEach(s=>{const d=document.createElement('div');d.className='svc-card';d.innerHTML=`<div class="row"><span style="font-size:13px;font-weight:500">${s.name}</span><span class="badge badge-green">Ativo</span></div><div style="font-size:12px;color:var(--muted)">📍 ${s.region} · ⏱ ${s.leadTimeH}h</div><div style="margin-top:4px">${s.cats.map(c=>`<span class="tag-cat">${c}</span>`).join('')}</div>`;list.appendChild(d);});}
+
+// ============ ADMIN RANKING ============
+function buildRanking(){
+  const fr=document.getElementById('rankFilter'),list=document.getElementById('rankingList');if(!fr||!list)return;
+  fr.innerHTML='';['Todos','Vila Madalena','Pinheiros','Moema'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===rankFilter?' active':'');d.textContent=f;d.onclick=()=>{rankFilter=f;buildRanking();};fr.appendChild(d);});
+  const ranked=[...PROVIDERS].filter(p=>rankFilter==='Todos'||p.region.includes(rankFilter)).filter(p=>p.stats.jobsTotal>0).map(p=>({...p,score:calcScore(p)})).sort((a,b)=>b.score-a.score);
+  list.innerHTML='';
+  ranked.forEach((p,i)=>{
+    const tier=getTier(p.score),c=p.score>=8?'var(--green)':p.score>=7?'var(--blue)':'var(--orange)';
+    const circ=2*Math.PI*22,off=circ*(1-p.score/10);
+    const d=document.createElement('div');d.className='rank-card';
+    d.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:28px;height:28px;border-radius:50%;background:${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--blue-light)'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:${i<=2?'#333':'var(--blue)'}">#${i+1}</div><div class="av ${p.color}">${p.initials}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.specialty.join(', ')}</div></div><div class="score-ring"><svg width="56" height="56" viewBox="0 0 56 56"><circle fill="none" stroke="#f0f0f0" stroke-width="5" cx="28" cy="28" r="22" transform="rotate(-90 28 28)"/><circle fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" cx="28" cy="28" r="22" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 28 28)"/></svg><div class="score-num" style="color:${c}">${p.score}</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:10px;font-size:11px">★ ${p.stats.notaMedia}</span><span style="background:var(--blue-light);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:11px">${Math.round(p.stats.jobsConcluidos/p.stats.jobsTotal*100)}% concl.</span><span style="background:var(--orange-light);color:var(--orange);padding:2px 8px;border-radius:10px;font-size:11px">${p.stats.pontualidade}% pontual</span></div><button class="action-btn ab-view" style="width:100%" onclick="viewProviderRank(${p.id})">Ver detalhes</button>`;
+    list.appendChild(d);
+  });
+}
+function viewProviderRank(id){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  const score=calcScore(p),tier=getTier(score);
+  const nota=(p.stats.notaMedia/5)*10,conclusao=(p.stats.jobsConcluidos/p.stats.jobsTotal)*10,pontual=(p.stats.pontualidade/100)*10,reclam=Math.max(0,10-(p.stats.reclamacoes*1.5));
+  document.getElementById('provRankContent').innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px;display:flex;align-items:center;gap:14px"><div class="av ${p.color}" style="width:52px;height:52px;font-size:18px">${p.initials}</div><div><div style="color:#fff;font-size:16px;font-weight:500">${p.name}</div><div style="margin-top:6px">${tier.icon} <span style="color:#fff;font-weight:500">${tier.label}</span> · Score <span style="color:#fff;font-weight:700">${score}</span></div></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px">BREAKDOWN</div><div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes (40%) → ${nota.toFixed(1)}</span><span style="font-weight:500">${(nota*0.4).toFixed(2)} pts</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${nota*10}%;height:100%;border-radius:3px;background:var(--green)"></div></div></div><div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Conclusão (25%) → ${conclusao.toFixed(1)}</span><span style="font-weight:500">${(conclusao*0.25).toFixed(2)} pts</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${conclusao*10}%;height:100%;border-radius:3px;background:var(--blue)"></div></div></div><div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade (20%) → ${pontual.toFixed(1)}</span><span style="font-weight:500">${(pontual*0.2).toFixed(2)} pts</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${pontual*10}%;height:100%;border-radius:3px;background:var(--orange)"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Reclamações (15%) → ${reclam.toFixed(1)}</span><span style="font-weight:500">${(reclam*0.15).toFixed(2)} pts</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${reclam*10}%;height:100%;border-radius:3px;background:${reclam>=8?'var(--green)':'var(--red)'}"></div></div></div></div><button class="btn btn-outline" onclick="goBack()">← Voltar</button>`;
+  navHistory.push(currentScreen);showScreen('a-provider-rank');
+}
+
+// ============ ADMIN CLAIMS ============
+function buildClaims(){
+  const fr=document.getElementById('claimsFilter'),list=document.getElementById('claimsList');if(!fr||!list)return;
+  const cnt={Todos:claims.length,Pendente:claims.filter(c=>c.status==='pending').length,Resolvido:claims.filter(c=>c.status==='resolved').length};
+  fr.innerHTML='';['Todos','Pendente','Resolvido'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===claimsFilter?' active':'');d.textContent=`${f} (${cnt[f]||0})`;d.onclick=()=>{claimsFilter=f;buildClaims();};fr.appendChild(d);});
+  list.innerHTML='';
+  (claimsFilter==='Todos'?claims:claims.filter(c=>c.status===(claimsFilter==='Pendente'?'pending':'resolved'))).forEach(claim=>{
+    const d=document.createElement('div');d.className='svc-card';
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${claim.jobId} · ${claim.service}</span><span class="badge ${claim.status==='pending'?'badge-yellow':'badge-green'}">${claim.status==='pending'?'⏳ Pendente':'✓ Resolvido'}</span></div><div style="font-size:12px;color:var(--muted)">${claim.client} · ${claim.date} · ${claim.provider}</div><div style="font-size:12px;margin-top:6px;font-weight:500">${claim.type}</div>${claim.status==='resolved'?`<div class="info-box info-green" style="margin-top:6px">✓ ${claim.resolution}</div>`:`<div class="action-row"><button class="action-btn ab-view" onclick="viewClaim(${claim.id})">Analisar</button></div>`}`;
+    list.appendChild(d);
+  });
+}
+function viewClaim(id){
+  const claim=claims.find(x=>x.id===id);if(!claim)return;
+  const prov=PROVIDERS.find(p=>p.id===claim.providerId);
+  document.getElementById('claimDetailContent').innerHTML=`<div style="background:var(--orange);margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">Reclamação · ${claim.jobId}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${claim.type}</div></div><div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Cliente</span><span>${claim.client}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Prestador</span><span>${claim.provider}</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px">DESCRIÇÃO</div><div style="font-size:13px">${claim.desc}</div></div>${prov?`<div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px">PRESTADOR · Score ${calcScore(prov)}</div><div style="font-size:13px">${prov.stats.reclamacoes} reclamações · ${prov.stats.jobsConcluidos} jobs</div></div>`:''}<div style="font-size:13px;font-weight:500;margin-bottom:10px">Ação</div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-outline btn-sm" style="text-align:left" onclick="resolveClaim(${id},'warn')">⚠️ Notificar prestador (reduz score)</button><button class="btn btn-outline btn-sm" style="text-align:left" onclick="resolveClaim(${id},'compensate')">💰 Compensar cliente + notificar prestador</button><button class="btn btn-outline-red btn-sm" style="text-align:left" onclick="resolveClaim(${id},'suspend')">🚫 Suspender prestador</button><button class="btn btn-outline btn-sm" style="text-align:left" onclick="resolveClaim(${id},'dismiss')">✓ Improcedente</button></div>`;
+  navHistory.push(currentScreen);showScreen('a-claim-detail');
+}
+function resolveClaim(id,action){
+  const claim=claims.find(x=>x.id===id);if(!claim)return;
+  const res={warn:'Score reduzido. Prestador notificado.',compensate:'Cliente compensado. Score reduzido.',suspend:'Prestador suspenso.',dismiss:'Improcedente.'};
+  claim.status='resolved';claim.resolution=res[action];
+  if(action==='suspend'){const prov=PROVIDERS.find(p=>p.id===claim.providerId);if(prov)prov.status='suspended';}
+  showToast('✓ Reclamação resolvida.');goScreen('a-claims');
+}
+
+// ============ NAV ============
+const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos'};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const s=document.getElementById(id);if(s){s.classList.add('active');currentScreen=id;}
+  const isAuth=AUTH_SCREENS.includes(id),isProv=id.startsWith('p-')&&!isAuth,isClient=(id.startsWith('s-')||id.startsWith('jf-'))&&!isAuth;
+  document.getElementById('topbar').style.display=isAuth?'none':'flex';
+  document.getElementById('viewTabs').style.display=isAuth?'none':'flex';
+  document.getElementById('bottomNav').style.display=isClient?'flex':'none';
+  document.getElementById('provNav').style.display=isProv?'flex':'none';
+  document.getElementById('backBtn').style.display=navHistory.length>0&&!isAuth?'block':'none';
+  document.getElementById('avatarEl').textContent=isProv?'CR':'MC';
+  document.getElementById('topTitle').textContent=SCREEN_TITLES[id]||'AutoCare';
+  if(id==='s-home')buildCatGrid();
+  if(id==='jf-vehicle')buildVehOptions();
+  if(id==='jf-schedule')buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1);
+  if(id==='s-reschedule')buildCalendar('reschedCalLabel','reschedDays',1);
+  if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
+  if(id==='s-vehicles')buildVehicleListScreen();
+  if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
+  if(id==='p-agenda'){buildAgendaConfig();switchAgendaTab('config');}
+  if(id==='a-services')buildAdminCatalog();
+  if(id==='a-providers')buildProviderList();
+  if(id==='a-dispatch')buildDispatchList();
+  if(id==='a-supply')switchSupply(currentSupply);
+  if(id==='a-ranking')buildRanking();
+  if(id==='a-claims')buildClaims();
+  if(id==='a-payments'){switchPayTab('today');}
+}
+function goScreen(id){navHistory.push(currentScreen);showScreen(id);}
+function goBack(){if(navHistory.length>0){const p=navHistory.pop();showScreen(p);}}
+// ===== AUTH REAL (Supabase) =====
+let _authContext = 'client';
+
+function showLoginScreen(context) {
+  _authContext = context;
+  const icons  = { client:'🚗', provider:'🔧', admin:'⚙️' };
+  const titles = { client:'Entrar na conta', provider:'Entrar como Parceiro', admin:'Acesso Admin' };
+  const subs   = { client:'AutoCare · Clientes', provider:'AutoCare · Parceiros', admin:'AutoCare · Administração' };
+  document.getElementById('auth-login-icon').textContent  = icons[context];
+  document.getElementById('auth-login-title').textContent = titles[context];
+  document.getElementById('auth-login-sub').textContent   = subs[context];
+  document.getElementById('auth-email').value    = '';
+  document.getElementById('auth-password').value = '';
+  document.getElementById('auth-error').textContent = '';
+  document.getElementById('auth-submit-btn').textContent = 'Entrar';
+  document.getElementById('auth-submit-btn').disabled = false;
+  goScreen('auth-login');
+}
+
+async function submitLogin() {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl    = document.getElementById('auth-error');
+  const btn      = document.getElementById('auth-submit-btn');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Preencha e-mail e senha.'; return; }
+  btn.textContent = 'Entrando…';
+  btn.disabled    = true;
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    errEl.textContent = 'E-mail ou senha incorretos.';
+    btn.textContent   = 'Entrar';
+    btn.disabled      = false;
+    return;
+  }
+  await handleAuthSession(data.session);
+}
+
+async function handleAuthSession(session) {
+  if (!session) return;
+  const { data: userData } = await _supabase
+    .from('users')
+    .select('role, name')
+    .eq('id', session.user.id)
+    .single();
+  if (!userData) {
+    document.getElementById('auth-error').textContent = 'Usuário não encontrado.';
+    return;
+  }
+  const role = userData.role;
+  window._currentUser = { id: session.user.id, email: session.user.email, role, name: userData.name };
+  navHistory = [];
+  if (role === 'admin')    { switchView('admin');    return; }
+  if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); return; }
+  switchView('client'); goScreen('s-home');
+}
+
+async function doLogout() {
+  await _supabase.auth.signOut();
+  window._currentUser = null;
+  navHistory = [];
+  goScreen('s-splash');
+}
+
+async function checkExistingSession() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (session) await handleAuthSession(session);
+}
+function doLogin(role){navHistory=[];showScreen(role==='provider'?'p-dashboard':'s-home');}
+function switchView(v){
+  currentView=v;navHistory=[];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['client','provider','admin'][i]===v));
+  showScreen({client:'s-splash',provider:'p-splash',admin:'a-dashboard'}[v]);
+}
+document.getElementById('backBtn').addEventListener('click',goBack);
+function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');}
+function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');}
+function selectPay(t){document.getElementById('payCard').style.border=t==='card'?'2px solid var(--blue)':'0.5px solid var(--border)';document.getElementById('payPix').style.border=t==='pix'?'2px solid var(--blue)':'0.5px solid var(--border)';}
+function closeModal(e){if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').style.display='none';}
+function mockUpload(btn){btn.textContent='✓ Enviado';btn.style.background='var(--green-light)';btn.style.color='var(--green)';btn.disabled=true;}
+function showToast(msg){const t=document.createElement('div');t.style.cssText='position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:200;white-space:nowrap;max-width:320px;text-align:center';t.textContent=msg;document.getElementById('app').appendChild(t);setTimeout(()=>t.remove(),2500);}
+
+initSupabase().then(async ()=>{ await checkExistingSession(); });
+</script>
+
+</body>
+</html>
