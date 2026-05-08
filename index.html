@@ -474,7 +474,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- PERFIL CLIENTE -->
     <div class="screen" id="s-profile">
-      <div class="profile-header"><div class="profile-av">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px">📍 Vila Madalena</div></div></div>
+      <div class="profile-header"><div class="profile-av" id="profile-av-initials">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="profile-name-display">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="profile-neighborhood-display">📍 Vila Madalena</div></div></div>
       <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">🏠 Casa</div><div style="font-size:12px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div><span class="badge badge-green">Principal</span></div></div>
       <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">💼 Trabalho</div><div style="font-size:12px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div></div>
       <hr class="divider">
@@ -490,7 +490,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro. Peças entregues no seu endereço.</div><div class="label">Seu endereço base</div><input class="input" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg2')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg3')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg5')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg4')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-pending')">Enviar cadastro</button></div></div></div>
-    <div class="screen full" id="p-pending" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px">⏳</div><div style="font-size:20px;font-weight:500;margin-bottom:8px">Cadastro enviado!</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Análise em até <strong>48h</strong>.</div><button class="btn btn-outline" onclick="doLogin('provider')">Acompanhar status</button></div></div>
+    <div class="screen full" id="p-pending" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px">⏳</div><div style="font-size:20px;font-weight:500;margin-bottom:8px">Cadastro enviado!</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Análise em até <strong>48h</strong>.</div><button class="btn btn-outline" onclick="showLoginScreen('provider')">Acompanhar status</button></div></div>
 
     <!-- ===== AUTH LOGIN (REAL) ===== -->
     <div class="screen full" id="auth-login" style="padding:0">
@@ -521,7 +521,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <!-- ===== PROVIDER APP ===== -->
     <div class="screen" id="p-dashboard">
       <div style="margin-bottom:14px"><div style="font-size:13px;color:var(--muted)">Olá, Carlos 👋</div><div style="font-size:16px;font-weight:500">Dashboard · Prestador</div><div style="margin-top:4px"><span class="badge badge-green" style="font-size:10px">✓ Aprovado</span> <span style="font-size:11px;color:var(--muted)">📍 Vila Madalena, Pinheiros</span></div></div>
-      <div class="notif-banner" onclick="goScreen('p-offer')" id="offerNotif"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s">Troca de óleo · Vila Madalena · 07 mai 11:00 · R$ 240</div></div><div class="nb-badge">14:32</div></div>
+      <div class="notif-banner" onclick="goScreen('p-offer')" id="offerNotif" style="display:none"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s" id="offerNotifText">Aguardando ofertas...</div></div><div class="nb-badge" id="offerNotifTime"></div></div>
       <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n">2</div><div class="l">Jobs confirmados</div></div><div class="stat"><div class="n">R$ 360</div><div class="l">Ganhos hoje</div></div></div>
       <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS DE HOJE</div>
       <div class="job-card confirmed" style="cursor:pointer" onclick="goScreen('p-job-exec')"><div class="row"><span style="font-size:13px;font-weight:500">Troca de bateria</span><span class="badge badge-orange">Em andamento</span></div><div style="font-size:12px;color:var(--muted)">Pinheiros · 14:00 · Honda Civic · R$ 440</div></div>
@@ -785,7 +785,9 @@ async function initSupabase(){
     // Prestadores
     loadProviders(),
     // Fornecedores
-    loadSuppliers()
+    loadSuppliers(),
+    // Cotações
+    loadQuotations()
   ]);
   // Re-renderizar tela atual
   if(currentScreen==='s-home')buildCatGrid();
@@ -825,13 +827,16 @@ function buildVehicleListScreen(){
 }
 function buildVehOptions(){
   const el=document.getElementById('vehList');if(!el)return;el.innerHTML='';
-  vehicles.forEach((v,i)=>{
-    const d=document.createElement('div');d.className='veh-option'+(i===0?' selected':'');d.id='vopt-'+v.id;
-    d.innerHTML=`<div class="veh-icon">🚗</div><div><div style="font-size:13px;font-weight:500">${v.marca} ${v.modelo}</div><div style="font-size:11px;color:var(--muted)">${v.ano} · ${v.placa} · ${v.comb}</div></div>`;
-    d.onclick=()=>{document.querySelectorAll('.veh-option').forEach(e=>e.classList.remove('selected'));d.classList.add('selected');jobState.vehicle={id:v.id,label:`${v.marca} ${v.modelo} ${v.ano}`,plate:v.placa};};
+  const list=customerVehicles.length>0?customerVehicles:vehicles;
+  list.forEach((v,i)=>{
+    const marca=v.brand||v.marca, modelo=v.model||v.modelo, ano=v.year||v.ano, placa=v.plate||v.placa, comb=v.fuel||v.comb;
+    const vid=v.id;
+    const d=document.createElement('div');d.className='veh-option'+(i===0?' selected':'');d.id='vopt-'+vid;
+    d.innerHTML=`<div class="veh-icon">🚗</div><div><div style="font-size:13px;font-weight:500">${marca} ${modelo}</div><div style="font-size:11px;color:var(--muted)">${ano} · ${placa} · ${comb}</div></div>`;
+    d.onclick=()=>{document.querySelectorAll('.veh-option').forEach(e=>e.classList.remove('selected'));d.classList.add('selected');jobState.vehicle={id:vid,label:`${marca} ${modelo} ${ano}`,plate:placa};};
     el.appendChild(d);
   });
-  if(vehicles.length>0)jobState.vehicle={id:vehicles[0].id,label:`${vehicles[0].marca} ${vehicles[0].modelo} ${vehicles[0].ano}`,plate:vehicles[0].placa};
+  if(list.length>0){const v=list[0];const marca=v.brand||v.marca,modelo=v.model||v.modelo,ano=v.year||v.ano,placa=v.plate||v.placa;jobState.vehicle={id:v.id,label:`${marca} ${modelo} ${ano}`,plate:placa};}
 }
 
 // ============ FIX 1: AGENDA FLEXÍVEL ============
@@ -971,6 +976,34 @@ async function loadProviders(){
   console.log(`✓ ${PROVIDERS.length} prestadores carregados do Supabase`);
 }
 
+// ============ VEHICLES ============
+let customerVehicles=[];
+
+async function loadVehicles(){
+  if(!window._currentUser||window._currentUser.role!=='client')return;
+  const {data:customer}=await _supabase
+    .from('customers').select('id')
+    .eq('user_id',window._currentUser.id).single();
+  if(!customer)return;
+  const {data,error}=await _supabase
+    .from('vehicles').select('*')
+    .eq('customer_id',customer.id);
+  if(error){console.error('Erro ao carregar veículos:',error);return;}
+  customerVehicles=data.map(row=>({
+    id:    row.id,
+    label: `${row.brand} ${row.model} ${row.year}`,
+    plate: row.plate,
+    brand: row.brand,
+    model: row.model,
+    year:  row.year,
+    fuel:  row.fuel_type,
+    alias: row.alias||''
+  }));
+  if(customerVehicles.length>0)
+    jobState.vehicle={id:customerVehicles[0].id,label:customerVehicles[0].label,plate:customerVehicles[0].plate};
+  console.log(`✓ ${customerVehicles.length} veículos carregados do Supabase`);
+}
+
 // ============ SUPPLY DATA ============
 let suppliers=[];
 
@@ -998,11 +1031,35 @@ const parts=[
   {id:4,name:'Bateria 60Ah selada',cat:'Elétrica',supplierId:1,price:320,unit:'unid',available:true},
   {id:5,name:'Palheta dianteira (par)',cat:'Reparos',supplierId:1,price:42,unit:'par',available:true},
 ];
-let quotations=[
-  {id:1,jobId:'#2047',service:'Troca de óleo + filtro',client:'Marcello Costa',bairro:'Vila Madalena',scheduledDate:'06 mai · 11:00',parts:[{partId:1,qty:4,unitPrice:38,total:152},{partId:2,qty:1,unitPrice:25,total:25}],status:'confirmed',supplierId:1,totalParts:177,confirmedAt:'05 mai · 09:30',leadTimeH:2},
-  {id:2,jobId:'#2048',service:'Troca de bateria',client:'Ana Lima',bairro:'Pinheiros',scheduledDate:'06 mai · 14:00',parts:[{partId:4,qty:1,unitPrice:320,total:320}],status:'pending',supplierId:null,totalParts:320,confirmedAt:null,leadTimeH:null},
-  {id:3,jobId:'#2051',service:'Troca de filtro de ar',client:'Roberto Souza',bairro:'Jardins',scheduledDate:'07 mai · 09:00',parts:[{partId:3,qty:1,unitPrice:32,total:32}],status:'pending',supplierId:null,totalParts:32,confirmedAt:null,leadTimeH:null},
-];
+let quotations=[];
+
+async function loadQuotations(){
+  const {data,error}=await _supabase
+    .from('quotations')
+    .select(`
+      *,
+      jobs(scheduled_date, scheduled_time, addresses(neighborhood)),
+      services(name)
+    `)
+    .order('job_id', {ascending:false});
+  if(error){console.error('Erro ao carregar cotações:',error);return;}
+  quotations=data.map(row=>({
+    id:            row.id,
+    uuid:          row.id,
+    jobId:         '#'+row.job_id,
+    service:       row.services?.name||'',
+    client:        '',
+    bairro:        row.jobs?.addresses?.neighborhood||'',
+    scheduledDate: row.jobs?.scheduled_date||'',
+    status:        row.status,
+    supplierId:    row.supplier_id||null,
+    totalParts:    Number(row.total_parts)||0,
+    confirmedAt:   row.confirmed_at||null,
+    leadTimeH:     row.lead_time_h||null,
+    parts:         row.parts_json||[]
+  }));
+  console.log(`✓ ${quotations.length} cotações carregadas do Supabase`);
+}
 
 // ============ DISPATCH DATA ============
 const dispatchJobs=[
@@ -1220,11 +1277,60 @@ function fillConfirm(svc,time,endTime){
   document.getElementById('cfPrice').textContent=`R$ ${jobState.price}`;
   buildProg(6);
 }
-function createJob(){
+async function createJob(){
   const s=jobState.service;if(!s)return;
+
+  const { data: customer } = await _supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', window._currentUser.id)
+    .single();
+
+  if(!customer){ showToast('❌ Erro: cliente não encontrado'); return; }
+
+  const { data: address } = await _supabase
+    .from('addresses')
+    .select('id')
+    .eq('customer_id', customer.id)
+    .limit(1)
+    .single();
+
+  const jobData = {
+    customer_id:     customer.id,
+    vehicle_id:      customerVehicles.length>0 ? customerVehicles[0].id : null,
+    service_id:      jobState.service.uuid,
+    address_id:      address ? address.id : null,
+    status:          'pending',
+    scheduled_date:  jobState.selectedDate,
+    scheduled_time:  jobState.selectedSlot,
+    total_price:     jobState.price,
+    payment_method:  'card',
+    payment_status:  'pending'
+  };
+
+  const { data: job, error } = await _supabase
+    .from('jobs')
+    .insert(jobData)
+    .select()
+    .single();
+
+  if(error){ console.error('Erro job completo:', JSON.stringify(error)); showToast('❌ ' + JSON.stringify(error)); return; }
+
+  if(s.parts){
+    const { data: quot, error: quotErr } = await _supabase.from('quotations').insert({
+      job_id:      job.id,
+      service_id:  s.uuid,
+      status:      'pending',
+      parts_json:  {},
+      total_parts: s.price || 0
+    }).select().single();
+    console.log('QUOTATION result:', quot, 'error:', quotErr);
+  }
+
   document.getElementById('jobCreatedInfo').textContent=`${s.name} · ${jobState.addrLabel} · ${jobState.selectedDate} ${jobState.selectedSlot}`;
   document.getElementById('jcDate').textContent=`${jobState.selectedDate} às ${jobState.selectedSlot}`;
-  showToast('✓ Job criado! Alocando prestador...');navHistory=[];showScreen('jf-created');
+  showToast('✓ Job #'+job.id+' criado! Alocando prestador...');
+  navHistory=[];showScreen('jf-created');
 }
 
 // ============ COUNTDOWN ============
@@ -1240,9 +1346,85 @@ function updateCountdown(){
   arc.style.strokeDashoffset=213.6*(1-countdownSecs/900);
   const urgent=countdownSecs<=120;el.className='countdown-num'+(urgent?' urgent':'');arc.style.stroke=urgent?'var(--red)':'var(--blue)';
 }
-function acceptOffer(){if(countdownInterval)clearInterval(countdownInterval);goScreen('p-offer-accepted');}
-function rejectOffer(){if(countdownInterval)clearInterval(countdownInterval);goScreen('p-offer-rejected');}
-function confirmReject(){showToast('Recusa registrada.');goScreen('p-dashboard');}
+async function acceptOffer(){
+  if(countdownInterval) clearInterval(countdownInterval);
+  const jobId = window._currentOfferJobId;
+  if(!jobId){ goScreen('p-offer-accepted'); return; }
+  try {
+    const { data: providerRow } = await _supabase
+      .from('providers')
+      .select('id')
+      .eq('user_id', window._currentUser.id)
+      .single();
+    if(!providerRow){ alert('Prestador não encontrado.'); return; }
+    const providerId = providerRow.id;
+    const now = new Date().toISOString();
+    await _supabase.from('job_dispatch').insert({
+      job_id:      jobId,
+      provider_id: providerId,
+      offered_at:  now,
+      accepted_at: now,
+      status:      'accepted'
+    });
+    await _supabase
+      .from('jobs')
+      .update({ status: 'accepted' })
+      .eq('id', jobId);
+    const banner = document.getElementById('offerNotif');
+    if(banner) banner.style.display = 'none';
+    window._currentOfferJobId = null;
+    window._lastJobId = jobId;
+    goScreen('p-offer-accepted');
+  } catch(err){
+    console.error('Erro ao aceitar job:', err);
+    alert('Erro ao aceitar. Tente novamente.');
+  }
+}
+async function rejectOffer(){
+  if(countdownInterval) clearInterval(countdownInterval);
+  const jobId = window._currentOfferJobId;
+  if(!jobId){ goScreen('p-offer-rejected'); return; }
+  try {
+    const { data: providerRow } = await _supabase
+      .from('providers')
+      .select('id')
+      .eq('user_id', window._currentUser.id)
+      .single();
+    if(!providerRow){ goScreen('p-offer-rejected'); return; }
+    const now = new Date().toISOString();
+    await _supabase.from('job_dispatch').insert({
+      job_id:      jobId,
+      provider_id: providerRow.id,
+      offered_at:  now,
+      rejected_at: now,
+      status:      'rejected'
+    });
+    const banner = document.getElementById('offerNotif');
+    if(banner) banner.style.display = 'none';
+    window._currentOfferJobId = null;
+    window._lastJobId = jobId;
+    goScreen('p-offer-rejected');
+  } catch(err){
+    console.error('Erro ao recusar job:', err);
+    goScreen('p-offer-rejected');
+  }
+}
+async function confirmReject(){
+  const radios = document.querySelectorAll('input[name="rr"]');
+  const motivos = ['Indisponível neste horário','Não consigo chegar neste bairro','Não me sinto confortável com este serviço'];
+  let motivo = motivos[0];
+  radios.forEach((r,i)=>{ if(r.checked) motivo = motivos[i]; });
+
+  const jobId = window._lastJobId;
+  if(jobId){
+    await _supabase.from('job_dispatch')
+      .update({ rejection_reason: motivo })
+      .eq('job_id', jobId)
+      .eq('status','rejected');
+  }
+  showToast('Recusa registrada.');
+  goScreen('p-dashboard');
+}
 
 // ============ EXECUÇÃO ============
 function doChk(n){
@@ -1340,7 +1522,7 @@ function buildProviderList(){
     const cfg={approved:{label:'Aprovado',badge:'badge-green',icon:'✓'},pending:{label:'Pendente',badge:'badge-yellow',icon:'⏳'},suspended:{label:'Suspenso',badge:'badge-orange',icon:'⚠️'},rejected:{label:'Rejeitado',badge:'badge-red',icon:'✗'}}[p.status];
     const score=calcScore(p),tier=getTier(score);
     const d=document.createElement('div');d.className='prov-card';
-    d.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><div class="av ${p.color}">${p.initials}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.specialty.join(', ')} · ${p.region.join(', ')}</div>${p.stats.jobsTotal>0?`<div style="font-size:11px;margin-top:2px">${tier.icon} <span style="color:${tier.color};font-weight:500">${tier.label}</span> · Score ${score}</div>`:''}</div><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div class="action-row"><button class="action-btn ab-view" onclick="viewProvider(${p.id})">Ver detalhes</button>${p.status==='pending'?`<button class="action-btn ab-approve" onclick="changeStatus(${p.id},'approved')">Aprovar</button><button class="action-btn ab-reject" onclick="promptReject(${p.id})">Rejeitar</button>`:''} ${p.status==='approved'?`<button class="action-btn ab-suspend" onclick="promptSuspend(${p.id})">Suspender</button>`:''} ${p.status==='suspended'?`<button class="action-btn ab-approve" onclick="changeStatus(${p.id},'approved')">Reativar</button>`:''}</div>`;
+    d.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><div class="av ${p.color}">${p.initials}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.specialty.join(', ')} · ${p.region.join(', ')}</div>${p.stats.jobsTotal>0?`<div style="font-size:11px;margin-top:2px">${tier.icon} <span style="color:${tier.color};font-weight:500">${tier.label}</span> · Score ${score}</div>`:''}</div><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div class="action-row"><button class="action-btn ab-view" onclick="viewProvider('${p.id}')">Ver detalhes</button>${p.status==='pending'?`<button class="action-btn ab-approve" onclick="changeStatus('${p.id}','approved')">Aprovar</button><button class="action-btn ab-reject" onclick="promptReject('${p.id}')">Rejeitar</button>`:''} ${p.status==='approved'?`<button class="action-btn ab-suspend" onclick="promptSuspend('${p.id}')">Suspender</button>`:''} ${p.status==='suspended'?`<button class="action-btn ab-approve" onclick="changeStatus('${p.id}','approved')">Reativar</button>`:''}</div>`;
     list.appendChild(d);
   });
 }
@@ -1348,14 +1530,55 @@ function viewProvider(id){
   const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
   const cfg={approved:{label:'Aprovado',badge:'badge-green',icon:'✓'},pending:{label:'Pendente',badge:'badge-yellow',icon:'⏳'},suspended:{label:'Suspenso',badge:'badge-orange',icon:'⚠️'},rejected:{label:'Rejeitado',badge:'badge-red',icon:'✗'}}[p.status];
   const score=calcScore(p),tier=getTier(score);
-  document.getElementById('provDetailContent').innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px;display:flex;align-items:center;gap:14px"><div class="av ${p.color}" style="width:52px;height:52px;font-size:18px">${p.initials}</div><div><div style="color:#fff;font-size:16px;font-weight:500">${p.name}</div><div style="color:rgba(255,255,255,.8);font-size:12px">${p.email||''}</div><span class="badge ${cfg.badge}" style="margin-top:6px">${cfg.icon} ${cfg.label}</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES & BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${p.specialty.map(s=>`<span class="badge badge-blue">${s}</span>`).join('')}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${p.region.map(r=>`<span class="badge badge-blue">📍 ${r}</span>`).join('')}</div></div>${p.stats.jobsTotal>0?`<div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">RANKING · Score ${score} · ${tier.icon} ${tier.label}</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes</span><span>${p.stats.notaMedia}★</span></div><div style="height:5px;border-radius:3px;background:#f0f0f0"><div style="width:${p.stats.notaMedia/5*100}%;height:100%;background:var(--green);border-radius:3px"></div></div></div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade</span><span>${p.stats.pontualidade}%</span></div><div style="height:5px;border-radius:3px;background:#f0f0f0"><div style="width:${p.stats.pontualidade}%;height:100%;background:var(--blue);border-radius:3px"></div></div></div><div style="display:flex;justify-content:space-between;font-size:12px"><span>Reclamações</span><span style="color:${p.stats.reclamacoes===0?'var(--green)':'var(--red)'}">${p.stats.reclamacoes}</span></div></div>`:''}<div class="card"><div class="row" style="margin-bottom:0"><span>Membro desde</span><span>${p.joinDate}</span></div></div>${p.status==='pending'?`<div style="display:flex;gap:8px"><button class="btn btn-green btn-sm" style="flex:1" onclick="changeStatus(${p.id},'approved')">✓ Aprovar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="promptReject(${p.id})">✗ Rejeitar</button></div>`:''}${p.status==='approved'?`<button class="btn btn-outline-red btn-sm" style="width:100%" onclick="promptSuspend(${p.id})">⚠️ Suspender</button>`:''}`;
+  document.getElementById('provDetailContent').innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px;display:flex;align-items:center;gap:14px"><div class="av ${p.color}" style="width:52px;height:52px;font-size:18px">${p.initials}</div><div><div style="color:#fff;font-size:16px;font-weight:500">${p.name}</div><div style="color:rgba(255,255,255,.8);font-size:12px">${p.email||''}</div><span class="badge ${cfg.badge}" style="margin-top:6px">${cfg.icon} ${cfg.label}</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES & BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${p.specialty.map(s=>`<span class="badge badge-blue">${s}</span>`).join('')}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${p.region.map(r=>`<span class="badge badge-blue">📍 ${r}</span>`).join('')}</div></div>${p.stats.jobsTotal>0?`<div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">RANKING · Score ${score} · ${tier.icon} ${tier.label}</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes</span><span>${p.stats.notaMedia}★</span></div><div style="height:5px;border-radius:3px;background:#f0f0f0"><div style="width:${p.stats.notaMedia/5*100}%;height:100%;background:var(--green);border-radius:3px"></div></div></div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade</span><span>${p.stats.pontualidade}%</span></div><div style="height:5px;border-radius:3px;background:#f0f0f0"><div style="width:${p.stats.pontualidade}%;height:100%;background:var(--blue);border-radius:3px"></div></div></div><div style="display:flex;justify-content:space-between;font-size:12px"><span>Reclamações</span><span style="color:${p.stats.reclamacoes===0?'var(--green)':'var(--red)'}">${p.stats.reclamacoes}</span></div></div>`:''}<div class="card"><div class="row" style="margin-bottom:0"><span>Membro desde</span><span>${p.joinDate}</span></div></div>${p.status==='pending'?`<div style="display:flex;gap:8px"><button class="btn btn-green btn-sm" style="flex:1" onclick="changeStatus('${p.id}','approved')">✓ Aprovar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="promptReject('${p.id}')">✗ Rejeitar</button></div>`:''}${p.status==='approved'?`<button class="btn btn-outline-red btn-sm" style="width:100%" onclick="promptSuspend('${p.id}')">⚠️ Suspender</button>`:''}`;
   navHistory.push(currentScreen);showScreen('a-provider-detail');
 }
-function changeStatus(id,status){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;p.status=status;closeModal();buildProviderList();if(currentScreen==='a-provider-detail')viewProvider(id);showToast(status==='approved'?`✓ ${p.name} aprovado!`:`Status atualizado`);}
-function promptReject(id){document.getElementById('modalTitle').textContent='Rejeitar';document.getElementById('modalContent').innerHTML=`<select class="input" id="rr"><option>Documentação incompleta</option><option>Documentos inválidos</option><option>Região fora de cobertura</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmRej(${id})">Confirmar</button></div>`;document.getElementById('modalBg').style.display='flex';}
-function confirmRej(id){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;p.status='rejected';closeModal();buildProviderList();showToast(`✗ ${p.name} rejeitado`);}
-function promptSuspend(id){document.getElementById('modalTitle').textContent='Suspender';document.getElementById('modalContent').innerHTML=`<select class="input" id="sr"><option>Reclamações recorrentes</option><option>Descumprimento das regras</option><option>Não comparecimento</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmSusp(${id})">Suspender</button></div>`;document.getElementById('modalBg').style.display='flex';}
-function confirmSusp(id){const p=PROVIDERS.find(x=>x.id===id);if(!p)return;p.status='suspended';closeModal();buildProviderList();showToast(`⚠️ ${p.name} suspenso`);}
+async function changeStatus(id,status){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  try {
+    await _supabase.from('providers').update({status}).eq('id', p.id);
+    p.status=status;
+    closeModal();
+    buildProviderList();
+    if(currentScreen==='a-provider-detail')viewProvider(id);
+    showToast(status==='approved'?`✓ ${p.name} aprovado!`:`Status atualizado`);
+  } catch(err){
+    console.error('Erro ao atualizar status:', err);
+    showToast('Erro ao atualizar. Tente novamente.');
+  }
+}
+function promptReject(id){document.getElementById('modalTitle').textContent='Rejeitar';document.getElementById('modalContent').innerHTML=`<select class="input" id="rr"><option>Documentação incompleta</option><option>Documentos inválidos</option><option>Região fora de cobertura</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmRej('${id}')">Confirmar</button></div>`;document.getElementById('modalBg').style.display='flex';}
+async function confirmRej(id){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  const motivo=document.getElementById('rr')?.value||'Documentação incompleta';
+  await _supabase.from('providers').update({status:'rejected'}).eq('id',id);
+  p.status='rejected';
+  closeModal();buildProviderList();showToast(`✗ ${p.name} rejeitado`);
+}
+
+async function confirmSusp(id){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  const motivo=document.getElementById('sr')?.value||'Reclamações recorrentes';
+  await _supabase.from('providers').update({status:'suspended'}).eq('id',id);
+  p.status='suspended';
+  closeModal();buildProviderList();showToast(`⚠️ ${p.name} suspenso`);
+}
+function promptSuspend(id){document.getElementById('modalTitle').textContent='Suspender';document.getElementById('modalContent').innerHTML=`<select class="input" id="sr"><option>Reclamações recorrentes</option><option>Descumprimento das regras</option><option>Não comparecimento</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmSusp('${id}')">Suspender</button></div>`;document.getElementById('modalBg').style.display='flex';}
+async function confirmRej(id){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  const motivo=document.getElementById('rr')?.value||'Documentação incompleta';
+  await _supabase.from('providers').update({status:'rejected'}).eq('id',id);
+  p.status='rejected';
+  closeModal();buildProviderList();showToast(`✗ ${p.name} rejeitado`);
+}
+
+async function confirmSusp(id){
+  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
+  const motivo=document.getElementById('sr')?.value||'Reclamações recorrentes';
+  await _supabase.from('providers').update({status:'suspended'}).eq('id',id);
+  p.status='suspended';
+  closeModal();buildProviderList();showToast(`⚠️ ${p.name} suspenso`);
+}
 
 // ============ ADMIN DISPATCH ============
 function buildDispatchList(){
@@ -1424,7 +1647,7 @@ function buildQuotations(){
   (quotFilter==='Todos'?quotations:quotations.filter(q=>q.status===(quotFilter==='Pendente'?'pending':'confirmed'))).forEach(q=>{
     const cfg=QUOT_STATUS[q.status]||{label:q.status,badge:'badge-gray',icon:'?'},supp=suppliers.find(s=>s.id===q.supplierId);
     const d=document.createElement('div');d.className='svc-card';
-    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${q.jobId} · ${q.service}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${q.client} · 📍 ${q.bairro} · ${q.scheduledDate}</div><div style="font-size:13px;font-weight:500;color:var(--blue);margin-top:6px">Total peças: R$ ${q.totalParts}</div>${q.status==='confirmed'?`<div style="font-size:11px;color:var(--green);margin-top:2px">✓ ${q.confirmedAt} · ${supp?supp.name:''} · ${q.leadTimeH}h ao prestador</div><div class="info-box info-green" style="margin-top:8px;font-size:11px">✓ Agenda do cliente liberada</div>`:''} ${q.status==='pending'?`<div class="info-box info-orange" style="margin-top:8px;font-size:11px">🔒 Agenda bloqueada até confirmação</div><div class="action-row"><button class="action-btn ab-approve" onclick="confirmQuot(${q.id})">Confirmar peça</button><button class="action-btn ab-del" onclick="showToast('Marcado como indisponível')">Indisponível</button></div>`:''}`;
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${q.jobId} · ${q.service}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${q.client} · 📍 ${q.bairro} · ${q.scheduledDate}</div><div style="font-size:13px;font-weight:500;color:var(--blue);margin-top:6px">Total peças: R$ ${q.totalParts}</div>${q.status==='confirmed'?`<div style="font-size:11px;color:var(--green);margin-top:2px">✓ ${q.confirmedAt} · ${supp?supp.name:''} · ${q.leadTimeH}h ao prestador</div><div class="info-box info-green" style="margin-top:8px;font-size:11px">✓ Agenda do cliente liberada</div>`:''} ${q.status==='pending'?`<div class="info-box info-orange" style="margin-top:8px;font-size:11px">🔒 Agenda bloqueada até confirmação</div><div class="action-row"><button class="action-btn ab-approve" onclick="confirmQuot('${q.id}')">Confirmar peça</button><button class="action-btn ab-del" onclick="showToast('Marcado como indisponível')">Indisponível</button></div>`:''}`;
     list.appendChild(d);
   });
 }
@@ -1432,13 +1655,22 @@ function confirmQuot(id){
   const q=quotations.find(x=>x.id===id);if(!q)return;
   document.getElementById('modalTitle').textContent='Confirmar peça com fornecedor';
   const opts=suppliers.filter(s=>s.active).map(s=>`<option value="${s.id}">${s.name} (${s.leadTimeH}h)</option>`).join('');
-  document.getElementById('modalContent').innerHTML=`<div class="info-box info-orange">📦 Peças entregues no endereço do prestador antes do serviço.</div><div class="label">Fornecedor</div><select class="input" id="confSupp"><option value="">Selecione...</option>${opts}</select><div class="info-box info-green">✓ Ao confirmar: agenda do cliente é liberada automaticamente.</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-green btn-sm" style="flex:1" onclick="doConfirmQuot(${id})">Confirmar e liberar agenda</button></div>`;
+  document.getElementById('modalContent').innerHTML=`<div class="info-box info-orange">📦 Peças entregues no endereço do prestador antes do serviço.</div><div class="label">Fornecedor</div><select class="input" id="confSupp"><option value="">Selecione...</option>${opts}</select><div class="info-box info-green">✓ Ao confirmar: agenda do cliente é liberada automaticamente.</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-green btn-sm" style="flex:1" onclick="doConfirmQuot('${id}')">Confirmar e liberar agenda</button></div>`;
   document.getElementById('modalBg').style.display='flex';
 }
-function doConfirmQuot(id){
+async function doConfirmQuot(id){
   const q=quotations.find(x=>x.id===id);if(!q)return;
-  const suppId=parseInt(document.getElementById('confSupp').value)||1,supp=suppliers.find(s=>s.id===suppId);
-  q.supplierId=suppId;q.leadTimeH=supp?supp.leadTimeH:2;q.status='confirmed';q.confirmedAt='agora';
+  const suppId=document.getElementById('confSupp').value;
+  if(!suppId){showToast('⚠️ Selecione um fornecedor');return;}
+  const supp=suppliers.find(s=>s.id===suppId);
+  const now=new Date().toISOString();
+  await _supabase.from('quotations').update({
+    supplier_id:  suppId,
+    lead_time_h:  supp?supp.leadTimeH:2,
+    status:       'confirmed',
+    confirmed_at: now
+  }).eq('id', q.uuid);
+  q.supplierId=suppId;q.leadTimeH=supp?supp.leadTimeH:2;q.status='confirmed';q.confirmedAt=now;
   closeModal();buildQuotations();showToast(`✓ Peças confirmadas! Agenda do cliente liberada.`);
 }
 function buildPartsAdmin(){const list=document.getElementById('partList');if(!list)return;list.innerHTML='';parts.forEach(p=>{const supp=suppliers.find(s=>s.id===p.supplierId);const d=document.createElement('div');d.className='svc-card';d.innerHTML=`<div class="row"><span style="font-size:13px;font-weight:500">${p.name}</span><span style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${p.price}</span></div><div style="font-size:11px;color:var(--muted)">${p.cat} · ${p.unit}${supp?` · ${supp.name}`:''}</div>`;list.appendChild(d);});}
@@ -1575,10 +1807,14 @@ async function handleAuthSession(session) {
   }
   const role = userData.role;
   window._currentUser = { id: session.user.id, email: session.user.email, role, name: userData.name };
+  const _n = userData.name || '';
+  const _initials = _n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  if(document.getElementById('profile-name-display')) document.getElementById('profile-name-display').textContent = _n;
+  if(document.getElementById('profile-av-initials')) document.getElementById('profile-av-initials').textContent = _initials;
   navHistory = [];
   if (role === 'admin')    { switchView('admin');    return; }
-  if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); return; }
-  switchView('client'); goScreen('s-home');
+  if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); return; }
+  switchView('client'); await loadVehicles(); goScreen('s-home');
 }
 
 async function doLogout() {
@@ -1600,11 +1836,46 @@ function switchView(v){
 }
 document.getElementById('backBtn').addEventListener('click',goBack);
 function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');}
-function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');}
+function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');if(n==='dash'&&window._currentUser&&!window._realtimeStarted){window._realtimeStarted=true;startRealtimeProvider();}}
 function selectPay(t){document.getElementById('payCard').style.border=t==='card'?'2px solid var(--blue)':'0.5px solid var(--border)';document.getElementById('payPix').style.border=t==='pix'?'2px solid var(--blue)':'0.5px solid var(--border)';}
 function closeModal(e){if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').style.display='none';}
 function mockUpload(btn){btn.textContent='✓ Enviado';btn.style.background='var(--green-light)';btn.style.color='var(--green)';btn.disabled=true;}
 function showToast(msg){const t=document.createElement('div');t.style.cssText='position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:200;white-space:nowrap;max-width:320px;text-align:center';t.textContent=msg;document.getElementById('app').appendChild(t);setTimeout(()=>t.remove(),2500);}
+
+let _lastJobId = null;
+async function startRealtimeProvider() {
+  // PENDÊNCIA: substituir por WebSocket real quando migrar para Next.js
+  // Por ora usa polling a cada 5 segundos
+  const { data, error } = await _supabase.from('jobs').select('id').order('id', { ascending: false }).limit(1);
+  
+  if (data && data.length > 0) _lastJobId = data[0].id;
+  else _lastJobId = 0;
+  setInterval(async () => {
+    
+    if (!window._currentUser || window._currentUser.role !== 'provider') return;
+    const { data: newJobs } = await _supabase
+      .from('jobs')
+      .select('*')
+      .order('id', { ascending: false })
+      .limit(1);
+    if (!newJobs || newJobs.length === 0) return;
+    const job = newJobs[0];
+    if (_lastJobId && job.id <= _lastJobId) return;
+    _lastJobId = job.id;
+    const notif = document.getElementById('offerNotif');
+    const text  = document.getElementById('offerNotifText');
+    const time  = document.getElementById('offerNotifTime');
+    if (!notif) return;
+    const svc = catalog.find(s => s.uuid === job.service_id);
+    const svcName = svc ? svc.name : 'Novo serviço';
+    const hora = job.scheduled_time ? job.scheduled_time.slice(0,5) : '';
+    if (text) text.textContent = `${svcName} · ${hora} · R$ ${Number(job.total_price).toFixed(0)}`;
+    if (time) time.textContent = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    notif.style.display = 'flex';
+    window._currentOfferJobId = job.id;
+    showToast('🔔 Nova oferta de job recebida!');
+  }, 5000);
+}
 
 initSupabase().then(async ()=>{ await checkExistingSession(); });
 </script>
