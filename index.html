@@ -317,14 +317,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="cat-grid" id="catGrid"></div>
       <hr class="divider">
       <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS RECENTES</div>
-      <div class="card" style="cursor:pointer" onclick="goScreen('s-job-status')">
-        <div class="row"><span style="font-size:13px;font-weight:500">Troca de óleo + filtro</span><span class="badge badge-orange">Em andamento</span></div>
-        <div style="font-size:12px;color:var(--muted)">VW Gol 2019 · 06 mai · 11:00 · Vila Madalena</div>
-      </div>
-      <div class="card" style="cursor:pointer" onclick="goScreen('s-vehicle-history')">
-        <div class="row"><span style="font-size:13px;font-weight:500">Higienização interna</span><span class="badge badge-green">Concluído</span></div>
-        <div style="font-size:12px;color:var(--muted)">Toyota Corolla · 20 abr · R$ 150</div>
-      </div>
+<div id="recentJobsList"><div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div></div>
     </div>
 
     <!-- SERVIÇOS -->
@@ -360,17 +353,15 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div id="noSlotsMsg" style="display:none;text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum horário disponível.<br>Tente outro dia.</div>
       <button class="btn btn-primary" id="schedContinueBtn" style="display:none;margin-top:12px" onclick="jfGo('jf-confirm',6)">Confirmar horário →</button>
     </div>
-    <div class="screen" id="jf-confirm"><div class="progress-wrap" id="jp6"></div><div style="font-size:15px;font-weight:500;margin-bottom:14px">Resumo do pedido</div><div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-size:13px;font-weight:500" id="cfSvc">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span id="cfVeh">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Local</span><span id="cfAddr" style="font-size:12px">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span id="cfDate">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Horário</span><span id="cfTime">-</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:14px;font-weight:500">Total</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="cfPrice">R$ -</span></div></div><div class="info-box info-yellow">⏳ Após pagamento, prestador alocado em até 15 min por ranking e disponibilidade.</div><div style="display:flex;gap:8px;margin-bottom:10px"><div class="card" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--blue)" id="payCard" onclick="selectPay('card')"><div style="font-size:18px">💳</div><div style="font-size:12px;font-weight:500;color:var(--blue)">Cartão</div></div><div class="card" style="flex:1;text-align:center;cursor:pointer" id="payPix" onclick="selectPay('pix')"><div style="font-size:18px">⚡</div><div style="font-size:12px;font-weight:500">Pix</div></div></div><button class="btn btn-primary" onclick="createJob()">✓ Confirmar e pagar</button></div>
-    <div class="screen" id="jf-created"><div style="text-align:center;padding:24px 0 16px"><div style="font-size:48px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Job criado!</div><div style="font-size:13px;color:var(--muted)" id="jobCreatedInfo">-</div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">O QUE ACONTECE AGORA</div><div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0">✓</div><span style="font-size:13px;font-weight:500;color:var(--green)">Pagamento confirmado</span></div><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0">⏳</div><div><span style="font-size:13px;font-weight:500;color:var(--yellow)">Alocando prestador</span><div style="font-size:11px;color:var(--muted)">Por ranking · até 15 min</div></div></div><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;flex-shrink:0">3</div><div><span style="font-size:13px;color:var(--muted)">Execução do serviço</span><div style="font-size:11px;color:var(--muted)" id="jcDate">-</div></div></div></div></div><button class="btn btn-primary" onclick="goScreen('s-job-status')">Acompanhar job</button><div style="height:8px"></div><button class="btn btn-outline" onclick="goScreen('s-home')">Voltar para home</button></div>
+    <div class="screen" id="jf-confirm"><div class="progress-wrap" id="jp6"></div><div style="font-size:15px;font-weight:500;margin-bottom:14px">Resumo do pedido</div><div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-size:13px;font-weight:500" id="cfSvc">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span id="cfVeh">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Local</span><span id="cfAddr" style="font-size:12px">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span id="cfDate">-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Horário</span><span id="cfTime">-</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:14px;font-weight:500">Total</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="cfPrice">R$ -</span></div></div><div class="info-box info-yellow">⏳ Após confirmação, prestador alocado em até 15 min. Pagamento liberado só após sua aprovação do serviço.</div><div style="display:flex;gap:8px;margin-bottom:10px"><div class="card" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--blue)" id="payCard" onclick="selectPay('card')"><div style="font-size:18px">💳</div><div style="font-size:12px;font-weight:500;color:var(--blue)">Cartão</div></div><div class="card" style="flex:1;text-align:center;cursor:pointer" id="payPix" onclick="selectPay('pix')"><div style="font-size:18px">⚡</div><div style="font-size:12px;font-weight:500">Pix</div></div></div><button class="btn btn-primary" onclick="createJob()">✓ Confirmar agendamento</button></div>
+    <div class="screen" id="jf-created"><div style="text-align:center;padding:24px 0 16px"><div style="font-size:48px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Job criado!</div><div style="font-size:13px;color:var(--muted)" id="jobCreatedInfo">-</div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">O QUE ACONTECE AGORA</div><div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0">✓</div><span style="font-size:13px;font-weight:500;color:var(--green)">Agendamento confirmado</span></div><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0">⏳</div><div><span style="font-size:13px;font-weight:500;color:var(--yellow)">Alocando prestador</span><div style="font-size:11px;color:var(--muted)">Por ranking e disponibilidade · até 15 min</div></div></div><div style="display:flex;gap:10px;align-items:center"><div style="width:22px;height:22px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;flex-shrink:0">3</div><div><span style="font-size:13px;color:var(--muted)">Execução do serviço</span><div style="font-size:11px;color:var(--muted)" id="jcDate">-</div></div></div></div></div><button class="btn btn-primary" onclick="goScreen('s-job-status');loadJobStatus();startJobStatusPolling()">Acompanhar job</button><div style="height:8px"></div><button class="btn btn-outline" onclick="goScreen('s-home')">Voltar para home</button></div>
 
     <!-- JOB STATUS CLIENT -->
     <div class="screen" id="s-job-status">
       <div style="font-size:15px;font-weight:500;margin-bottom:12px">Status do job</div>
-      <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Aceito</div></div><div class="sp-step active"><div class="sp-dot">▶</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Concluído</div></div></div>
-      <div class="card"><div style="display:flex;align-items:center;gap:10px"><div class="av av-b">CR</div><div><div style="font-size:13px;font-weight:500">Carlos Ribeiro</div><div style="font-size:11px;color:var(--muted)">⭐ 8.7 · 48 jobs</div></div><span class="badge badge-orange" style="margin-left:auto">Executando</span></div></div>
-      <div class="map-mock"><span style="width:10px;height:10px;background:var(--blue);border-radius:50%;display:inline-block;margin-right:6px"></span>Vila Madalena · Prestador no local</div>
-      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span>Troca de óleo + filtro</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>06 mai · 11:00</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;color:var(--muted)">Valor</span><span style="color:var(--blue);font-weight:500">R$ 240</span></div></div>
-      <div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goScreen('s-cancel-client')">Cancelar job</button><button class="btn btn-primary btn-sm" style="flex:2" onclick="goScreen('s-approve')">Aprovar serviço ✓</button></div>
+      <div id="jobStatusContent">
+        <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Carregando...</div>
+      </div>
     </div>
 
     <!-- APROVAÇÃO -->
@@ -379,7 +370,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Verifique e aprove para liberar o pagamento</div>
       <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Executado</div></div><div class="sp-step active"><div class="sp-dot">?</div><div class="sp-label">Sua aprovação</div></div></div>
       <div class="grid2" style="margin-bottom:14px"><div class="card" style="padding:10px;text-align:center"><div style="font-size:10px;font-weight:500;color:var(--muted);margin-bottom:6px">ANTES</div><div style="height:60px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:4px">🚗</div><div style="font-size:10px;color:var(--muted)">10:58</div></div><div class="card" style="padding:10px;text-align:center"><div style="font-size:10px;font-weight:500;color:var(--muted);margin-bottom:6px">DEPOIS</div><div style="height:60px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:4px">✨</div><div style="font-size:10px;color:var(--muted)">11:54</div></div></div>
-      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Prestador</span><span>Carlos Ribeiro</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Duração</span><span>52 min</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor cobrado</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ 240</span></div></div>
+      <div class="card" id="approveDetails"><div class="row"><span style="font-size:13px;color:var(--muted)">Prestador</span><span>-</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Duração</span><span>-</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor cobrado</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ -</span></div></div>
       <div style="font-size:13px;font-weight:500;margin-bottom:8px">Como foi o serviço?</div>
       <div class="card">
         <div class="star-row" id="starRow"><span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span></div>
@@ -388,7 +379,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       </div>
       <div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="openClaimModal()">⚠️ Reclamação</button><button class="btn btn-green" style="flex:2" onclick="approveJob()">✓ Aprovar e pagar</button></div>
     </div>
-    <div class="screen" id="s-approved"><div style="text-align:center;padding:20px 0"><div style="font-size:52px;margin-bottom:12px">🎉</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Obrigado!</div><div style="font-size:13px;color:var(--muted)">Pagamento de R$ 240 liberado.</div></div><div class="card" style="background:var(--green-light);border-color:#A5D6A7;text-align:center"><div style="font-size:13px;font-weight:500;color:var(--green)">✓ Serviço concluído com sucesso</div><div style="font-size:12px;color:var(--green);margin-top:4px">Garantia de 30 dias · Carlos Ribeiro</div></div><button class="btn btn-primary" onclick="goScreen('s-vehicle-history')">Ver histórico do veículo</button><div style="height:8px"></div><button class="btn btn-outline" onclick="goScreen('s-home')">Voltar para home</button></div>
+    <div class="screen" id="s-approved"><div style="text-align:center;padding:20px 0"><div style="font-size:52px;margin-bottom:12px">🎉</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Obrigado!</div><div style="font-size:13px;color:var(--muted)">Pagamento de <span id="approvedValor">R$ --</span> liberado.</div></div><div class="card" style="background:var(--green-light);border-color:#A5D6A7;text-align:center"><div style="font-size:13px;font-weight:500;color:var(--green)">✓ Serviço concluído com sucesso</div><div style="font-size:12px;color:var(--green);margin-top:4px">Garantia de 30 dias · <span id="approvedPrestador">--</span></div></div><button class="btn btn-primary" onclick="goScreen('s-vehicle-history')">Ver histórico do veículo</button><div style="height:8px"></div><button class="btn btn-outline" onclick="goScreen('s-home')">Voltar para home</button></div>
 
     <!-- CANCELAMENTO CLIENTE -->
     <div class="screen" id="s-cancel-client">
@@ -521,11 +512,13 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <!-- ===== PROVIDER APP ===== -->
     <div class="screen" id="p-dashboard">
       <div style="margin-bottom:14px"><div style="font-size:13px;color:var(--muted)">Olá, Carlos 👋</div><div style="font-size:16px;font-weight:500">Dashboard · Prestador</div><div style="margin-top:4px"><span class="badge badge-green" style="font-size:10px">✓ Aprovado</span> <span style="font-size:11px;color:var(--muted)">📍 Vila Madalena, Pinheiros</span></div></div>
-      <div class="notif-banner" onclick="goScreen('p-offer')" id="offerNotif" style="display:none"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s" id="offerNotifText">Aguardando ofertas...</div></div><div class="nb-badge" id="offerNotifTime"></div></div>
-      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n">2</div><div class="l">Jobs confirmados</div></div><div class="stat"><div class="n">R$ 360</div><div class="l">Ganhos hoje</div></div></div>
-      <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS DE HOJE</div>
-      <div class="job-card confirmed" style="cursor:pointer" onclick="goScreen('p-job-exec')"><div class="row"><span style="font-size:13px;font-weight:500">Troca de bateria</span><span class="badge badge-orange">Em andamento</span></div><div style="font-size:12px;color:var(--muted)">Pinheiros · 14:00 · Honda Civic · R$ 440</div></div>
-      <div class="job-card confirmed"><div class="row"><span style="font-size:13px;font-weight:500">Calibragem</span><span class="badge badge-green">Confirmado</span></div><div style="font-size:12px;color:var(--muted)">Vila Madalena · 16:00 · VW Polo · R$ 20</div></div>
+      <div class="notif-banner" onclick="goScreen('p-offer');loadOfferScreen()" id="offerNotif" style="display:none"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s" id="offerNotifText">Aguardando ofertas...</div></div><div class="nb-badge" id="offerNotifTime"></div></div>
+      <div class="grid2" style="margin-bottom:14px">
+  <div class="stat"><div class="n" id="provJobsHoje">-</div><div class="l">Jobs hoje</div></div>
+  <div class="stat"><div class="n" id="provGanhosHoje">-</div><div class="l">Ganhos hoje</div></div>
+</div>
+<div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS DE HOJE</div>
+<div id="provJobsList"><div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div></div>
     </div>
 
     <!-- OFERTA PRESTADOR -->
@@ -535,27 +528,27 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="countdown-ring"><svg width="80" height="80" viewBox="0 0 80 80"><circle fill="none" stroke="#f0f0f0" stroke-width="6" cx="40" cy="40" r="34"/><circle fill="none" stroke="var(--blue)" stroke-width="6" stroke-linecap="round" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0" id="countdownArc"/></svg><div class="countdown-num" id="countdownNum">15:00</div></div>
         <div style="font-size:12px;color:var(--muted)">Você tem 15 minutos para aceitar</div>
       </div>
-      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-size:13px;font-weight:500">Troca de óleo + filtro</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>07 mai · 11:00</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Bairro</span><span>📍 Vila Madalena</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span>VW Gol 2019</span></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ 240</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px">Preço fixo · Não pode ser alterado</div></div>
-      <div class="card" style="background:var(--orange-light);border-color:#FFCCBC"><div style="font-size:12px;font-weight:500;color:var(--orange);margin-bottom:4px">📦 Peças incluídas</div><div style="font-size:12px;color:var(--orange)">Óleo motor 5W30 (4L) + Filtro de óleo</div><div style="font-size:11px;color:var(--orange);margin-top:4px">Entregues no seu endereço até 09:00</div></div>
+      <div class="card" id="offerJobCard"><div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Carregando...</div></div>
       <div style="display:flex;gap:10px;margin-top:4px"><button class="btn btn-outline-red" onclick="rejectOffer()">✗ Recusar</button><button class="btn btn-green" onclick="acceptOffer()">✓ Aceitar job</button></div>
     </div>
 
-    <div class="screen" id="p-offer-accepted"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Job aceito!</div></div><div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-weight:500">Troca de óleo + filtro</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="font-size:16px;font-weight:500;color:var(--green)">R$ 240</span></div></div><div class="info-box info-orange">📦 Peças entregues no seu endereço até 09:00.</div><button class="btn btn-primary" onclick="goScreen('p-dashboard')">Ir para o dashboard</button></div>
+    <div class="screen" id="p-offer-accepted"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Job aceito!</div></div><div class="card" id="offerAcceptedCard"><div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Carregando...</div></div><button class="btn btn-primary" onclick="goScreen('p-dashboard')">Ir para o dashboard</button></div>
     <div class="screen" id="p-offer-rejected"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">😔</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Oferta recusada</div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px">MOTIVO</div><div style="display:flex;flex-direction:column;gap:8px"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="radio" name="rr" checked><span style="font-size:13px">Indisponível neste horário</span></label><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="radio" name="rr"><span style="font-size:13px">Não consigo chegar neste bairro</span></label><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="radio" name="rr"><span style="font-size:13px">Não me sinto confortável com este serviço</span></label></div></div><div class="info-box info-yellow">⚠️ Recusas frequentes impactam seu ranking.</div><button class="btn btn-primary" onclick="confirmReject()">Confirmar recusa</button></div>
 
     <!-- EXECUÇÃO DO JOB -->
     <div class="screen" id="p-job-exec">
-      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Executando Job #2048</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Troca de bateria · Honda Civic 2020 · Pinheiros</div>
+      <div id="jobExecHeader">
+        <div style="font-size:15px;font-weight:500;margin-bottom:4px">Executando job...</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Carregando...</div>
+      </div>
       <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step active"><div class="sp-dot">▶</div><div class="sp-label">Em andamento</div></div><div class="sp-step"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Concluído</div></div></div>
-      <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">Cliente</span><span>Ana Lima</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="color:var(--blue);font-weight:500;font-size:15px">R$ 440</span></div></div>
-      <div class="card" style="background:var(--green-light);border-color:#A5D6A7"><div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:4px">📦 Peça recebida</div><div style="font-size:12px;color:var(--green)">✓ Bateria 60Ah selada · 12:30</div></div>
+      <div class="card" id="jobExecDetails"><div style="font-size:12px;color:var(--muted)">Carregando...</div></div>
       <div style="font-size:13px;font-weight:500;margin-bottom:10px">Checklist obrigatório</div>
       <div class="card" style="padding:0 14px">
         <div class="chk-item"><div class="chk-box" id="chk1" onclick="doChk(1)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">📷 Foto ANTES</div><div class="photo-box" style="margin-top:8px" id="photoBefore" onclick="uploadExecPhoto('before')"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:11px;color:var(--muted)">Toque para fotografar</div></div></div></div>
         <div class="chk-item"><div class="chk-box" id="chk2" onclick="doChk(2)"></div><div><div style="font-size:13px;font-weight:500">▶ Iniciar execução</div><div id="startTimeEl" style="display:none;font-size:11px;color:var(--green);margin-top:4px"></div></div></div>
         <div class="chk-item"><div class="chk-box" id="chk3" onclick="doChk(3)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">📷 Foto APÓS</div><div class="photo-box" style="margin-top:8px" id="photoAfter" onclick="uploadExecPhoto('after')"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:11px;color:var(--muted)">Toque para fotografar</div></div></div></div>
-        <div class="chk-item"><div class="chk-box" id="chk4" onclick="doChk(4)"></div><div><div style="font-size:13px;font-weight:500">🔧 Confirmar peças</div><div style="font-size:11px;color:var(--muted)">Bateria 60Ah selada</div></div></div>
+        <div class="chk-item"><div class="chk-box" id="chk4" onclick="doChk(4)"></div><div><div style="font-size:13px;font-weight:500">🔧 Confirmar peças</div><div style="font-size:11px;color:var(--muted)" id="chk4Parts">-</div></div></div>
       </div>
       <div id="chkWarning" style="display:none" class="info-box info-red"></div>
       <button class="btn btn-green" style="margin-top:8px" onclick="finalizeExec()">✓ Finalizar job</button>
@@ -563,21 +556,25 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <button class="btn btn-outline-red btn-sm" style="width:100%" onclick="goScreen('p-cancel')">Cancelar job</button>
     </div>
 
-    <div class="screen" id="p-job-done"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">⏳</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Aguardando aprovação</div></div><div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Executado</div></div><div class="sp-step active"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Pago</div></div></div><div class="card"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor a receber</span><span style="color:var(--green);font-weight:500;font-size:15px">R$ 440</span></div></div><button class="btn btn-outline" onclick="goScreen('p-ranking')">Ver meu ranking</button></div>
+    <div class="screen" id="p-job-done"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">⏳</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Aguardando aprovação</div></div><div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Executado</div></div><div class="sp-step active"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Pago</div></div></div><div class="card"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor a receber</span><span style="color:var(--green);font-weight:500;font-size:15px" id="jobDoneValor">R$ --</span></div></div><button class="btn btn-outline" onclick="goScreen('p-ranking');loadProviderRanking()">Ver meu ranking</button></div>
 
     <div class="screen" id="p-cancel"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Cancelar job</div><div class="info-box info-red">⚠️ Cancelamentos reduzem seu ranking.</div><div id="pCancelReasons"><div class="cancel-option" id="pc-1" onclick="selectPCancelReason('pc-1')"><input type="radio" name="pcr" style="margin-right:6px">Emergência pessoal</div><div class="cancel-option" id="pc-2" onclick="selectPCancelReason('pc-2')"><input type="radio" name="pcr" style="margin-right:6px">Veículo não acessível</div><div class="cancel-option" id="pc-3" onclick="selectPCancelReason('pc-3')"><input type="radio" name="pcr" style="margin-right:6px">Problema com as peças</div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goBack()">Voltar</button><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="confirmCancel('provider')">Confirmar</button></div></div>
 
     <!-- RANKING PRESTADOR -->
     <div class="screen" id="p-ranking">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Meu ranking</div>
-      <div class="card" style="text-align:center;background:var(--blue-light)"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">SCORE GERAL</div><div style="font-size:48px;font-weight:700;color:var(--blue)">8.7</div><div style="font-size:13px;color:var(--blue);margin-top:4px">🥇 Prestador Ouro</div></div>
-      <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px">BREAKDOWN</div>
-        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes (40%)</span><span style="color:var(--green);font-weight:500">9.4</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:94%;height:100%;border-radius:3px;background:var(--green)"></div></div></div>
-        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Taxa de conclusão (25%)</span><span style="color:var(--green);font-weight:500">9.6</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:96%;height:100%;border-radius:3px;background:var(--green)"></div></div></div>
-        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade (20%)</span><span style="color:var(--blue);font-weight:500">8.0</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:80%;height:100%;border-radius:3px;background:var(--blue)"></div></div></div>
-        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Reclamações (15%)</span><span style="color:var(--green);font-weight:500">9.0</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:90%;height:100%;border-radius:3px;background:var(--green)"></div></div></div>
+      <div class="card" style="text-align:center;background:var(--blue-light)">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">SCORE GERAL</div>
+        <div style="font-size:48px;font-weight:700;color:var(--blue)" id="rankScoreNum">--</div>
+        <div style="font-size:13px;color:var(--blue);margin-top:4px" id="rankTierLabel">carregando...</div>
       </div>
-      <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">IMPACTO NO DISPATCH</div><div style="font-size:13px;color:var(--green)">✓ Você é o primeiro a receber ofertas em Vila Madalena e Pinheiros</div></div>
+      <div class="card" id="rankBreakdown">
+        <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Carregando...</div>
+      </div>
+      <div class="card" id="rankDispatchMsg">
+        <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">IMPACTO NO DISPATCH</div>
+        <div style="font-size:13px;color:var(--muted)">Carregando...</div>
+      </div>
     </div>
 
     <!-- ===== FIX 1+2: AGENDA FLEXÍVEL COM VISÃO DO DIA ===== -->
@@ -872,7 +869,21 @@ function toggleAgendaDay(dk){
   const row=document.getElementById('arow-'+dk);if(row)row.classList.toggle('disabled',!providerAgenda[dk].on);
 }
 function updateAgendaTime(dk,field,val){providerAgenda[dk][field]=val;}
-function saveAgenda(){showToast('✓ Agenda salva! Slots atualizados.');}
+async function saveAgenda(){
+  if(!window._currentUser?.id) return;
+  const {data:prov} = await _supabase
+    .from('providers')
+    .select('id')
+    .eq('user_id', window._currentUser.id)
+    .single();
+  if(!prov){ showToast('Erro ao encontrar prestador.'); return; }
+  const {error} = await _supabase
+    .from('providers')
+    .update({ schedule: providerAgenda })
+    .eq('id', prov.id);
+  if(error){ showToast('Erro ao salvar agenda.'); return; }
+  showToast('✓ Agenda salva! Slots atualizados.');
+}
 function switchAgendaTab(tab){
   document.getElementById('agenda-config').style.display=tab==='config'?'block':'none';
   document.getElementById('agenda-view').style.display=tab==='view'?'block':'none';
@@ -1004,6 +1015,236 @@ async function loadVehicles(){
   console.log(`✓ ${customerVehicles.length} veículos carregados do Supabase`);
 }
 
+async function loadRecentJobs() {
+  if (!window._currentUser) return;
+  const { data, error } = await _supabase
+    .from('jobs')
+    .select(`id, status, scheduled_date, scheduled_time, total_price,
+             services(name),
+             vehicles(brand, model, year),
+             addresses(neighborhood)`)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  const el = document.getElementById('recentJobsList');
+  if (!el) return;
+  if (error || !data || data.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum job ainda.</div>';
+    return;
+  }
+
+  const statusLabel = {
+    pending:           { text: 'Aguardando',    cls: 'badge-yellow' },
+    offered:           { text: 'Buscando',       cls: 'badge-yellow' },
+    accepted:          { text: 'Confirmado',     cls: 'badge-blue'   },
+    confirmed:         { text: 'Confirmado',     cls: 'badge-blue'   },
+    in_progress:       { text: 'Em andamento',   cls: 'badge-orange' },
+    awaiting_approval: { text: 'Aguard. aprox',  cls: 'badge-orange' },
+    completed:         { text: 'Concluído',      cls: 'badge-green'  },
+    cancelled:         { text: 'Cancelado',      cls: 'badge-red'    },
+    no_provider:       { text: 'Sem prestador',  cls: 'badge-red'    },
+  };
+
+  el.innerHTML = data.map(j => {
+    const s = statusLabel[j.status] || { text: j.status, cls: 'badge-yellow' };
+    const dt = j.scheduled_date
+      ? new Date(j.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})
+      : '';
+    const veh = j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model}` : '';
+    const bairro = j.addresses?.neighborhood || '';
+    return `
+      <div class="card" style="cursor:pointer;margin-bottom:8px"
+           onclick="window._activeJobId='${j.id}'; goScreen('s-job-status');loadJobStatus();startJobStatusPolling()">
+        <div class="row">
+          <span style="font-size:13px;font-weight:500">${j.services?.name || 'Serviço'}</span>
+          <span class="badge ${s.cls}">${s.text}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">${veh} · ${dt} · ${bairro}</div>
+      </div>`;
+  }).join('');
+}
+
+let _jobStatusInterval = null;
+
+function startJobStatusPolling() {
+  if (_jobStatusInterval) clearInterval(_jobStatusInterval);
+  _jobStatusInterval = setInterval(async () => {
+    if (currentScreen !== 's-job-status') {
+      clearInterval(_jobStatusInterval);
+      _jobStatusInterval = null;
+      return;
+    }
+    if (!window._activeJobId) {
+      clearInterval(_jobStatusInterval);
+      _jobStatusInterval = null;
+      return;
+    }
+    await loadJobStatus();
+  }, 10000);
+}
+
+async function loadJobStatus() {
+  const el = document.getElementById('jobStatusContent');
+  if (!el || !window._activeJobId) return;
+
+  const { data: j, error } = await _supabase
+    .from('jobs')
+    .select(`id, status, scheduled_date, scheduled_time, total_price,
+             services(name),
+             vehicles(brand, model, year),
+             addresses(neighborhood),
+             job_dispatch(provider_id, status, providers(score, stats, users(name)))`)
+    .eq('id', window._activeJobId)
+    .single();
+
+  if (error || !j) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Erro ao carregar job.</div>';
+    return;
+  }
+
+  const dt = j.scheduled_date
+    ? new Date(j.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})
+    : '-';
+
+  const accepted = (j.job_dispatch || []).find(d => d.status === 'accepted');
+  const providerName = accepted?.providers?.users?.name || null;
+  const providerScore = accepted?.providers?.score || null;
+  const providerJobs = accepted?.providers?.stats?.jobsConcluidos || '-';
+
+  const statusLabel = {
+    pending:           'Aguardando prestador',
+    offered:           'Buscando prestador',
+    accepted:          'Prestador confirmado',
+    confirmed:         'Confirmado',
+    in_progress:       'Em andamento',
+    awaiting_approval: 'Aguardando sua aprovação',
+    completed:         'Concluído',
+    cancelled:         'Cancelado',
+    no_provider:       'Sem prestador disponível',
+  };
+
+  const pipeline = {
+    pending:           [0,0,0,0],
+    offered:           [0,0,0,0],
+    accepted:          [1,0,0,0],
+    confirmed:         [1,0,0,0],
+    in_progress:       [1,1,0,0],
+    awaiting_approval: [1,1,1,0],
+    completed:         [1,1,1,1],
+  };
+
+  const steps = pipeline[j.status] || [0,0,0,0];
+  const labels = ['Confirmado','Aceito','Aprovação','Concluído'];
+  const pipelineHTML = labels.map((l,i) => {
+    const cls = steps[i] ? 'done' : (steps[i-1] || i===0 ? 'active' : '');
+    const dot = steps[i] ? '✓' : (i===2 ? '?' : (i+1).toString());
+    return `<div class="sp-step ${cls}"><div class="sp-dot">${dot}</div><div class="sp-label">${l}</div></div>`;
+  }).join('');
+
+  const providerCard = (providerName && ['accepted','confirmed','in_progress','awaiting_approval','completed'].includes(j.status)) ? `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="av av-b">${providerName.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div>
+          <div style="font-size:13px;font-weight:500">${providerName}</div>
+          <div style="font-size:11px;color:var(--muted)">⭐ ${providerScore} · ${providerJobs} jobs</div>
+        </div>
+        <span class="badge badge-blue" style="margin-left:auto">${statusLabel[j.status]||j.status}</span>
+      </div>
+    </div>` : `
+    <div class="card" style="background:var(--yellow-light)">
+      <div style="font-size:13px;font-weight:500;color:var(--yellow)">⏳ ${statusLabel[j.status]||j.status}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Aguarde — prestador sendo alocado</div>
+    </div>`;
+
+  const showApprove = ['awaiting_approval','in_progress'].includes(j.status);
+  const showCancel  = ['pending','offered','accepted','confirmed'].includes(j.status);
+
+  el.innerHTML = `
+    <div class="status-pipeline">${pipelineHTML}</div>
+    ${providerCard}
+    <div class="map-mock">
+      <span style="width:10px;height:10px;background:var(--blue);border-radius:50%;display:inline-block;margin-right:6px"></span>
+      ${j.addresses?.neighborhood || '-'} · Prestador no local
+    </div>
+    <div class="card">
+      <div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span>${j.services?.name||'-'}</span></div>
+      <div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>${dt} · ${j.scheduled_time||''}</span></div>
+      <div class="row" style="margin-bottom:0"><span style="font-size:13px;color:var(--muted)">Valor</span>
+        <span style="color:var(--blue);font-weight:500">R$ ${Number(j.total_price||0).toFixed(2)}</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      ${showCancel  ? `<button class="btn btn-outline btn-sm" style="flex:1" onclick="goScreen('s-cancel-client')">Cancelar job</button>` : ''}
+      ${showApprove ? `<button class="btn btn-primary btn-sm" style="flex:2" onclick="goScreen('s-approve');loadApproveScreen()">Aprovar serviço ✓</button>` : ''}
+    </div>`;
+}
+
+async function loadProviderDashboard() {
+  if (!window._currentUser || window._currentUser.role !== 'provider') return;
+
+  const { data: provRow } = await _supabase
+    .from('providers')
+    .select('id, schedule')
+    .eq('user_id', window._currentUser.id)
+    .single();
+
+  if (!provRow) return;
+
+  // Carregar agenda salva do banco
+  if (provRow.schedule) {
+    providerAgenda = provRow.schedule;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: jobs } = await _supabase
+    .from('jobs')
+    .select(`id, status, scheduled_date, scheduled_time, total_price,
+             services(name), vehicles(brand, model), addresses(neighborhood)`)
+    .eq('scheduled_date', today)
+    .in('status', ['accepted','confirmed','in_progress','awaiting_approval']);
+
+  const list = document.getElementById('provJobsList');
+  const countEl = document.getElementById('provJobsHoje');
+  const earnEl = document.getElementById('provGanhosHoje');
+
+  if (!jobs || jobs.length === 0) {
+    if (list) list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum job hoje.</div>';
+    if (countEl) countEl.textContent = '0';
+    if (earnEl) earnEl.textContent = 'R$ 0';
+    return;
+  }
+
+  if (countEl) countEl.textContent = jobs.length;
+  const total = jobs.reduce((s, j) => s + Number(j.total_price || 0), 0);
+  if (earnEl) earnEl.textContent = 'R$ ' + total.toFixed(0);
+
+  const statusLabel = {
+    accepted:          { text: 'Confirmado',   cls: 'badge-blue'   },
+    confirmed:         { text: 'Confirmado',   cls: 'badge-blue'   },
+    in_progress:       { text: 'Em andamento', cls: 'badge-orange' },
+    awaiting_approval: { text: 'Aguard. aprox',cls: 'badge-orange' },
+  };
+
+  if (list) list.innerHTML = jobs.map(j => {
+    const s = statusLabel[j.status] || { text: j.status, cls: 'badge-yellow' };
+    const veh = j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model}` : '';
+    const canClick = ['in_progress','accepted','confirmed'].includes(j.status);
+    return `
+      <div class="job-card confirmed" ${canClick ? `style="cursor:pointer" onclick="window._activeJobId='${j.id}';goScreen('p-job-exec')"` : ''}>
+        <div class="row">
+          <span style="font-size:13px;font-weight:500">${j.services?.name || '-'}</span>
+          <span class="badge ${s.cls}">${s.text}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">
+          ${j.addresses?.neighborhood || ''} · ${j.scheduled_time || ''} · ${veh} · R$ ${Number(j.total_price||0).toFixed(0)}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+
+
 // ============ SUPPLY DATA ============
 let suppliers=[];
 
@@ -1093,7 +1334,7 @@ const vehicleHistory={
 
 // ============ STATE ============
 let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},description:'',bairro:'Vila Madalena',addrLabel:'Rua Harmonia, 120',selectedDate:null,selectedSlot:null,price:0};
-let calMonth=4,calYear=2025;
+let calMonth=new Date().getMonth(),calYear=new Date().getFullYear();
 let currentView='admin',navHistory=[],currentScreen='a-dashboard';
 let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',claimsFilter='Todos',currentSupply='q';
 let currentStar=0,chkState={1:false,2:false,3:false,4:false};
@@ -1329,6 +1570,7 @@ async function createJob(){
 
   document.getElementById('jobCreatedInfo').textContent=`${s.name} · ${jobState.addrLabel} · ${jobState.selectedDate} ${jobState.selectedSlot}`;
   document.getElementById('jcDate').textContent=`${jobState.selectedDate} às ${jobState.selectedSlot}`;
+  window._activeJobId = job.id;
   showToast('✓ Job #'+job.id+' criado! Alocando prestador...');
   navHistory=[];showScreen('jf-created');
 }
@@ -1346,6 +1588,38 @@ function updateCountdown(){
   arc.style.strokeDashoffset=213.6*(1-countdownSecs/900);
   const urgent=countdownSecs<=120;el.className='countdown-num'+(urgent?' urgent':'');arc.style.stroke=urgent?'var(--red)':'var(--blue)';
 }
+async function loadOfferScreen(){
+  const jobId = window._currentOfferJobId;
+  if(!jobId) return;
+  const card = document.getElementById('offerJobCard');
+  if(!card) return;
+  const { data: j } = await _supabase
+    .from('jobs')
+    .select(`id, scheduled_date, scheduled_time, total_price,
+             services(name),
+             vehicles(brand, model, year),
+             addresses(neighborhood)`)
+    .eq('id', jobId)
+    .single();
+  if(!j){ card.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Erro ao carregar job.</div>'; return; }
+  const dt = j.scheduled_date
+    ? new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})
+    : '-';
+  const hora = j.scheduled_time ? j.scheduled_time.slice(0,5) : '-';
+  const veh = j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model} ${j.vehicles.year}` : '-';
+  const cardHtml = `
+    <div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span style="font-size:13px;font-weight:500">${j.services?.name||'-'}</span></div>
+    <div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>${dt} · ${hora}</span></div>
+    <div class="row"><span style="font-size:13px;color:var(--muted)">Bairro</span><span>📍 ${j.addresses?.neighborhood||'-'}</span></div>
+    <div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span>${veh}</span></div>
+    <hr class="divider">
+    <div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ ${Number(j.total_price||0).toFixed(0)}</span></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">Preço fixo · Não pode ser alterado</div>`;
+  card.innerHTML = cardHtml;
+  const acceptedCard = document.getElementById('offerAcceptedCard');
+  if(acceptedCard) acceptedCard.innerHTML = cardHtml;
+}
+
 async function acceptOffer(){
   if(countdownInterval) clearInterval(countdownInterval);
   const jobId = window._currentOfferJobId;
@@ -1440,24 +1714,167 @@ function uploadExecPhoto(type){
   box.classList.add('uploaded');box.innerHTML=`<div style="font-size:28px;margin-bottom:4px">📸</div><div style="font-size:11px;color:var(--green);font-weight:500">✓ Foto enviada</div>`;
   const n=type==='before'?1:3;if(!chkState[n]){chkState[n]=true;const b=document.getElementById('chk'+n);if(b){b.classList.add('checked');b.textContent='✓';}}
 }
-function finalizeExec(){
+async function finalizeExec(){
   const missing=[];
   if(!chkState[1])missing.push('Foto antes');if(!chkState[2])missing.push('Início');if(!chkState[3])missing.push('Foto depois');if(!chkState[4])missing.push('Peças');
   if(missing.length>0){const w=document.getElementById('chkWarning');if(w){w.style.display='block';w.textContent=`⚠️ Pendentes: ${missing.join(', ')}`;}showToast('⚠️ Complete todos os itens');return;}
+  if(window._activeJobId){
+    await _supabase.from('jobs')
+      .update({status:'awaiting_approval'})
+      .eq('id', window._activeJobId);
+  }
   goScreen('p-job-done');showToast('✓ Job finalizado! Aguardando aprovação.');
 }
 
 // ============ APROVAÇÃO ============
 function setStar(n){currentStar=n;document.querySelectorAll('#starRow span').forEach((s,i)=>{s.classList.toggle('lit',i<n);});const labels=['','Ruim 😞','Regular 😐','Bom 😊','Ótimo 😃','Excelente! 🌟'];document.getElementById('starLabel').textContent=labels[n]||'';}
-function approveJob(){if(currentStar===0){showToast('⭐ Avalie antes de aprovar');return;}goScreen('s-approved');showToast('✓ Aprovado! Pagamento liberado.');}
+
+async function loadApproveScreen(){
+  if(!window._activeJobId) return;
+  const {data:j} = await _supabase
+    .from('jobs')
+    .select(`total_price, created_at, scheduled_time,
+             job_dispatch(status, accepted_at, providers(users(name)))`)
+    .eq('id', window._activeJobId)
+    .single();
+  if(!j) return;
+  const accepted = (j.job_dispatch||[]).find(d=>d.status==='accepted');
+  const provName = accepted?.providers?.users?.name || '-';
+  const price = Number(j.total_price||0).toFixed(2);
+  const durMin = accepted?.accepted_at
+    ? Math.round((new Date() - new Date(accepted.accepted_at)) / 60000)
+    : '-';
+  const durLabel = typeof durMin === 'number' ? durMin + ' min' : '-';
+  const el = document.getElementById('approveDetails');
+  if(el) el.innerHTML = `
+    <div class="row"><span style="font-size:13px;color:var(--muted)">Prestador</span><span>${provName}</span></div>
+    <div class="row"><span style="font-size:13px;color:var(--muted)">Duração</span><span>${durLabel}</span></div>
+    <hr class="divider">
+    <div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor cobrado</span>
+    <span style="font-size:15px;font-weight:500;color:var(--blue)">R$ ${price}</span></div>`;
+}
+async function approveJob(){
+  if(currentStar===0){showToast('⭐ Avalie antes de aprovar');return;}
+  if(!window._activeJobId){goScreen('s-approved');return;}
+  const {data:custRow} = await _supabase
+    .from('customers').select('id')
+    .eq('user_id', window._currentUser.id).single();
+  if(custRow){
+    await _supabase.from('approvals').insert({
+      job_id: window._activeJobId,
+      customer_id: custRow.id,
+      rating: currentStar,
+      approved_at: new Date().toISOString()
+    });
+    await _supabase.from('jobs')
+      .update({status:'completed'})
+      .eq('id', window._activeJobId);
+    await _supabase.from('payments').insert({
+      job_id: window._activeJobId,
+      status: 'released',
+      released_at: new Date().toISOString()
+    });
+  }
+  // Calcular e atualizar score do prestador
+  const jobIdParaScore = window._activeJobId;
+  const {data:dispatch} = await _supabase
+    .from('job_dispatch')
+    .select('provider_id')
+    .eq('job_id', jobIdParaScore)
+    .eq('status','accepted')
+    .single();
+  if(dispatch?.provider_id){
+    const {data:prov} = await _supabase
+      .from('providers')
+      .select('stats')
+      .eq('id', dispatch.provider_id)
+      .single();
+    if(prov){
+      const s = prov.stats || {};
+      const jc = (s.jobsConcluidos||0) + 1;
+      const jt = (s.jobsTotal||0) + 1;
+      const nm = s.notaMedia
+        ? ((s.notaMedia * (jc-1)) + currentStar) / jc
+        : currentStar;
+      const pt = s.pontualidade||80;
+      const rc = s.reclamacoes||0;
+      const novoScore = (
+        (nm/5*10)*0.40 +
+        (jc/jt*10)*0.25 +
+        (pt/100*10)*0.20 +
+        Math.max(0, 10 - rc*1.5)*0.15
+      );
+      await _supabase.from('providers').update({
+        score: Math.round(novoScore*100)/100,
+        stats: {...s, notaMedia:Math.round(nm*100)/100, jobsConcluidos:jc, jobsTotal:jt}
+      }).eq('id', dispatch.provider_id);
+    }
+  }
+
+  // Buscar nome do prestador e valor do job para tela s-approved
+  const {data:jobFinal} = await _supabase
+    .from('jobs')
+    .select('total_price, services(name), job_dispatch(providers(users(name)))')
+    .eq('id', jobIdParaScore)
+    .single();
+  const valorFinal = jobFinal?.total_price ? `R$ ${jobFinal.total_price}` : 'R$ --';
+  const nomeFinal = jobFinal?.job_dispatch?.[0]?.providers?.users?.name || '--';
+  document.getElementById('approvedValor').textContent = valorFinal;
+  document.getElementById('approvedPrestador').textContent = nomeFinal;
+
+  window._activeJobId = null;
+  setTimeout(async()=>{ await loadRecentJobs(); }, 1000);
+  goScreen('s-approved');
+  showToast('✓ Aprovado! Pagamento liberado.');
+}
 function openClaimModal(){document.getElementById('modalTitle').textContent='Abrir reclamação / garantia';document.getElementById('modalContent').innerHTML=`<div class="info-box info-yellow">⚠️ Apenas para problemas reais. O admin analisa manualmente.</div><div class="label">Tipo</div><select class="input"><option>Serviço não foi realizado corretamente</option><option>Prestador não apareceu</option><option>Comportamento inadequado</option><option>Dano ao veículo</option><option>Problema dentro da garantia (30 dias)</option></select><div class="label">Descrição</div><textarea class="input" rows="3" placeholder="Descreva..."></textarea><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="submitClaim()">Enviar</button></div>`;document.getElementById('modalBg').style.display='flex';}
 function submitClaim(){closeModal();showToast('Reclamação enviada. Admin notificado em até 24h.');}
+
+// ============ PROVIDER RANKING ============
+async function loadProviderRanking(){
+  if(!window._currentUser||window._currentUser.role!=='provider')return;
+  const {data:provRow}=await _supabase
+    .from('providers')
+    .select('score,stats,regions')
+    .eq('user_id',window._currentUser.id)
+    .single();
+  if(!provRow)return;
+  const score=Number(provRow.score||0);
+  const s=provRow.stats||{notaMedia:0,jobsConcluidos:0,jobsTotal:1,pontualidade:80,reclamacoes:0};
+  const tier=getTier(score);
+  const numEl=document.getElementById('rankScoreNum');
+  const tierEl=document.getElementById('rankTierLabel');
+  const breakdown=document.getElementById('rankBreakdown');
+  const dispatch=document.getElementById('rankDispatchMsg');
+  if(numEl)numEl.textContent=score.toFixed(1);
+  if(tierEl)tierEl.textContent=tier.icon+' Prestador '+tier.label;
+  const nota=(s.notaMedia/5*10).toFixed(1);
+  const conclusao=s.jobsTotal>0?(s.jobsConcluidos/s.jobsTotal*10).toFixed(1):'0.0';
+  const pontual=(s.pontualidade/100*10).toFixed(1);
+  const reclam=Math.max(0,10-s.reclamacoes*1.5).toFixed(1);
+  const pct=v=>Math.min(100,Math.round(v*10))+'%';
+  if(breakdown)breakdown.innerHTML=`
+    <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px">BREAKDOWN</div>
+    <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Nota clientes (40%)</span><span style="color:var(--green);font-weight:500">${nota}</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${pct(nota)};height:100%;border-radius:3px;background:var(--green)"></div></div></div>
+    <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Taxa de conclusão (25%)</span><span style="color:var(--green);font-weight:500">${conclusao}</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${pct(conclusao)};height:100%;border-radius:3px;background:var(--green)"></div></div></div>
+    <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Pontualidade (20%)</span><span style="color:var(--blue);font-weight:500">${pontual}</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${pct(pontual)};height:100%;border-radius:3px;background:var(--blue)"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Reclamações (15%)</span><span style="color:var(--green);font-weight:500">${reclam}</span></div><div style="height:6px;border-radius:3px;background:#f0f0f0"><div style="width:${pct(reclam)};height:100%;border-radius:3px;background:var(--green)"></div></div></div>`;
+  const regioes=(provRow.regions||[]).join(' e ')||'sua região';
+  if(dispatch)dispatch.innerHTML=`
+    <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">IMPACTO NO DISPATCH</div>
+    <div style="font-size:13px;color:var(--green)">✓ Score ${score.toFixed(1)} · ${tier.icon} ${tier.label} · Prioridade em ${regioes}</div>`;
+  const jobDoneValor=document.getElementById('jobDoneValor');
+  if(jobDoneValor&&window._activeJobId){
+    const {data:j}=await _supabase.from('jobs').select('total_price').eq('id',window._activeJobId).single();
+    if(j)jobDoneValor.textContent='R$ '+Number(j.total_price).toFixed(0);
+  }
+}
 
 // ============ CANCEL ============
 function selectCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
 function selectPCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
 function confirmCancel(who){showToast(who==='client'?'✓ Job cancelado.':'⚠️ Cancelado. Impacta ranking.');goScreen(who==='client'?'s-home':'p-dashboard');}
-function confirmReschedule(){showToast('✓ Reagendado! Prestador notificado.');goScreen('s-job-status');}
+function confirmReschedule(){showToast('✓ Reagendado! Prestador notificado.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
 
 // ============ VEHICLE HISTORY ============
 function buildVehicleHistory(){
@@ -1745,6 +2162,7 @@ function showScreen(id){
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
+  if(id==='p-ranking')loadProviderRanking();
   if(id==='p-agenda'){buildAgendaConfig();switchAgendaTab('config');}
   if(id==='a-services')buildAdminCatalog();
   if(id==='a-providers')buildProviderList();
@@ -1754,7 +2172,7 @@ function showScreen(id){
   if(id==='a-claims')buildClaims();
   if(id==='a-payments'){switchPayTab('today');}
 }
-function goScreen(id){navHistory.push(currentScreen);showScreen(id);}
+function goScreen(id){navHistory.push(currentScreen);showScreen(id);if(id==='s-job-status')loadJobStatus();}
 function goBack(){if(navHistory.length>0){const p=navHistory.pop();showScreen(p);}}
 // ===== AUTH REAL (Supabase) =====
 let _authContext = 'client';
@@ -1813,8 +2231,8 @@ async function handleAuthSession(session) {
   if(document.getElementById('profile-av-initials')) document.getElementById('profile-av-initials').textContent = _initials;
   navHistory = [];
   if (role === 'admin')    { switchView('admin');    return; }
-  if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); return; }
-  switchView('client'); await loadVehicles(); goScreen('s-home');
+  if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); loadProviderDashboard(); return; }
+  switchView('client'); await loadVehicles(); await loadRecentJobs(); goScreen('s-home');
 }
 
 async function doLogout() {
@@ -1836,7 +2254,7 @@ function switchView(v){
 }
 document.getElementById('backBtn').addEventListener('click',goBack);
 function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');}
-function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');if(n==='dash'&&window._currentUser&&!window._realtimeStarted){window._realtimeStarted=true;startRealtimeProvider();}}
+function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');if(n==='dash'&&window._currentUser&&!window._realtimeStarted){window._realtimeStarted=true;startRealtimeProvider();}if(n==='dash')loadProviderDashboard();}
 function selectPay(t){document.getElementById('payCard').style.border=t==='card'?'2px solid var(--blue)':'0.5px solid var(--border)';document.getElementById('payPix').style.border=t==='pix'?'2px solid var(--blue)':'0.5px solid var(--border)';}
 function closeModal(e){if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').style.display='none';}
 function mockUpload(btn){btn.textContent='✓ Enviado';btn.style.background='var(--green-light)';btn.style.color='var(--green)';btn.disabled=true;}
@@ -1846,22 +2264,21 @@ let _lastJobId = null;
 async function startRealtimeProvider() {
   // PENDÊNCIA: substituir por WebSocket real quando migrar para Next.js
   // Por ora usa polling a cada 5 segundos
-  const { data, error } = await _supabase.from('jobs').select('id').order('id', { ascending: false }).limit(1);
-  
-  if (data && data.length > 0) _lastJobId = data[0].id;
-  else _lastJobId = 0;
+  if (!window._seenOfferIds) window._seenOfferIds = new Set();
+  const today = new Date().toISOString().slice(0, 10);
   setInterval(async () => {
-    
     if (!window._currentUser || window._currentUser.role !== 'provider') return;
     const { data: newJobs } = await _supabase
       .from('jobs')
       .select('*')
+      .eq('status', 'pending')
+      .eq('scheduled_date', today)
       .order('id', { ascending: false })
       .limit(1);
     if (!newJobs || newJobs.length === 0) return;
     const job = newJobs[0];
-    if (_lastJobId && job.id <= _lastJobId) return;
-    _lastJobId = job.id;
+    if (window._seenOfferIds.has(job.id)) return;
+    window._seenOfferIds.add(job.id);
     const notif = document.getElementById('offerNotif');
     const text  = document.getElementById('offerNotifText');
     const time  = document.getElementById('offerNotifTime');
