@@ -648,8 +648,8 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="a-dispatch">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Dispatch · Jobs</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Alocação por ranking · 15 min por oferta</div>
-      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n" style="color:var(--yellow)">2</div><div class="l">Aguardando aceite</div></div><div class="stat"><div class="n" style="color:var(--green)">5</div><div class="l">Confirmados</div></div></div>
-      <div style="background:var(--red-light);border:1px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:13px;font-weight:500;color:var(--red)">🚨 Job #2055 sem prestador · Martelinho · Moema</div></div>
+      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n" style="color:var(--yellow)" id="dispatchCountPending">-</div><div class="l">Aguardando aceite</div></div><div class="stat"><div class="n" style="color:var(--green)" id="dispatchCountConfirmed">-</div><div class="l">Confirmados</div></div></div>
+      <div id="dispatchAlertBanner" style="display:none;background:var(--red-light);border:1px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:14px"><div style="font-size:13px;font-weight:500;color:var(--red)" id="dispatchAlertText">🚨 Jobs sem prestador</div></div>
       <div class="filter-row" id="dispatchFilter"></div>
       <div id="dispatchList"></div>
     </div>
@@ -2029,21 +2029,71 @@ async function confirmSusp(id){
 }
 
 // ============ ADMIN DISPATCH ============
-function buildDispatchList(){
+async function buildDispatchList(){
   const fr=document.getElementById('dispatchFilter'),list=document.getElementById('dispatchList');if(!fr||!list)return;
-  const DISPATCH_STATUS={confirmed:{label:'Confirmado',badge:'badge-green',icon:'✓'},offering:{label:'Aguardando aceite',badge:'badge-yellow',icon:'⏳'},no_provider:{label:'Sem prestador',badge:'badge-red',icon:'🚨'},completed:{label:'Concluído',badge:'badge-gray',icon:'✓'}};
-  const counts={Todos:dispatchJobs.length,'Aguardando':dispatchJobs.filter(j=>j.dispatch.status==='offering').length,'Confirmado':dispatchJobs.filter(j=>j.dispatch.status==='confirmed').length,'Sem prestador':dispatchJobs.filter(j=>j.dispatch.status==='no_provider').length,'Concluído':dispatchJobs.filter(j=>j.dispatch.status==='completed').length};
-  fr.innerHTML='';['Todos','Aguardando','Confirmado','Sem prestador','Concluído'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===dispatchFilterState?' active':'');d.textContent=`${f} (${counts[f]||0})`;d.onclick=()=>{dispatchFilterState=f;buildDispatchList();};fr.appendChild(d);});
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:jobs,error}=await _supabase
+    .from('jobs')
+    .select(`id,status,scheduled_date,scheduled_time,total_price,
+             services(name),
+             addresses(neighborhood),
+             customers(users(name)),
+             job_dispatch(status,provider_id,providers(users(name)))`)
+    .in('status',['pending','accepted','confirmed','in_progress','awaiting_approval','no_provider'])
+    .order('scheduled_date',{ascending:false})
+    .limit(20);
+  if(error||!jobs){list.innerHTML='<div style="font-size:12px;color:var(--red);text-align:center;padding:12px">Erro ao carregar jobs.</div>';return;}
+  const DISPATCH_STATUS={
+    pending:          {label:'Aguardando aceite',badge:'badge-yellow',icon:'⏳',cardClass:'waiting'},
+    accepted:         {label:'Confirmado',       badge:'badge-green', icon:'✓', cardClass:'confirmed'},
+    confirmed:        {label:'Confirmado',       badge:'badge-green', icon:'✓', cardClass:'confirmed'},
+    in_progress:      {label:'Em andamento',     badge:'badge-orange',icon:'▶', cardClass:'confirmed'},
+    awaiting_approval:{label:'Aguard. aprovação',badge:'badge-orange',icon:'⏳',cardClass:'confirmed'},
+    no_provider:      {label:'Sem prestador',    badge:'badge-red',  icon:'🚨',cardClass:'urgent'},
+  };
+  const counts={
+    'Todos':jobs.length,
+    'Aguardando':jobs.filter(j=>j.status==='pending').length,
+    'Confirmado':jobs.filter(j=>['accepted','confirmed'].includes(j.status)).length,
+    'Em andamento':jobs.filter(j=>['in_progress','awaiting_approval'].includes(j.status)).length,
+    'Sem prestador':jobs.filter(j=>j.status==='no_provider').length,
+  };
+  fr.innerHTML='';
+  ['Todos','Aguardando','Confirmado','Em andamento','Sem prestador'].forEach(f=>{
+    const d=document.createElement('div');d.className='filter-chip'+(f===dispatchFilterState?' active':'');
+    d.textContent=`${f} (${counts[f]||0})`;
+    d.onclick=()=>{dispatchFilterState=f;buildDispatchList();};
+    fr.appendChild(d);
+  });
+  const sm={'Todos':null,'Aguardando':['pending'],'Confirmado':['accepted','confirmed'],'Em andamento':['in_progress','awaiting_approval'],'Sem prestador':['no_provider']};
+  const filtered=dispatchFilterState==='Todos'?jobs:jobs.filter(j=>(sm[dispatchFilterState]||[]).includes(j.status));
+  const pendingCount=jobs.filter(j=>j.status==='pending').length;
+  const confirmedCount=jobs.filter(j=>['accepted','confirmed'].includes(j.status)).length;
+  const noProviderCount=jobs.filter(j=>j.status==='no_provider').length;
+  const pendingEl=document.getElementById('dispatchCountPending');
+  const confirmedEl=document.getElementById('dispatchCountConfirmed');
+  const banner=document.getElementById('dispatchAlertBanner');
+  const bannerText=document.getElementById('dispatchAlertText');
+  if(pendingEl)pendingEl.textContent=pendingCount;
+  if(confirmedEl)confirmedEl.textContent=confirmedCount;
+  if(banner)banner.style.display=noProviderCount>0?'block':'none';
+  if(bannerText&&noProviderCount>0)bannerText.textContent=`🚨 ${noProviderCount} job(s) sem prestador · Intervenção necessária`;
   list.innerHTML='';
-  const sm={'Todos':null,'Aguardando':'offering','Confirmado':'confirmed','Sem prestador':'no_provider','Concluído':'completed'};
-  (dispatchFilterState==='Todos'?dispatchJobs:dispatchJobs.filter(j=>j.dispatch.status===sm[dispatchFilterState])).forEach(job=>{
-    const cfg=DISPATCH_STATUS[job.dispatch.status],prov=PROVIDERS.find(p=>p.id===job.dispatch.providerId),currP=PROVIDERS.find(p=>p.id===job.dispatch.currentOfferId);
-    const d=document.createElement('div');d.className=`job-card ${job.dispatch.status==='no_provider'?'urgent':job.dispatch.status==='offering'?'waiting':'confirmed'}`;
+  if(filtered.length===0){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum job encontrado.</div>';return;}
+  filtered.forEach(job=>{
+    const cfg=DISPATCH_STATUS[job.status]||{label:job.status,badge:'badge-gray',icon:'?',cardClass:''};
+    const accepted=(job.job_dispatch||[]).find(d=>d.status==='accepted');
+    const provName=accepted?.providers?.users?.name||null;
+    const clientName=job.customers?.users?.name||'Cliente';
+    const bairro=job.addresses?.neighborhood||'-';
+    const dt=job.scheduled_date?new Date(job.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    const hora=job.scheduled_time?job.scheduled_time.slice(0,5):'';
     let provInfo='';
-    if(job.dispatch.status==='confirmed'&&prov)provInfo=`<div style="font-size:11px;color:var(--green);margin-top:4px">✓ ${prov.name}</div>`;
-    if(job.dispatch.status==='offering'&&currP)provInfo=`<div style="font-size:11px;color:var(--yellow);margin-top:4px">⏳ Aguardando ${currP.name}</div>`;
-    if(job.dispatch.status==='no_provider')provInfo=`<div style="font-size:11px;color:var(--red);margin-top:4px">🚨 Intervenção manual</div>`;
-    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#${job.id} · ${job.service}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${job.client} · 📍 ${job.bairro} · ${job.date} ${job.time} · R$ ${job.price}</div>${provInfo}<div class="action-row"><button class="action-btn ab-view" onclick="viewDispatch(${job.id})">Ver detalhes</button>${job.dispatch.status==='no_provider'||job.dispatch.status==='offering'?`<button class="action-btn ab-suspend" onclick="openReallocModal(${job.id})">Realocar</button>`:''}</div>`;
+    if(provName)provInfo=`<div style="font-size:11px;color:var(--green);margin-top:4px">✓ ${provName}</div>`;
+    else if(job.status==='no_provider')provInfo=`<div style="font-size:11px;color:var(--red);margin-top:4px">🚨 Intervenção manual</div>`;
+    else if(job.status==='pending')provInfo=`<div style="font-size:11px;color:var(--yellow);margin-top:4px">⏳ Aguardando prestador</div>`;
+    const d=document.createElement('div');d.className=`job-card ${cfg.cardClass}`;
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#${job.id} · ${job.services?.name||'-'}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${clientName} · 📍 ${bairro} · ${dt} ${hora} · R$ ${Number(job.total_price||0).toFixed(0)}</div>${provInfo}<div class="action-row"><button class="action-btn ab-view" onclick="viewDispatchReal(${job.id})">Ver detalhes</button>${['pending','no_provider'].includes(job.status)?`<button class="action-btn ab-suspend" onclick="openReallocModal(${job.id})">Realocar</button>`:''}</div>`;
     list.appendChild(d);
   });
 }
@@ -2077,7 +2127,64 @@ function confirmRealloc(jobId){
   selectedReallocId=null;closeModal();buildDispatchList();showToast(`✓ Oferta enviada para ${prov.name}!`);
 }
 
-// ============ ADMIN SUPPLY ============
+// ============ ADMIN DISPATCH DETAIL ============
+async function viewDispatchReal(jobId){
+  const {data:job,error}=await _supabase
+    .from('jobs')
+    .select(`id,status,scheduled_date,scheduled_time,total_price,
+             services(name),
+             addresses(neighborhood),
+             customers(users(name)),
+             vehicles(brand,model,year),
+             job_dispatch(status,offered_at,accepted_at,rejected_at,provider_id,providers(users(name)))`)
+    .eq('id',jobId)
+    .single();
+  if(error||!job){showToast('Erro ao carregar job.');return;}
+  const DISPATCH_STATUS={
+    pending:          {label:'Aguardando aceite',badge:'badge-yellow'},
+    accepted:         {label:'Confirmado',       badge:'badge-green'},
+    confirmed:        {label:'Confirmado',       badge:'badge-green'},
+    in_progress:      {label:'Em andamento',     badge:'badge-orange'},
+    awaiting_approval:{label:'Aguard. aprovação',badge:'badge-orange'},
+    no_provider:      {label:'Sem prestador',    badge:'badge-red'},
+  };
+  const cfg=DISPATCH_STATUS[job.status]||{label:job.status,badge:'badge-gray'};
+  const clientName=job.customers?.users?.name||'Cliente';
+  const bairro=job.addresses?.neighborhood||'-';
+  const veh=job.vehicles?`${job.vehicles.brand} ${job.vehicles.model} ${job.vehicles.year}`:'';
+  const dt=job.scheduled_date?new Date(job.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+  const hora=job.scheduled_time?job.scheduled_time.slice(0,5):'';
+  const dispatches=job.job_dispatch||[];
+  const stepsHtml=dispatches.map(d=>{
+    const pName=d.providers?.users?.name||'Prestador';
+    const isAccepted=d.status==='accepted';
+    const isRejected=d.status==='rejected';
+    const color=isAccepted?'var(--green)':isRejected?'var(--red)':'var(--yellow)';
+    const icon=isAccepted?'✓':isRejected?'✗':'⏳';
+    const label=isAccepted?'Aceito':isRejected?'Recusado':'Aguardando';
+    return `<div style="display:flex;gap:12px;padding-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#fff">${icon}</div><div><div style="font-size:13px;font-weight:500">${pName}</div><div style="font-size:11px;color:var(--muted)">${label}</div></div></div>`;
+  }).join('')||'<div style="font-size:12px;color:var(--muted)">Nenhum dispatch ainda.</div>';
+  const el=document.getElementById('dispatchDetailContent');
+  if(!el)return;
+  el.innerHTML=`
+    <div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px">
+      <div style="color:#fff;font-size:16px;font-weight:500">#${job.id} · ${job.services?.name||'-'}</div>
+      <span class="badge ${cfg.badge}" style="margin-top:8px">${cfg.label}</span>
+    </div>
+    <div class="card">
+      <div class="row"><span style="font-size:13px;color:var(--muted)">Cliente</span><span>${clientName}</span></div>
+      <div class="row"><span style="font-size:13px;color:var(--muted)">Bairro</span><span>📍 ${bairro}</span></div>
+      <div class="row"><span style="font-size:13px;color:var(--muted)">Veículo</span><span>${veh}</span></div>
+      <div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>${dt} · ${hora}</span></div>
+      <div class="row" style="margin-bottom:0"><span style="font-size:13px;color:var(--muted)">Valor</span><span style="color:var(--blue);font-weight:500">R$ ${Number(job.total_price||0).toFixed(0)}</span></div>
+    </div>
+    <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px">HISTÓRICO DE DISPATCH</div>${stepsHtml}</div>
+    ${['pending','no_provider'].includes(job.status)?`<button class="btn btn-primary" onclick="openReallocModal(${job.id})">🔄 Realocar prestador</button><div style="height:8px"></div>`:''}
+    <button class="btn btn-outline" onclick="goBack()">← Voltar</button>`;
+  navHistory.push(currentScreen);showScreen('a-dispatch-detail');
+}
+
+// ========
 function switchSupply(tab){
   currentSupply=tab;
   document.querySelectorAll('.snav-item').forEach(el=>{if(el.id&&el.id.startsWith('snav-'))el.classList.remove('active');});
