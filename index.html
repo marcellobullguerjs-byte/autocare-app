@@ -1877,27 +1877,58 @@ function confirmCancel(who){showToast(who==='client'?'✓ Job cancelado.':'⚠�
 function confirmReschedule(){showToast('✓ Reagendado! Prestador notificado.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
 
 // ============ VEHICLE HISTORY ============
-function buildVehicleHistory(){
-  const vh=vehicleHistory[selectedVehicle];if(!vh)return;
-  document.getElementById('vhSubtitle').textContent=`${vh.name} · ${vh.plate}`;
-  const totalSpent=vh.svcs.reduce((a,s)=>a+s.price,0);
-  document.getElementById('vhTotalSvcs').textContent=vh.svcs.length;
-  document.getElementById('vhTotalSpent').textContent=`R$ ${totalSpent}`;
-  document.getElementById('vhLastSvc').textContent=`Último: ${vh.svcs[0].svc} · ${vh.svcs[0].date}`;
-  const list=document.getElementById('vhList');if(!list)return;list.innerHTML='';
-  vh.svcs.forEach(s=>{
-    const svcObj=catalog.find(c=>c.name===s.svc)||{cat:'Manutenção'};
-    const icon=CAT_ICONS[svcObj.cat]||'🔧';const stars='★'.repeat(s.nota)+'☆'.repeat(5-s.nota);
+async function buildVehicleHistory(){
+  const list=document.getElementById('vhList');
+  if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  if(!window._currentUser||!customerVehicles.length)return;
+  const veh=customerVehicles[selectedVehicle-1]||customerVehicles[0];
+  if(!veh)return;
+  document.getElementById('vhSubtitle').textContent=`${veh.brand} ${veh.model} ${veh.year} · ${veh.plate}`;
+  const btn1=document.getElementById('vhBtn1');
+  const btn2=document.getElementById('vhBtn2');
+  if(btn1)btn1.textContent=customerVehicles[0]?customerVehicles[0].model:'Veículo 1';
+  if(btn2)btn2.textContent=customerVehicles[1]?customerVehicles[1].model:'Veículo 2';
+  const {data:jobs,error}=await _supabase
+    .from('jobs')
+    .select(`id,status,scheduled_date,total_price,
+             services(name,category),
+             approvals(rating)`)
+    .eq('vehicle_id',veh.id)
+    .eq('status','completed')
+    .order('scheduled_date',{ascending:false});
+  if(error||!jobs||jobs.length===0){
+    list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum serviço concluído para este veículo.</div>';
+    document.getElementById('vhTotalSvcs').textContent='0';
+    document.getElementById('vhTotalSpent').textContent='R$ 0';
+    document.getElementById('vhLastSvc').textContent='Nenhum serviço ainda';
+    return;
+  }
+  const totalSpent=jobs.reduce((a,j)=>a+Number(j.total_price||0),0);
+  document.getElementById('vhTotalSvcs').textContent=jobs.length;
+  document.getElementById('vhTotalSpent').textContent='R$ '+totalSpent.toFixed(0);
+  const primeiro=jobs[0];
+  const dtPrimeiro=primeiro.scheduled_date?new Date(primeiro.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+  document.getElementById('vhLastSvc').textContent=`Último: ${primeiro.services?.name||'-'} · ${dtPrimeiro}`;
+  list.innerHTML='';
+  jobs.forEach(j=>{
+    const cat=j.services?.category||'Manutenção';
+    const icon=CAT_ICONS[cat]||'🔧';
+    const nota=j.approvals?.[0]?.rating||0;
+    const stars='★'.repeat(nota)+'☆'.repeat(5-nota);
+    const dt=j.scheduled_date?new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'';
     const d=document.createElement('div');d.className='hist-item';
-    d.innerHTML=`<div class="hist-icon">${icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${s.svc}</div><div style="font-size:11px;color:var(--muted)">${s.date} · ${s.prov}</div><div style="font-size:11px;color:#FFA000;margin-top:2px">${stars}</div>${s.foto?`<div style="font-size:10px;color:var(--blue);margin-top:2px">📸 Fotos disponíveis</div>`:''}</div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${s.price}</div></div>`;
+    d.innerHTML=`<div class="hist-icon">${icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${j.services?.name||'-'}</div><div style="font-size:11px;color:var(--muted)">${dt}</div><div style="font-size:11px;color:#FFA000;margin-top:2px">${nota>0?stars:'Sem avaliação'}</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${Number(j.total_price||0).toFixed(0)}</div></div>`;
     list.appendChild(d);
   });
 }
-function switchVehicle(id){
+async function switchVehicle(id){
   selectedVehicle=id;
-  document.getElementById('vhBtn1').style.cssText=id===1?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
-  document.getElementById('vhBtn2').style.cssText=id===2?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
-  buildVehicleHistory();
+  const btn1=document.getElementById('vhBtn1');
+  const btn2=document.getElementById('vhBtn2');
+  if(btn1)btn1.style.cssText=id===1?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
+  if(btn2)btn2.style.cssText=id===2?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
+  await buildVehicleHistory();
 }
 
 // ============ ADMIN CATALOG ============
