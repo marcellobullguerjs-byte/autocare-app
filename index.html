@@ -476,11 +476,11 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen full" id="p-splash" style="padding:0"><div class="splash"><div class="splash-logo">🔧</div><h1 style="color:#fff;font-size:24px;font-weight:500;margin-bottom:8px">AutoCare Parceiros</h1><p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:40px;line-height:1.6">Trabalhe com flexibilidade.<br>Atenda na sua região.</p><button class="btn btn-white" onclick="showLoginScreen('provider')">Já sou parceiro · Entrar</button><div style="height:10px"></div><button class="btn btn-ghost" onclick="goScreen('p-reg1')">Quero ser parceiro</button></div></div>
 
     <!-- FIX 4: botão voltar em todos os passos do cadastro do prestador -->
-    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input class="input" placeholder="Seu nome"><div class="label">CPF</div><input class="input" placeholder="000.000.000-00"><div class="label">E-mail</div><input class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input class="input" type="password" placeholder="Mínimo 6 caracteres"><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-splash')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg2')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-splash')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg2')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">❄️</div><div class="sl">Ar-cond.</div></div></div><div class="label">Anos de experiência</div><select class="input"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg1')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro. Peças entregues no seu endereço.</div><div class="label">Seu endereço base</div><input class="input" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg2')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg3')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg5')">Continuar →</button></div></div></div>
-    <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg4')">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-pending')">Enviar cadastro</button></div></div></div>
+    <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goScreen('p-reg4')">← Voltar</button><button class="btn btn-primary" onclick="submitProviderRegister()">Enviar cadastro</button></div></div></div>
     <div class="screen full" id="p-pending" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px">⏳</div><div style="font-size:20px;font-weight:500;margin-bottom:8px">Cadastro enviado!</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Análise em até <strong>48h</strong>.</div><button class="btn btn-outline" onclick="showLoginScreen('provider')">Acompanhar status</button></div></div>
 
     <!-- ===== AUTH LOGIN (REAL) ===== -->
@@ -2505,6 +2505,72 @@ async function checkExistingSession() {
   if (session) await handleAuthSession(session);
 }
 function doLogin(role){navHistory=[];showScreen(role==='provider'?'p-dashboard':'s-home');}
+
+async function submitProviderRegister(){
+  const name     = document.getElementById('preg-name')?.value?.trim();
+  const cpf      = document.getElementById('preg-cpf')?.value?.trim();
+  const email    = document.getElementById('preg-email')?.value?.trim();
+  const phone    = document.getElementById('preg-phone')?.value?.trim();
+  const password = document.getElementById('preg-password')?.value?.trim();
+
+  if(!name || !email || !password){
+    alert('Preencha nome, e-mail e senha para continuar.');
+    return;
+  }
+  if(password.length < 6){
+    alert('A senha precisa ter pelo menos 6 caracteres.');
+    return;
+  }
+
+  // Coletar especialidades selecionadas
+  const specs = [...document.querySelectorAll('.spec-chip.selected .sl')].map(el=>el.textContent);
+
+  // Coletar bairros selecionados
+  const neighborhoods = [...document.querySelectorAll('.region-chip.selected')].map(el=>el.textContent.trim());
+
+  // Coletar experiência
+  const expEl = document.querySelector('#p-reg2 select');
+  const experience = expEl ? expEl.value : '';
+
+  try{
+    // 1. Criar usuário no Supabase Auth
+    const {data:authData, error:authError} = await _supabase.auth.signUp({
+      email, password,
+      options:{ data:{ name, phone } }
+    });
+    if(authError) throw authError;
+
+    const uid = authData.user?.id;
+    if(!uid) throw new Error('Usuário não criado.');
+
+    // 2. Gravar na tabela users
+    const {error:userError} = await _supabase.from('users').insert({
+      id: uid,
+      email,
+      name,
+      phone,
+      role: 'provider'
+    });
+    if(userError) throw userError;
+
+    // 3. Gravar na tabela providers
+    const {data:provData, error:provError} = await _supabase.from('providers').insert({
+      user_id: uid,
+      specialties: specs,
+      regions: neighborhoods,
+      status: 'pending'
+    }).select();
+    console.log('providers insert result:', provData, provError);
+    if(provError) throw provError;
+
+    // 4. Ir para tela de pendente
+    goScreen('p-pending');
+
+  } catch(err){
+    console.error('Erro no cadastro do prestador:', err);
+    alert('Erro ao criar conta: ' + (err.message || 'Tente novamente.'));
+  }
+}
 
 async function submitClientRegister(){
   const name     = document.getElementById('reg-name')?.value?.trim();
