@@ -329,7 +329,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- JOB FLOW -->
     <div class="screen" id="jf-vehicle"><div class="progress-wrap" id="jp1"></div><div style="font-size:14px;font-weight:500;margin-bottom:2px" id="jfSvcName">Serviço</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="jfSvcMeta"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Qual veículo?</div><div id="vehList"></div><button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="goScreen('s-add-vehicle')">+ Adicionar veículo</button><button class="btn btn-primary" onclick="jfGo('jf-problem',2)">Continuar →</button></div>
-    <div class="screen" id="jf-problem"><div class="progress-wrap" id="jp2"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Descreva o problema</div><textarea class="input" id="jfDesc" rows="4" placeholder="Ex: Óleo no nível mínimo..."></textarea><div class="photo-upload" onclick="showToast('📷 Foto adicionada!')"><div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para adicionar fotos (opcional)</div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goToPartCheck()">Continuar →</button></div></div>
+    <div class="screen" id="jf-problem"><div class="progress-wrap" id="jp2"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Descreva o problema</div><textarea class="input" id="jfDesc" rows="4" placeholder="Ex: Óleo no nível mínimo..."></textarea><div class="photo-upload" id="clientPhotoBox" onclick="uploadClientPhoto()"><div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para adicionar fotos (opcional)</div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goToPartCheck()">Continuar →</button></div></div>
     <div class="screen" id="jf-parts"><div class="progress-wrap" id="jp3"></div><div style="text-align:center;padding:14px 0"><div style="font-size:28px;margin-bottom:8px">📦</div><div style="font-size:15px;font-weight:500;margin-bottom:4px">Verificando peças...</div><div style="font-size:12px;color:var(--muted)">Consultando fornecedores em SP</div><div style="margin:14px auto;width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;background:var(--blue)" id="partsBar"></div></div></div><div class="card" id="partsCard" style="display:none"><div class="row"><span style="font-size:13px;font-weight:500" id="partItemName">Peça</span><span class="badge badge-green">✓ Disponível</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partLeadInfo"></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Preço estimado</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="partTotalPrice">R$ -</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partBreak"></div></div><div class="card" id="partsLeadWarning" style="display:none;background:var(--orange-light);border-color:#FFCCBC"><div style="font-size:12px;font-weight:500;color:var(--orange);margin-bottom:4px">⏱ Horários consideram entrega da peça</div><div style="font-size:11px;color:var(--orange)" id="partsLeadExplain"></div></div><div class="card" id="partsAdminWarning" style="display:none;background:var(--red-light);border-color:#FFCDD2"><div style="font-size:12px;font-weight:500;color:var(--red);margin-bottom:4px">🔒 Peça aguardando confirmação do admin</div><div style="font-size:11px;color:var(--red)">Os horários serão liberados após o admin confirmar a disponibilidade da peça no supply chain.</div></div><button class="btn btn-primary" id="partsContinueBtn" style="display:none;margin-top:8px" onclick="jfGo('jf-address',4)">Escolher endereço →</button></div>
     <div class="screen" id="jf-address"><div class="progress-wrap" id="jp4"></div><div style="font-size:13px;font-weight:500;margin-bottom:14px">Onde será o serviço?</div><div class="addr-option selected" id="ja-home" onclick="selectJobAddr('home','Vila Madalena','Rua Harmonia, 120')"><div class="addr-icon">🏠</div><div><div style="font-size:13px;font-weight:500">Casa</div><div style="font-size:11px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div></div><div class="addr-option" id="ja-work" onclick="selectJobAddr('work','Bela Vista','Av. Paulista, 1000')"><div class="addr-icon">💼</div><div><div style="font-size:13px;font-weight:500">Trabalho</div><div style="font-size:11px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div><div class="addr-option" id="ja-other" onclick="selectJobAddr('other','','')"><div class="addr-icon">📍</div><div><div style="font-size:13px;font-weight:500">Outro endereço</div></div></div><div id="otherAddrForm" style="display:none;margin-top:4px"><div class="label">Bairro</div><select class="input" id="otherBairro" onchange="selectJobAddr('other',this.value,this.value)"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select></div><div class="card" id="addrMatchCard" style="background:var(--blue-light);margin-top:8px"><div style="font-size:12px;font-weight:500;color:var(--blue)" id="addrMatchTitle">✓ Prestadores disponíveis</div><div style="font-size:11px;color:var(--blue);margin-top:2px" id="addrMatchDetail"></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="jfGo('jf-schedule',5)">Escolher horário →</button></div>
     <div class="screen" id="jf-schedule">
@@ -799,24 +799,37 @@ function updateModels(){
   sel.innerHTML=marca?'<option value="">Selecione o modelo...</option>':'<option value="">Selecione primeiro a marca</option>';
   if(MODELS_BY_BRAND[marca]){MODELS_BY_BRAND[marca].forEach(m=>{const o=document.createElement('option');o.textContent=m;sel.appendChild(o);});}
 }
-function saveVehicle(){
+async function saveVehicle(){
   const marca=document.getElementById('vehMarca').value,modelo=document.getElementById('vehModelo').value,ano=document.getElementById('vehAno').value,placa=document.getElementById('vehPlaca').value.trim();
   if(!marca||!modelo||!ano){showToast('⚠️ Preencha marca, modelo e ano');return;}
   if(!placa){showToast('⚠️ Preencha a placa');return;}
   const comb=document.getElementById('vehComb').value,cor=document.getElementById('vehCor').value,apelido=document.getElementById('vehApelido').value.trim();
-  vehicles.push({id:nextVehId++,marca,modelo,ano,comb,placa,cor,apelido});
+  const {data,error}=await _supabase.from('vehicles').insert({
+    customer_id:(await _supabase.from('customers').select('id').eq('user_id',window._currentUser.id).single()).data.id,
+    brand:marca,model:modelo,year:parseInt(ano),
+    fuel:comb,plate:placa,color:cor,alias:apelido
+  }).select().single();
+  if(error){showToast('❌ Erro ao salvar veículo');console.error(error);return;}
   showToast(`✓ ${marca} ${modelo} adicionado!`);
+  await loadVehicles();
   buildVehicleListScreen();buildVehOptions();
   goBack();
 }
 function buildVehicleListScreen(){
   const el=document.getElementById('vehicleListEl');if(!el)return;el.innerHTML='';
-  vehicles.forEach(v=>{
-    const svcCount=v.id<=2?[3,4][v.id-1]:0;
+  customerVehicles.forEach(v=>{
     const d=document.createElement('div');d.className='veh-option';d.style.cssText='border-style:solid;cursor:pointer';
-    d.innerHTML=`<div class="veh-icon">🚗</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${v.marca} ${v.modelo}${v.apelido?` · <span style="color:var(--muted)">${v.apelido}</span>`:''}</div><div style="font-size:12px;color:var(--muted)">${v.ano} · ${v.placa} · ${v.comb}</div><div style="font-size:11px;color:var(--blue);margin-top:2px">${svcCount} serviços realizados</div></div><span class="badge badge-blue">Ativo</span>`;
+    d.innerHTML=`<div class="veh-icon">🚗</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${v.brand} ${v.model}${v.alias?` · <span style="color:var(--muted)">${v.alias}</span>`:''}</div><div style="font-size:12px;color:var(--muted)">${v.year} · ${v.plate} · ${v.fuel||''}</div><div style="font-size:11px;color:var(--blue);margin-top:2px">ver histórico</div></div><span class="badge badge-blue">Ativo</span><button onclick="event.stopPropagation();deleteVehicle('${v.id}')" style="background:none;border:none;color:#e74c3c;font-size:18px;cursor:pointer;padding:4px">🗑️</button>`;
     d.onclick=()=>goScreen('s-vehicle-history');el.appendChild(d);
   });
+}
+async function deleteVehicle(id){
+  if(!confirm('Remover este veículo?'))return;
+  const {error}=await _supabase.from('vehicles').delete().eq('id',id);
+  if(error){showToast('❌ Erro ao remover veículo');console.error(error);return;}
+  showToast('✓ Veículo removido');
+  await loadVehicles();
+  buildVehicleListScreen();buildVehOptions();
 }
 function buildVehOptions(){
   const el=document.getElementById('vehList');if(!el)return;el.innerHTML='';
@@ -1712,9 +1725,38 @@ function doChk(n){
   if(n===2&&chkState[2]){const el=document.getElementById('startTimeEl');if(el){el.style.display='block';const now=new Date();el.textContent=`▶ Iniciado às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;}}
 }
 function uploadExecPhoto(type){
-  const box=document.getElementById(type==='before'?'photoBefore':'photoAfter');if(!box)return;
-  box.classList.add('uploaded');box.innerHTML=`<div style="font-size:28px;margin-bottom:4px">📸</div><div style="font-size:11px;color:var(--green);font-weight:500">✓ Foto enviada</div>`;
-  const n=type==='before'?1:3;if(!chkState[n]){chkState[n]=true;const b=document.getElementById('chk'+n);if(b){b.classList.add('checked');b.textContent='✓';}}
+  const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';
+  input.onchange=async function(){
+    const file=input.files[0];if(!file)return;
+    const box=document.getElementById(type==='before'?'photoBefore':'photoAfter');
+    box.innerHTML=`<div style="font-size:11px;color:var(--muted)">Enviando...</div>`;
+    const path=`${window._activeJobId}/${type}_${Date.now()}.jpg`;
+    const {error}=await _supabase.storage.from('job-photos').upload(path,file,{upsert:true});
+    if(error){showToast('❌ Erro ao enviar foto');console.error(error);return;}
+    const {data:urlData}=_supabase.storage.from('job-photos').getPublicUrl(path);
+    box.classList.add('uploaded');
+    box.innerHTML=`<img src="${urlData.publicUrl}" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"><div style="font-size:11px;color:var(--green);font-weight:500;margin-top:4px">✓ Foto enviada</div>`;
+    const n=type==='before'?1:3;if(!chkState[n]){chkState[n]=true;const b=document.getElementById('chk'+n);if(b){b.classList.add('checked');b.textContent='✓';}}
+    await _supabase.from('jobs').update({[type==='before'?'photo_before':'photo_after']:urlData.publicUrl}).eq('id',window._activeJobId);
+  };
+  input.click();
+}
+function uploadClientPhoto(){
+  const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';
+  input.onchange=async function(){
+    const file=input.files[0];if(!file)return;
+    const box=document.getElementById('clientPhotoBox');
+    box.innerHTML=`<div style="font-size:11px;color:var(--muted)">Enviando...</div>`;
+    const path=`client_${window._currentUser.id}_${Date.now()}.jpg`;
+    const {error}=await _supabase.storage.from('job-photos').upload(path,file,{upsert:true});
+    if(error){showToast('❌ Erro ao enviar foto');console.error(error);return;}
+    const {data:urlData}=_supabase.storage.from('job-photos').getPublicUrl(path);
+    jobState.clientPhoto=urlData.publicUrl;
+    box.classList.add('uploaded');
+    box.innerHTML=`<img src="${urlData.publicUrl}" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"><div style="font-size:11px;color:var(--green);font-weight:500;margin-top:4px">✓ Foto adicionada</div>`;
+    showToast('✓ Foto adicionada!');
+  };
+  input.click();
 }
 async function finalizeExec(){
   const missing=[];
