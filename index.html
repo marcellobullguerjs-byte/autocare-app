@@ -1935,7 +1935,19 @@ async function loadProviderRanking(){
 // ============ CANCEL ============
 function selectCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
 function selectPCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
-function confirmCancel(who){showToast(who==='client'?'✓ Job cancelado.':'⚠️ Cancelado. Impacta ranking.');goScreen(who==='client'?'s-home':'p-dashboard');}
+async function confirmCancel(who){
+  const jobId = window._currentJobId || window._activeJobId;
+  if(jobId){
+    const {error} = await _supabase
+      .from('jobs')
+      .update({status: who==='client' ? 'cancelled' : 'cancelled_provider'})
+      .eq('id', jobId);
+    if(error){ alert('Erro ao cancelar: ' + error.message); return; }
+  }
+  showToast(who==='client'?'✓ Job cancelado.':'⚠️ Cancelado. Impacta ranking.');
+  goScreen(who==='client'?'s-home':'p-dashboard');
+  if(who==='client'){ await loadRecentJobs(); }
+}
 function confirmReschedule(){showToast('✓ Reagendado! Prestador notificado.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
 
 // ============ VEHICLE HISTORY ============
