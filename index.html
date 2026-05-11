@@ -615,7 +615,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       </div>
     </div>
 
-    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500">Carlos Ribeiro</div><div style="color:rgba(255,255,255,.8);font-size:12px">carlos@email.com</div><span class="badge badge-green" style="margin-top:4px;display:inline-block">✓ Aprovado · Score 8.7</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px"><span class="badge badge-blue">🔧 Mecânico</span><span class="badge badge-blue">⚡ Eletricista</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge badge-blue">Vila Madalena</span><span class="badge badge-blue">Pinheiros</span><span class="badge badge-blue">Jardins</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
+    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
 
     <!-- ===== ADMIN ===== -->
     <div class="screen active" id="a-dashboard">
@@ -1833,6 +1833,24 @@ function openClaimModal(){document.getElementById('modalTitle').textContent='Abr
 function submitClaim(){closeModal();showToast('Reclamação enviada. Admin notificado em até 24h.');}
 
 // ============ PROVIDER RANKING ============
+async function loadProviderProfile(){
+  if(!window._currentUser||window._currentUser.role!=='provider')return;
+  const {data:prov}=await _supabase.from('providers').select('score,specialties,regions,status').eq('user_id',window._currentUser.id).single();
+  if(!prov)return;
+  const nome=window._currentUser.name||'Prestador';
+  const email=window._currentUser.email||'';
+  const iniciais=nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const score=parseFloat(prov.score||0).toFixed(1);
+  const specs=(prov.specialties||[]);
+  const bairros=(prov.regions||[]);
+  if(document.getElementById('p-profile-av')) document.getElementById('p-profile-av').textContent=iniciais;
+  if(document.getElementById('p-profile-nome')) document.getElementById('p-profile-nome').textContent=nome;
+  if(document.getElementById('p-profile-email')) document.getElementById('p-profile-email').textContent=email;
+  if(document.getElementById('p-profile-score')) document.getElementById('p-profile-score').textContent='✓ Aprovado · Score '+score;
+  if(document.getElementById('p-profile-specs')) document.getElementById('p-profile-specs').innerHTML=specs.map(s=>`<span class="badge badge-blue">${s}</span>`).join('');
+  if(document.getElementById('p-profile-bairros')) document.getElementById('p-profile-bairros').innerHTML=bairros.map(b=>`<span class="badge badge-blue">${b}</span>`).join('');
+}
+
 async function loadProviderRanking(){
   if(!window._currentUser||window._currentUser.role!=='provider')return;
   const {data:provRow}=await _supabase
@@ -2312,6 +2330,7 @@ function showScreen(id){
   if(id==='s-vehicles')buildVehicleListScreen();
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
   if(id==='p-ranking')loadProviderRanking();
+  if(id==='p-profile')loadProviderProfile();
   if(id==='p-agenda'){buildAgendaConfig();switchAgendaTab('config');}
   if(id==='a-services')buildAdminCatalog();
   if(id==='a-providers')buildProviderList();
