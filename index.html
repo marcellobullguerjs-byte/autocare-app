@@ -631,7 +631,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s">2 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-jobs')"><div class="menu-icon">📄</div><div class="menu-text"><div class="t">Jobs</div><div class="s" id="dash-jobs-subtitulo">0 hoje</div></div></div>
       <!-- FIX 3: Pagamentos funciona agora -->
-      <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s">R$ 2.840 hoje · 8 transações</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s" id="dash-payments-subtitulo">R$ 0 hoje</div></div></div>
       <hr class="divider">
       <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div>
     </div>
@@ -690,8 +690,8 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="a-payments">
       <div style="font-size:15px;font-weight:500;margin-bottom:14px">Pagamentos de hoje</div>
       <div class="grid2" style="margin-bottom:14px">
-        <div class="stat"><div class="n" style="color:var(--green)">R$ 2.840</div><div class="l">Total recebido</div></div>
-        <div class="stat"><div class="n" style="color:var(--orange)">R$ 440</div><div class="l">Aguard. aprovação</div></div>
+        <div class="stat"><div class="n" style="color:var(--green)" id="pay-total-recebido">R$ 0</div><div class="l">Total recebido</div></div>
+        <div class="stat"><div class="n" style="color:var(--orange)" id="pay-total-aguardando">R$ 0</div><div class="l">Aguard. aprovação</div></div>
       </div>
       <div class="supply-nav">
         <div class="snav-item active" id="ptab-today" onclick="switchPayTab('today')">Hoje</div>
@@ -918,36 +918,42 @@ function buildAgendaDayView(){
   document.getElementById('agEarnCount').textContent=`R$ ${earn}`;
 }
 
-// ============ FIX 3: PAGAMENTOS ============
-const payments=[
-  {id:1,jobId:'#2047',service:'Troca de óleo + filtro',client:'Marcello Costa',value:240,status:'released',method:'Cartão',time:'11:54',provider:'Carlos Ribeiro'},
-  {id:2,jobId:'#2046',service:'Check-up geral',client:'Lúcia Carvalho',value:120,status:'released',method:'Pix',time:'09:47',provider:'Carlos Ribeiro'},
-  {id:3,jobId:'#2044',service:'Higienização interna',client:'Fernanda Dias',value:150,status:'released',method:'Pix',time:'08:30',provider:'Maria Lima'},
-  {id:4,jobId:'#2043',service:'Calibragem',client:'Roberto Souza',value:20,status:'released',method:'Cartão',time:'08:00',provider:'João Santos'},
-  {id:5,jobId:'#2048',service:'Troca de bateria',client:'Ana Lima',value:440,status:'waiting',method:'Cartão',time:'14:00',provider:'Carlos Ribeiro'},
-  {id:6,jobId:'#2049',service:'Scanner OBD',client:'Pedro Monteiro',value:80,status:'waiting',method:'Pix',time:'15:30',provider:'João Santos'},
-  {id:7,jobId:'#2051',service:'Troca de filtro de ar',client:'Roberto Andrade',value:92,status:'pending',method:'Cartão',time:'09:00',provider:'—'},
-  {id:8,jobId:'#2055',service:'Martelinho PDR',client:'Pedro Lima',value:200,status:'pending',method:'Pix',time:'10:00',provider:'—'},
-];
+/// ============ FIX 3: PAGAMENTOS ============
+let payments=[];
 let payTab='today';
 function switchPayTab(tab){
   payTab=tab;
   ['today','pending','all'].forEach(t=>{const el=document.getElementById('ptab-'+t);if(el)el.classList.toggle('active',t===tab);});
   buildPayments();
 }
-function buildPayments(){
-  const el=document.getElementById('paymentsList');if(!el)return;el.innerHTML='';
-  let filtered=payments;
-  if(payTab==='pending')filtered=payments.filter(p=>p.status==='waiting'||p.status==='pending');
-  const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovação',cls:'ps-waiting'},pending:{label:'Sem prestador',cls:'ps-pending'}};
-  filtered.forEach(p=>{
-    const cfg=statusCfg[p.status];
+async function buildPayments(){
+  const el=document.getElementById('paymentsList');if(!el)return;
+  el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
+  let query=_supabase.from('payments').select('id,job_id,amount,method,status,released_at,jobs(scheduled_date,scheduled_time,total_price,payment_method,services(name))').order('id',{ascending:false}).limit(50);
+  if(payTab==='pending') query=query.in('status',['waiting','pending']);
+  if(payTab==='today'){const hoje=new Date().toISOString().slice(0,10);query=query.gte('released_at',hoje+'T00:00:00').lte('released_at',hoje+'T23:59:59');}
+  const {data:pags}=await query;
+  el.innerHTML='';
+  if(!pags||pags.length===0){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum pagamento encontrado</div>';return;}
+  const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovação',cls:'ps-waiting'},pending:{label:'Pendente',cls:'ps-pending'}};
+  pags.forEach(p=>{
+    const cfg=statusCfg[p.status]||{label:p.status,cls:'ps-pending'};
+    const svc=p.jobs?.services?.name||'Serviço';
+    const hr=p.jobs?.scheduled_time?p.jobs.scheduled_time.slice(0,5):'--';
+    const metodoRaw=p.method||p.jobs?.payment_method||'--';
+    const metodo=metodoRaw==='card'?'Cartão':metodoRaw==='pix'?'Pix':metodoRaw;
+    const valorRaw=parseFloat(p.amount||p.jobs?.total_price||0);
+    const valor=valorRaw.toLocaleString('pt-BR',{minimumFractionDigits:0});
     const d=document.createElement('div');d.className='pay-item';
-    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${p.jobId} · ${p.service}</span><span class="pay-status ${cfg.cls}">${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${p.client} · ${p.time} · ${p.method}</div><div class="row" style="margin-top:8px;margin-bottom:0"><span style="font-size:12px;color:var(--muted)">${p.provider}</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ ${p.value}</span></div>`;
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">Job #${p.job_id} · ${svc}</span><span class="pay-status ${cfg.cls}">${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${hr} · ${metodo}</div><div class="row" style="margin-top:8px;margin-bottom:0"><span style="font-size:12px;color:var(--muted)">Job #${p.job_id}</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ ${valor}</span></div>`;
     el.appendChild(d);
   });
-  const total=filtered.reduce((a,p)=>a+(p.status==='released'?p.value:0),0);
-  if(filtered.length>0){const s=document.createElement('div');s.className='card';s.style.background='var(--blue-light)';s.innerHTML=`<div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Total liberado</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ ${total}</span></div>`;el.appendChild(s);}
+  const total=pags.filter(p=>p.status==='released').reduce((s,p)=>s+parseFloat(p.amount||p.jobs?.total_price||0),0);
+  const s=document.createElement('div');s.className='card';s.style.background='var(--blue-light)';s.innerHTML=`<div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Total liberado</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:0})}</span></div>`;
+  el.appendChild(s);
+  const aguardando=pags.filter(p=>p.status==='waiting').reduce((s,p)=>s+parseFloat(p.amount||p.jobs?.total_price||0),0);
+  if(document.getElementById('pay-total-recebido')) document.getElementById('pay-total-recebido').textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  if(document.getElementById('pay-total-aguardando')) document.getElementById('pay-total-aguardando').textContent='R$ '+aguardando.toLocaleString('pt-BR',{minimumFractionDigits:0});
 }
 
 // ============ PROVIDERS ============
@@ -2333,6 +2339,8 @@ async function loadAdminDashboard(){
     const totalRecl = (recl||[]).length;
     document.getElementById('dash-jobs-hoje').textContent = jobsHoje;
     document.getElementById('dash-jobs-subtitulo').textContent = jobsHoje+' hoje';
+    const totalPago=( jobs||[]).filter(j=>(j.payments||[]).some(p=>p.status==='released')).reduce((s,j)=>{const p=(j.payments||[]).find(x=>x.status==='released');return s+parseFloat(p?.amount||j.total_price||0);},0);
+    if(document.getElementById('dash-payments-subtitulo')) document.getElementById('dash-payments-subtitulo').textContent='R$ '+totalPago.toLocaleString('pt-BR',{minimumFractionDigits:0})+' hoje';
     document.getElementById('dash-receita-hoje').textContent = 'R$ '+receita.toLocaleString('pt-BR',{minimumFractionDigits:0});
     document.getElementById('dash-prestadores-pendentes').textContent = (pend||[]).length;
     document.getElementById('dash-cotacoes-pendentes').textContent = (cot||[]).length;
