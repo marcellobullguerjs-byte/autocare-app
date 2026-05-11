@@ -2017,18 +2017,55 @@ function buildAdminCatalog(){
   });
 }
 function openSvcForm(id){
-  editingId=id;const s=id?catalog.find(x=>x.id===id):null;
+  const s=id?catalog.find(x=>x.id===id):null;
+  editingId=s?.uuid || id;
   document.getElementById('modalTitle').textContent=id?'Editar serviço':'Novo serviço';
   document.getElementById('modalContent').innerHTML=`<div class="label">Nome</div><input class="input" id="f-name" value="${s?s.name:''}" placeholder="Nome"><div class="label">Categoria</div><select class="input" id="f-cat">${CATEGORIES.map(c=>`<option${s&&s.cat===c?' selected':''}>${c}</option>`).join('')}</select><div class="label">Prestador</div><select class="input" id="f-prov">${PROV_TYPES.map(p=>`<option${s&&s.provider===p?' selected':''}>${p}</option>`).join('')}</select><div class="label">Preço (R$)</div><input class="input" id="f-price" type="number" value="${s?s.price:''}" placeholder="180"><div class="label">Tempo (min)</div><input class="input" id="f-time" type="number" value="${s?s.time:''}" placeholder="30"><div class="label">Slots</div><input class="input" id="f-slots" type="number" value="${s?s.slots:1}"><div class="row" style="padding:8px 0"><span style="font-size:13px">Precisa de peça</span><div class="toggle ${s&&s.parts?'on':''}" id="f-parts" onclick="this.classList.toggle('on')"></div></div><div class="label">Lead time peça (h)</div><input class="input" id="f-lead" type="number" value="${s?s.leadTimeH:0}"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="saveSvc()">Salvar</button></div>`;
   document.getElementById('modalBg').style.display='flex';
 }
-function saveSvc(){
+async function saveSvc(){
   const name=document.getElementById('f-name').value.trim(),price=parseInt(document.getElementById('f-price').value)||0;
   if(!name||!price){alert('Preencha nome e preço');return;}
   const hp=document.getElementById('f-parts').classList.contains('on');
-  const data={name,cat:document.getElementById('f-cat').value,provider:document.getElementById('f-prov').value,price,time:parseInt(document.getElementById('f-time').value)||30,slots:parseInt(document.getElementById('f-slots').value)||1,parts:hp,leadTimeH:parseInt(document.getElementById('f-lead').value)||0,active:true};
-  if(editingId){Object.assign(catalog.find(x=>x.id===editingId),data);}else{catalog.push({id:nextSvcId++,...data});}
-  closeModal();buildAdminCatalog();buildCatGrid();
+  const data={
+    name,
+    category: document.getElementById('f-cat').value,
+    provider_type: document.getElementById('f-prov').value,
+    price,
+    duration_min: parseInt(document.getElementById('f-time').value)||30,
+    slots: parseInt(document.getElementById('f-slots').value)||1,
+    requires_parts: hp,
+    part_lead_time_h: parseInt(document.getElementById('f-lead').value)||0,
+    active: true
+  };
+
+  if(editingId){
+    // Editar serviço existente — usar UUID real
+    const svc = catalog.find(x=>x.uuid===editingId);
+    const {error} = await _supabase.from('services').update(data).eq('id', editingId);
+    if(error){ alert('Erro ao salvar: ' + error.message); return; }
+    if(svc) Object.assign(svc, {...data, cat: data.category, provider: data.provider_type});
+  } else {
+    // Novo serviço
+    const {data:newSvc, error} = await _supabase.from('services').insert(data).select().single();
+    if(error){ alert('Erro ao criar: ' + error.message); return; }
+    catalog.push({
+      id: nextSvcId++,
+      uuid: newSvc.id,
+      name: newSvc.name,
+      cat: newSvc.category,
+      provider: newSvc.provider_type,
+      price: newSvc.price,
+      time: newSvc.duration_min,
+      slots: newSvc.slots,
+      parts: newSvc.needs_part,
+      leadTimeH: newSvc.lead_time_h,
+      active: newSvc.active
+    });
+  }
+  closeModal();
+  buildAdminCatalog();
+  buildCatGrid();
 }
 function toggleSvc(id){const s=catalog.find(x=>x.id===id);if(!s)return;s.active=!s.active;buildAdminCatalog();buildCatGrid();}
 function delSvc(id){catalog=catalog.filter(x=>x.id!==id);buildAdminCatalog();buildCatGrid();}
