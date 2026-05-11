@@ -620,10 +620,9 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <!-- ===== ADMIN ===== -->
     <div class="screen active" id="a-dashboard">
       <div style="font-size:16px;font-weight:500;margin-bottom:14px">Painel Admin</div>
-      <div class="grid2" style="margin-bottom:10px"><div class="stat"><div class="n">12</div><div class="l">Jobs hoje</div></div><div class="stat"><div class="n">R$ 2.840</div><div class="l">Receita hoje</div></div></div>
-      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n" style="color:var(--yellow)">4</div><div class="l">Prestadores pendentes</div></div><div class="stat"><div class="n" style="color:var(--orange)">3</div><div class="l">Cotações pendentes</div></div></div>
-      <div style="background:var(--red-light);border:1px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--red)">🚨 1 job sem prestador · Intervenção necessária</div></div>
-      <div style="background:var(--orange-light);border:1px solid #FFCCBC;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--orange)">⚠️ 2 reclamações aguardando análise</div></div>
+      <div class="grid2" style="margin-bottom:10px"><div class="stat"><div class="n" id="dash-jobs-hoje">...</div><div class="l">Jobs hoje</div></div><div class="stat"><div class="n" id="dash-receita-hoje">...</div><div class="l">Receita hoje</div></div></div>
+      <div class="grid2" style="margin-bottom:14px"><div class="stat"><div class="n" style="color:var(--yellow)" id="dash-prestadores-pendentes">...</div><div class="l">Prestadores pendentes</div></div><div class="stat"><div class="n" style="color:var(--orange)" id="dash-cotacoes-pendentes">...</div><div class="l">Cotações pendentes</div></div></div>
+<div id="dash-banner-semprestador" style="display:none;background:var(--red-light);border:1px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--red)" id="dash-banner-semprestador-txt">🚨 0 jobs sem prestador · Intervenção necessária</div></div>      <div id="dash-banner-reclamacoes" style="display:none;background:var(--orange-light);border:1px solid #FFCCBC;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:13px;font-weight:500;color:var(--orange)" id="dash-banner-reclamacoes-txt">⚠️ 0 reclamações aguardando análise</div></div>
       <div class="menu-item" onclick="goScreen('a-services')"><div class="menu-icon">🔧</div><div class="menu-text"><div class="t">Catálogo de serviços</div><div class="s">25 serviços ativos</div></div></div>
       <div class="menu-item" onclick="goScreen('a-providers')"><div class="menu-icon">👨‍🔧</div><div class="menu-text"><div class="t">Gestão de prestadores</div><div class="s">Aprovar · Suspender · Rejeitar</div></div></div>
       <div class="menu-item" onclick="goScreen('a-dispatch')"><div class="menu-icon">📡</div><div class="menu-text"><div class="t">Dispatch · Jobs</div><div class="s">Alocação · Aceite · Realocação</div></div></div>
@@ -2310,7 +2309,32 @@ function showScreen(id){
   if(id==='a-claims')buildClaims();
   if(id==='a-payments'){switchPayTab('today');}
 }
-function goScreen(id){navHistory.push(currentScreen);showScreen(id);if(id==='s-job-status')loadJobStatus();}
+async function loadAdminDashboard(){
+  try {
+    const hoje = new Date().toISOString().slice(0,10);
+    const [{data:jobs},{data:pend},{data:cot}] = await Promise.all([
+      _supabase.from('jobs').select('id,payments(amount,status)').gte('created_at', hoje+'T00:00:00').lte('created_at', hoje+'T23:59:59'),
+      _supabase.from('providers').select('id').eq('status','pending'),
+      _supabase.from('quotations').select('id').eq('status','pending')
+    ]);
+    const jobsHoje = (jobs||[]).length;
+    const receita = (jobs||[]).reduce((s,j)=>{
+      const p=(j.payments||[]).find(x=>x.status==='released');
+      return s+(p?parseFloat(p.amount):0);
+    },0);
+    const semPrestador = (jobs||[]).filter(j=>j.status==='pending').length;
+    const {data:recl} = await _supabase.from('claims').select('id').eq('status','pending');
+    const totalRecl = (recl||[]).length;
+    document.getElementById('dash-jobs-hoje').textContent = jobsHoje;
+    document.getElementById('dash-receita-hoje').textContent = 'R$ '+receita.toLocaleString('pt-BR',{minimumFractionDigits:0});
+    document.getElementById('dash-prestadores-pendentes').textContent = (pend||[]).length;
+    document.getElementById('dash-cotacoes-pendentes').textContent = (cot||[]).length;
+    if(semPrestador>0){document.getElementById('dash-banner-semprestador').style.display='block';document.getElementById('dash-banner-semprestador-txt').textContent='🚨 '+semPrestador+' job'+(semPrestador>1?'s':'')+' sem prestador · Intervenção necessária';}
+    if(totalRecl>0){document.getElementById('dash-banner-reclamacoes').style.display='block';document.getElementById('dash-banner-reclamacoes-txt').textContent='⚠️ '+totalRecl+' reclamação'+(totalRecl>1?'ões':'')+(totalRecl>1?'':' ')+'aguardando análise';}
+  } catch(e){ console.log('dash erro',e); }
+}
+
+function goScreen(id){navHistory.push(currentScreen);showScreen(id);if(id==='s-job-status')loadJobStatus();if(id==='a-dashboard')loadAdminDashboard();}
 function goBack(){if(navHistory.length>0){const p=navHistory.pop();showScreen(p);}}
 // ===== AUTH REAL (Supabase) =====
 let _authContext = 'client';
@@ -2368,7 +2392,7 @@ async function handleAuthSession(session) {
   if(document.getElementById('profile-name-display')) document.getElementById('profile-name-display').textContent = _n;
   if(document.getElementById('profile-av-initials')) document.getElementById('profile-av-initials').textContent = _initials;
   navHistory = [];
-  if (role === 'admin')    { switchView('admin');    return; }
+  if (role === 'admin')    { switchView('admin'); loadAdminDashboard(); return; }
   if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); loadProviderDashboard(); return; }
   switchView('client'); await loadVehicles(); await loadRecentJobs(); goScreen('s-home');
 }
