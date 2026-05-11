@@ -266,12 +266,12 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="auth-header"><h2>Criar conta</h2><p>Passo 1 de 3</p></div>
       <div class="auth-body">
         <div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
-        <div class="label">Nome completo</div><input class="input" placeholder="Seu nome">
-        <div class="label">E-mail</div><input class="input" type="email" placeholder="seu@email.com">
-        <div class="label">Telefone</div><input class="input" type="tel" placeholder="(11) 99999-9999">
-        <div class="label">Senha</div><input class="input" type="password" placeholder="Mínimo 6 caracteres">
+        <div class="label">Nome completo</div><input id="reg-name" class="input" placeholder="Seu nome">
+        <div class="label">E-mail</div><input id="reg-email" class="input" type="email" placeholder="seu@email.com">
+        <div class="label">Telefone</div><input id="reg-phone" class="input" type="tel" placeholder="(11) 99999-9999">
+        <div class="label">Senha</div><input id="reg-password" class="input" type="password" placeholder="Mínimo 6 caracteres">
         <button class="btn btn-primary" onclick="goScreen('s-reg2')">Continuar →</button>
-        <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)">Já tem conta? <span style="color:var(--blue);cursor:pointer" onclick="doLogin('client')">Entrar</span></div>
+        <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)">Já tem conta? <span style="color:var(--blue);cursor:pointer" onclick="showLoginScreen('client')">Entrar</span></div>
       </div>
     </div>
     <div class="screen full" id="s-reg2" style="padding:0">
@@ -300,8 +300,8 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="label">Bairro</div><select class="input"><option>Bela Vista</option><option>Consolação</option><option>Jardins</option></select>
         <div style="display:flex;gap:8px">
           <button class="btn btn-outline" onclick="goScreen('s-reg2')">← Voltar</button>
-          <button class="btn btn-outline" style="flex:1" onclick="doLogin('client')">Pular</button>
-          <button class="btn btn-primary" style="flex:2" onclick="doLogin('client')">Concluir</button>
+          <button class="btn btn-outline" style="flex:1" onclick="submitClientRegister()">Pular</button>
+          <button class="btn btn-primary" style="flex:2" onclick="submitClientRegister()">Concluir</button>
         </div>
       </div>
     </div>
@@ -309,7 +309,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <!-- CLIENT HOME -->
     <div class="screen" id="s-home">
       <div style="margin-bottom:14px">
-        <div style="font-size:13px;color:var(--muted)">Olá, Marcello 👋</div>
+        <div style="font-size:13px;color:var(--muted)">Olá, <span id="home-username">...</span> 👋</div>
         <div style="font-size:16px;font-weight:500">O que seu carro precisa?</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">📍 Vila Madalena · São Paulo</div>
       </div>
@@ -2489,6 +2489,8 @@ async function handleAuthSession(session) {
   if (role === 'admin')    { switchView('admin'); loadAdminDashboard(); return; }
   if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); loadProviderDashboard(); return; }
   switchView('client'); await loadVehicles(); await loadRecentJobs(); goScreen('s-home');
+  const homeUser = document.getElementById('home-username');
+  if(homeUser) homeUser.textContent = (userData.name || '').split(' ')[0];
 }
 
 async function doLogout() {
@@ -2503,6 +2505,59 @@ async function checkExistingSession() {
   if (session) await handleAuthSession(session);
 }
 function doLogin(role){navHistory=[];showScreen(role==='provider'?'p-dashboard':'s-home');}
+
+async function submitClientRegister(){
+  const name     = document.getElementById('reg-name')?.value?.trim();
+  const email    = document.getElementById('reg-email')?.value?.trim();
+  const phone    = document.getElementById('reg-phone')?.value?.trim();
+  const password = document.getElementById('reg-password')?.value?.trim();
+
+  if(!name || !email || !password){
+    alert('Preencha nome, e-mail e senha para continuar.');
+    return;
+  }
+  if(password.length < 6){
+    alert('A senha precisa ter pelo menos 6 caracteres.');
+    return;
+  }
+
+  try{
+    // 1. Criar usuário no Supabase Auth
+    const {data:authData, error:authError} = await _supabase.auth.signUp({
+      email, password,
+      options:{ data:{ name, phone } }
+    });
+    if(authError) throw authError;
+
+    const uid = authData.user?.id;
+    if(!uid) throw new Error('Usuário não criado.');
+
+    // 2. Gravar na tabela users
+    const {error:userError} = await _supabase.from('users').insert({
+      id: uid,
+      email,
+      name,
+      phone,
+      role: 'client'
+    });
+    if(userError) throw userError;
+
+    // 3. Gravar na tabela customers
+    const {error:custError} = await _supabase.from('customers').insert({
+      user_id: uid
+    });
+    if(custError) throw custError;
+    // 3. Atualizar sessão global e ir para home
+    _currentUser = { id: uid, email, role: 'client', name };
+    navHistory = [];
+    showScreen('s-home');
+    alert('Conta criada com sucesso! Bem-vindo(a), ' + name + '!');
+
+  } catch(err){
+    console.error('Erro no cadastro:', err);
+    alert('Erro ao criar conta: ' + (err.message || 'Tente novamente.'));
+  }
+}
 function switchView(v){
   currentView=v;navHistory=[];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['client','provider','admin'][i]===v));
