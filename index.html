@@ -2228,16 +2228,25 @@ function buildPartsAdmin(){const list=document.getElementById('partList');if(!li
 function buildSuppliersAdmin(){const list=document.getElementById('supplierList');if(!list)return;list.innerHTML='';suppliers.forEach(s=>{const d=document.createElement('div');d.className='svc-card';d.innerHTML=`<div class="row"><span style="font-size:13px;font-weight:500">${s.name}</span><span class="badge badge-green">Ativo</span></div><div style="font-size:12px;color:var(--muted)">📍 ${s.region} · ⏱ ${s.leadTimeH}h</div><div style="margin-top:4px">${s.cats.map(c=>`<span class="tag-cat">${c}</span>`).join('')}</div>`;list.appendChild(d);});}
 
 // ============ ADMIN RANKING ============
-function buildRanking(){
+async function buildRanking(){
   const fr=document.getElementById('rankFilter'),list=document.getElementById('rankingList');if(!fr||!list)return;
   fr.innerHTML='';['Todos','Vila Madalena','Pinheiros','Moema'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===rankFilter?' active':'');d.textContent=f;d.onclick=()=>{rankFilter=f;buildRanking();};fr.appendChild(d);});
-  const ranked=[...PROVIDERS].filter(p=>rankFilter==='Todos'||p.region.includes(rankFilter)).filter(p=>p.stats.jobsTotal>0).map(p=>({...p,score:calcScore(p)})).sort((a,b)=>b.score-a.score);
+  list.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
+  const {data:provs} = await _supabase.from('providers').select('id,score,status,specialties,regions,stats,users!providers_user_id_fkey(name)').eq('status','approved').order('score',{ascending:false});
+  if(!provs||provs.length===0){list.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum prestador aprovado</div>';return;}
+  const filtered = provs.filter(p=>rankFilter==='Todos'||(p.regions&&p.regions.includes(rankFilter)));
   list.innerHTML='';
-  ranked.forEach((p,i)=>{
-    const tier=getTier(p.score),c=p.score>=8?'var(--green)':p.score>=7?'var(--blue)':'var(--orange)';
-    const circ=2*Math.PI*22,off=circ*(1-p.score/10);
+  filtered.forEach((p,i)=>{
+    const score=parseFloat(p.score||0).toFixed(1);
+    const c=score>=8?'var(--green)':score>=7?'var(--blue)':'var(--orange)';
+    const circ=2*Math.PI*22,off=circ*(1-score/10);
+    const nome=p.users?.name||'Prestador';
+    const iniciais=nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const specs=(p.specialties||[]).join(', ')||'—';
+    const colors=['av-blue','av-green','av-orange','av-purple','av-red'];
+    const cor=colors[i%colors.length];
     const d=document.createElement('div');d.className='rank-card';
-    d.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:28px;height:28px;border-radius:50%;background:${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--blue-light)'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:${i<=2?'#333':'var(--blue)'}">#${i+1}</div><div class="av ${p.color}">${p.initials}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.specialty.join(', ')}</div></div><div class="score-ring"><svg width="56" height="56" viewBox="0 0 56 56"><circle fill="none" stroke="#f0f0f0" stroke-width="5" cx="28" cy="28" r="22" transform="rotate(-90 28 28)"/><circle fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" cx="28" cy="28" r="22" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 28 28)"/></svg><div class="score-num" style="color:${c}">${p.score}</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:10px;font-size:11px">★ ${p.stats.notaMedia}</span><span style="background:var(--blue-light);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:11px">${Math.round(p.stats.jobsConcluidos/p.stats.jobsTotal*100)}% concl.</span><span style="background:var(--orange-light);color:var(--orange);padding:2px 8px;border-radius:10px;font-size:11px">${p.stats.pontualidade}% pontual</span></div><button class="action-btn ab-view" style="width:100%" onclick="viewProviderRank(${p.id})">Ver detalhes</button>`;
+    d.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:28px;height:28px;border-radius:50%;background:${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--blue-light)'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:${i<=2?'#333':'var(--blue)'}">#${i+1}</div><div class="av ${cor}">${iniciais}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${nome}</div><div style="font-size:11px;color:var(--muted)">${specs}</div></div><div class="score-ring"><svg width="56" height="56" viewBox="0 0 56 56"><circle fill="none" stroke="#f0f0f0" stroke-width="5" cx="28" cy="28" r="22" transform="rotate(-90 28 28)"/><circle fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" cx="28" cy="28" r="22" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 28 28)"/></svg><div class="score-num" style="color:${c}">${score}</div></div></div><button class="action-btn ab-view" style="width:100%" onclick="viewProviderRank(${p.id})">Ver detalhes</button>`;
     list.appendChild(d);
   });
 }
@@ -2350,7 +2359,7 @@ async function loadAdminJobs(){
   }).join('');
 }
 
-function goScreen(id){navHistory.push(currentScreen);showScreen(id);if(id==='s-job-status')loadJobStatus();if(id==='a-dashboard')loadAdminDashboard();if(id==='a-jobs')loadAdminJobs();}
+function goScreen(id){navHistory.push(currentScreen);showScreen(id);if(id==='s-job-status')loadJobStatus();if(id==='a-dashboard')loadAdminDashboard();if(id==='a-jobs')loadAdminJobs();if(id==='a-ranking')buildRanking();}
 function goBack(){if(navHistory.length>0){const p=navHistory.pop();showScreen(p);}}
 // ===== AUTH REAL (Supabase) =====
 let _authContext = 'client';
