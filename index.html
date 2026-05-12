@@ -888,7 +888,7 @@ async function saveAgenda(){
   if(!prov){ showToast('Erro ao encontrar prestador.'); return; }
   const {error} = await _supabase
     .from('providers')
-    .update({ schedule: providerAgenda })
+    .update({ availability: providerAgenda })
     .eq('id', prov.id);
   if(error){ showToast('Erro ao salvar agenda.'); return; }
   showToast('✓ Agenda salva! Slots atualizados.');
@@ -999,6 +999,26 @@ async function loadProviders(){
     joinDate:  '',
     docs:      {rg:true,endereco:true,selfie:true,banco:true}
   }));
+  // Carregar jobs reais para preencher horários ocupados
+  const {data:jobs}=await _supabase
+    .from('jobs')
+    .select('provider_id,scheduled_date,scheduled_time,service_id')
+    .in('status',['accepted','in_progress','awaiting_approval']);
+  if(jobs){
+    jobs.forEach(j=>{
+      const p=PROVIDERS.find(x=>x.id===j.provider_id);
+      if(!p||!j.scheduled_date||!j.scheduled_time)return;
+      if(!p.booked[j.scheduled_date])p.booked[j.scheduled_date]=[];
+      const svc=catalog.find(s=>s.id===j.service_id);
+      const slots=svc?svc.slots:1;
+      for(let i=0;i<slots;i++){
+        const [h,m]=j.scheduled_time.split(':').map(Number);
+        const tot=h*60+m+i*30;
+        const ts=`${String(Math.floor(tot/60)).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
+        if(!p.booked[j.scheduled_date].includes(ts))p.booked[j.scheduled_date].push(ts);
+      }
+    });
+  }
   console.log(`✓ ${PROVIDERS.length} prestadores carregados do Supabase`);
 }
 
@@ -1199,15 +1219,15 @@ async function loadProviderDashboard() {
 
   const { data: provRow } = await _supabase
     .from('providers')
-    .select('id, schedule')
+    .select('id, availability')
     .eq('user_id', window._currentUser.id)
     .single();
 
   if (!provRow) return;
 
   // Carregar agenda salva do banco
-  if (provRow.schedule) {
-    providerAgenda = provRow.schedule;
+  if (provRow.availability) {
+    providerAgenda = provRow.availability;
   }
 
   const today = new Date().toISOString().slice(0, 10);
