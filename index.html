@@ -412,7 +412,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- HISTÓRICO DO VEÍCULO -->
     <div class="screen" id="s-vehicle-history">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:15px;font-weight:500">Histórico do veículo</div><div style="display:flex;gap:6px"><button class="btn-ghost-sm" id="vhBtn1" onclick="switchVehicle(1)">Gol</button><button class="btn-ghost-sm" id="vhBtn2" onclick="switchVehicle(2)">Corolla</button></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:15px;font-weight:500">Histórico do veículo</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="vhBtnGroup"></div></div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="vhSubtitle">Toyota Corolla 2021 · XYZ-5678</div>
       <div class="card" style="background:var(--blue-light);padding:12px 14px;margin-bottom:14px"><div style="display:flex;gap:8px;margin-bottom:8px"><div class="stat" style="flex:1;background:var(--white)"><div class="n" id="vhTotalSvcs">4</div><div class="l">Serviços</div></div><div class="stat" style="flex:1;background:var(--white)"><div class="n" id="vhTotalSpent">R$ 570</div><div class="l">Total gasto</div></div></div><div style="font-size:12px;color:var(--blue)" id="vhLastSvc">Último: Higienização interna · 20 abr</div></div>
       <div id="vhList"></div>
@@ -1554,7 +1554,7 @@ async function createJob(){
 
   const jobData = {
     customer_id:     customer.id,
-    vehicle_id:      customerVehicles.length>0 ? customerVehicles[0].id : null,
+    vehicle_id:      jobState.vehicle ? jobState.vehicle.id : (customerVehicles.length>0 ? customerVehicles[0].id : null),
     service_id:      jobState.service.uuid,
     address_id:      address ? address.id : null,
     status:          'pending',
@@ -1983,7 +1983,7 @@ async function buildVehicleHistory(){
   if(!list)return;
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
   if(!window._currentUser||!customerVehicles.length)return;
-  const veh=customerVehicles[selectedVehicle-1]||customerVehicles[0];
+  const veh=customerVehicles.find(v=>v.id===selectedVehicle)||customerVehicles[0];
   if(!veh)return;
   document.getElementById('vhSubtitle').textContent=`${veh.brand} ${veh.model} ${veh.year} · ${veh.plate}`;
   const btn1=document.getElementById('vhBtn1');
@@ -2025,10 +2025,13 @@ async function buildVehicleHistory(){
 }
 async function switchVehicle(id){
   selectedVehicle=id;
-  const btn1=document.getElementById('vhBtn1');
-  const btn2=document.getElementById('vhBtn2');
-  if(btn1)btn1.style.cssText=id===1?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
-  if(btn2)btn2.style.cssText=id===2?'background:var(--blue);color:#fff;border-color:var(--blue)':'';
+  const group=document.getElementById('vhBtnGroup');
+  if(group){
+    group.innerHTML=customerVehicles.map(v=>`
+      <button class="btn-ghost-sm" onclick="switchVehicle('${v.id}')"
+        style="${v.id===id?'background:var(--blue);color:#fff;border-color:var(--blue)':''}">${v.brand} ${v.model}</button>
+    `).join('');
+  }
   await buildVehicleHistory();
 }
 
@@ -2782,7 +2785,7 @@ function switchView(v){
   showScreen({client:'s-splash',provider:'p-splash',admin:'a-dashboard'}[v]);
 }
 document.getElementById('backBtn').addEventListener('click',goBack);
-function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');}
+function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');if(n==='vehicles'){loadVehicles().then(()=>buildVehicleListScreen());}}
 function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');if(n==='dash'&&window._currentUser&&!window._realtimeStarted){window._realtimeStarted=true;startRealtimeProvider();}if(n==='dash')loadProviderDashboard();}
 function selectPay(t){document.getElementById('payCard').style.border=t==='card'?'2px solid var(--blue)':'0.5px solid var(--border)';document.getElementById('payPix').style.border=t==='pix'?'2px solid var(--blue)':'0.5px solid var(--border)';}
 function closeModal(e){if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').style.display='none';}
