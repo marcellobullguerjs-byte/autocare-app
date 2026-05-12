@@ -1180,7 +1180,7 @@ async function loadJobStatus() {
     ${providerCard}
     <div class="map-mock">
       <span style="width:10px;height:10px;background:var(--blue);border-radius:50%;display:inline-block;margin-right:6px"></span>
-      ${j.addresses?.neighborhood || '-'} · Prestador no local
+      ${j.addresses?.neighborhood || '-'} · ${j.status === 'in_progress' || j.status === 'awaiting_approval' ? 'Prestador no local' : 'Aguardando deslocamento'}
     </div>
     <div class="card">
       <div class="row"><span style="font-size:13px;color:var(--muted)">Serviço</span><span>${j.services?.name||'-'}</span></div>
@@ -1217,7 +1217,8 @@ async function loadProviderDashboard() {
     .select(`id, status, scheduled_date, scheduled_time, total_price,
              services(name), vehicles(brand, model), addresses(neighborhood)`)
     .eq('scheduled_date', today)
-    .in('status', ['accepted','confirmed','in_progress','awaiting_approval']);
+    .in('status', ['accepted','confirmed','in_progress','awaiting_approval','completed'])
+    .order('id', { ascending: false });
 
   const list = document.getElementById('provJobsList');
   const countEl = document.getElementById('provJobsHoje');
@@ -1246,7 +1247,7 @@ async function loadProviderDashboard() {
     const veh = j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model}` : '';
     const canClick = ['in_progress','accepted','confirmed'].includes(j.status);
     return `
-      <div class="job-card confirmed" ${canClick ? `style="cursor:pointer" onclick="window._activeJobId='${j.id}';goScreen('p-job-exec')"` : ''}>
+      <div class="job-card confirmed" ${canClick ? `style="cursor:pointer" onclick="window._activeJobId='${j.id}';goScreen('p-job-exec');loadJobExec()"` : ''}>
         <div class="row">
           <span style="font-size:13px;font-weight:500">${j.services?.name || '-'}</span>
           <span class="badge ${s.cls}">${s.text}</span>
@@ -1716,6 +1717,19 @@ async function confirmReject(){
 }
 
 // ============ EXECUÇÃO ============
+async function loadJobExec() {
+  chkState={1:false,2:false,3:false,4:false};
+  [1,2,3,4].forEach(n=>{const b=document.getElementById('chk'+n);if(b){b.classList.remove('checked');b.textContent='';}});
+  if(!window._activeJobId) return;
+  const { data: j } = await _supabase.from('jobs').select('parts').eq('id', window._activeJobId).single();
+  const hasParts = j && j.parts && j.parts.length > 0;
+  if(!hasParts) {
+    chkState[4]=true;
+    const b=document.getElementById('chk4');if(b){b.classList.add('checked');b.textContent='✓';}
+    const p=document.getElementById('chk4Parts');if(p)p.textContent='Sem peças neste job';
+  }
+}
+// ============ EXECUÇÃO ============
 function doChk(n){
   if(n===3&&!chkState[2]){showToast('⚠️ Inicie a execução primeiro (item 2)');return;}
   if(n===4&&!chkState[3]){showToast('⚠️ Envie a foto depois primeiro');return;}
@@ -1768,6 +1782,19 @@ async function finalizeExec(){
       .eq('id', window._activeJobId);
   }
   goScreen('p-job-done');showToast('✓ Job finalizado! Aguardando aprovação.');
+  // Verificar a cada 5s se o cliente já aprovou
+  if(window._jobDoneInterval) clearInterval(window._jobDoneInterval);
+  window._jobDoneInterval = setInterval(async () => {
+    if(!window._activeJobId) return;
+    const { data: j } = await _supabase.from('jobs').select('status').eq('id', window._activeJobId).single();
+    if(j && j.status === 'completed') {
+      clearInterval(window._jobDoneInterval);
+      window._jobDoneInterval = null;
+      showToast('✅ Serviço aprovado pelo cliente!');
+      goScreen('p-dashboard');
+      loadProviderDashboard();
+    }
+  }, 5000);
 }
 
 // ============ APROVAÇÃO ============
@@ -2770,6 +2797,7 @@ async function startRealtimeProvider() {
   const today = new Date().toISOString().slice(0, 10);
   setInterval(async () => {
     if (!window._currentUser || window._currentUser.role !== 'provider') return;
+    await loadProviderDashboard();
     const { data: newJobs } = await _supabase
       .from('jobs')
       .select('*')
