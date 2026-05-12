@@ -906,25 +906,28 @@ function switchAgendaTab(tab){
 
 // ============ FIX 2: VISÃO SLOTS DO DIA ============
 let agendaViewOffset=0;
-const BOOKED_TODAY=['09:00','09:30','14:00','14:30'];
-const BOOKED_TOMORROW=['10:00'];
 function changeAgendaDay(dir){agendaViewOffset+=dir;buildAgendaDayView();}
-function buildAgendaDayView(){
-  const now=new Date(2025,4,6);
+async function buildAgendaDayView(){
+  const now=new Date();
   now.setDate(now.getDate()+agendaViewOffset);
   const dk=DAY_KEYS[now.getDay()];
   const ag=providerAgenda[dk];
   const dateLabel=document.getElementById('agendaViewDate');
   if(dateLabel)dateLabel.textContent=`${agendaViewOffset===0?'Hoje · ':''}${WEEKDAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()].substring(0,3)}`;
-  const booked=agendaViewOffset===0?BOOKED_TODAY:agendaViewOffset===1?BOOKED_TOMORROW:[];
   const el=document.getElementById('agendaDaySlots');if(!el)return;
-  if(!ag.on){el.innerHTML='<div class="info-box info-yellow" style="text-align:center">Dia não configurado como dia de trabalho.</div>';document.getElementById('agFreeCount').textContent='0';document.getElementById('agOccCount').textContent='0';document.getElementById('agEarnCount').textContent='R$ 0';return;}
+  if(!ag||!ag.on){el.innerHTML='<div class="info-box info-yellow" style="text-align:center">Dia não configurado como dia de trabalho.</div>';document.getElementById('agFreeCount').textContent='0';document.getElementById('agOccCount').textContent='0';document.getElementById('agEarnCount').textContent='R$ 0';return;}
+  el.innerHTML='<div style="text-align:center;color:var(--muted);padding:16px">Carregando...</div>';
+  const dateStr=now.toISOString().slice(0,10);
+  const {data:provRow}=await _supabase.from('providers').select('id').eq('user_id',_currentUser.id).single();
+  const provId=provRow?provRow.id:_currentUser.id;
+  const {data:bookedJobs}=await _supabase.from('job_dispatch').select('jobs(scheduled_time,total_price,status)').eq('provider_id',provId).eq('jobs.scheduled_date',dateStr);
+  const bookedTimes=(bookedJobs||[]).filter(b=>b.jobs&&b.jobs.scheduled_time&&['accepted','in_progress','awaiting_approval','completed'].includes(b.jobs.status)).map(b=>b.jobs.scheduled_time.slice(0,5));
   el.innerHTML='';
   const startM=t2m(ag.start),endM=t2m(ag.end);
   let freeCount=0,occCount=0,earn=0;
   for(let m=startM;m<endM;m+=SLOT_MIN){
     const time=m2t(m),endT=m2t(m+SLOT_MIN);
-    const isOcc=booked.includes(time);
+    const isOcc=bookedTimes.includes(time);
     if(isOcc){occCount++;earn+=220;}else{freeCount++;}
     const row=document.createElement('div');row.className=`day-slot-row ${isOcc?'occupied':'free'}`;
     row.innerHTML=`<div class="day-slot-dot ${isOcc?'dot-occ':'dot-free'}"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div>${isOcc?`<span class="badge badge-orange" style="font-size:10px">Job confirmado</span>`:`<span class="badge badge-green" style="font-size:10px">Livre</span>`}`;
