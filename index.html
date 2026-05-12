@@ -2355,21 +2355,25 @@ function viewDispatch(id){
   navHistory.push(currentScreen);showScreen('a-dispatch-detail');
 }
 let selectedReallocId=null;
-function openReallocModal(jobId){
-  const job=dispatchJobs.find(j=>j.id===jobId);if(!job)return;
-  const compat=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(job.bairro)&&p.available);
+async function openReallocModal(jobId){
   document.getElementById('modalTitle').textContent='Realocar prestador';
-  const opts=compat.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer" onclick="this.style.border='2px solid var(--blue)';this.style.background='var(--blue-light)';document.querySelectorAll('.realloc-opt').forEach(el=>{if(el!==this){el.style.border='1.5px solid var(--border)';el.style.background=''}});selectedReallocId=${p.id}" class="realloc-opt"><div class="av ${p.color}" style="width:32px;height:32px;font-size:11px">${p.initials}</div><div style="flex:1"><div style="font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--muted)">⭐ ${calcScore(p)} · ${p.specialty.join(', ')}</div></div></div>`).join('');
-  document.getElementById('modalContent').innerHTML=`<div class="info-box info-yellow">⏱ 15 min para aceitar após envio.</div>${opts||'<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Nenhum prestador disponível.</p>'}<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="confirmRealloc(${jobId})">Enviar oferta</button></div>`;
+  document.getElementById('modalContent').innerHTML='<div style="text-align:center;padding:16px;color:var(--muted)">Carregando prestadores...</div>';
   document.getElementById('modalBg').style.display='flex';
+  const {data:provs}=await _supabase.from('providers').select('id,user_id,specialties,score,status,users(name)').eq('status','approved');
+  const opts=(provs||[]).map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer" onclick="this.style.border='2px solid var(--blue)';this.style.background='var(--blue-light)';document.querySelectorAll('.realloc-opt').forEach(el=>{if(el!==this){el.style.border='1.5px solid var(--border)';el.style.background=''}});selectedReallocId='${p.id}'" class="realloc-opt"><div style="flex:1"><div style="font-size:13px">${p.users?.name||'Prestador'}</div><div style="font-size:11px;color:var(--muted)">⭐ ${Number(p.score||0).toFixed(1)} · ${(p.specialties||[]).join(', ')}</div></div></div>`).join('');
+  document.getElementById('modalContent').innerHTML=`<div class="info-box info-yellow">⏱ 15 min para aceitar após envio.</div>${opts||'<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Nenhum prestador disponível.</p>'}<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="confirmRealloc(${jobId})">Enviar oferta</button></div>`;
 }
-function confirmRealloc(jobId){
+async function confirmRealloc(jobId){
   if(!selectedReallocId){showToast('Selecione um prestador');return;}
-  const job=dispatchJobs.find(j=>j.id===jobId),prov=PROVIDERS.find(p=>p.id===selectedReallocId);
-  if(!job||!prov)return;
-  job.dispatch.status='offering';job.dispatch.currentOfferId=selectedReallocId;
-  if(!job.dispatch.offeredTo.includes(selectedReallocId))job.dispatch.offeredTo.push(selectedReallocId);
-  selectedReallocId=null;closeModal();buildDispatchList();showToast(`✓ Oferta enviada para ${prov.name}!`);
+  const {data:existing}=await _supabase.from('job_dispatch').select('id').eq('job_id',jobId).eq('provider_id',selectedReallocId);
+  if(existing&&existing.length>0){showToast('Este prestador já recebeu oferta para este job.');return;}
+  const {error:insErr}=await _supabase.from('job_dispatch').insert({job_id:jobId,provider_id:selectedReallocId,status:'pending',offered_at:new Date().toISOString()});
+  if(insErr){showToast('❌ Erro ao realocar: '+insErr.message);return;}
+  const {error:updErr}=await _supabase.from('jobs').update({status:'pending'}).eq('id',jobId);
+  if(updErr){showToast('❌ Erro ao atualizar job.');return;}
+  const {data:provName}=await _supabase.from('providers').select('users(name)').eq('id',selectedReallocId).single();
+  const nome=provName?.users?.name||'Prestador';
+  selectedReallocId=null;closeModal();showToast(`✓ Oferta enviada para ${nome}!`);
 }
 
 // ============ ADMIN DISPATCH DETAIL ============
