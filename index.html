@@ -2566,21 +2566,20 @@ async function loadAdminDashboard(){
   try {
     const hoje = new Date().toISOString().slice(0,10);
     const [{data:jobs},{data:pend},{data:cot}] = await Promise.all([
-      _supabase.from('jobs').select('id,payments(amount,status)').gte('created_at', hoje+'T00:00:00').lte('created_at', hoje+'T23:59:59'),
+      _supabase.from('jobs').select('id,total_price,status').gte('created_at', hoje+'T00:00:00').lte('created_at', hoje+'T23:59:59'),
       _supabase.from('providers').select('id').eq('status','pending'),
       _supabase.from('quotations').select('id').eq('status','pending')
     ]);
     const jobsHoje = (jobs||[]).length;
     const receita = (jobs||[]).reduce((s,j)=>{
-      const p=(j.payments||[]).find(x=>x.status==='released');
-      return s+(p?parseFloat(p.amount):0);
+      return s+(j.status==='completed'?parseFloat(j.total_price||0):0);
     },0);
     const semPrestador = (jobs||[]).filter(j=>j.status==='pending').length;
     const {data:recl} = await _supabase.from('claims').select('id').eq('status','pending');
     const totalRecl = (recl||[]).length;
     document.getElementById('dash-jobs-hoje').textContent = jobsHoje;
     document.getElementById('dash-jobs-subtitulo').textContent = jobsHoje+' hoje';
-    const totalPago=( jobs||[]).filter(j=>(j.payments||[]).some(p=>p.status==='released')).reduce((s,j)=>{const p=(j.payments||[]).find(x=>x.status==='released');return s+parseFloat(p?.amount||j.total_price||0);},0);
+    const totalPago=(jobs||[]).filter(j=>j.status==='completed').reduce((s,j)=>s+parseFloat(j.total_price||0),0);
     if(document.getElementById('dash-payments-subtitulo')) document.getElementById('dash-payments-subtitulo').textContent='R$ '+totalPago.toLocaleString('pt-BR',{minimumFractionDigits:0})+' hoje';
     document.getElementById('dash-receita-hoje').textContent = 'R$ '+receita.toLocaleString('pt-BR',{minimumFractionDigits:0});
     document.getElementById('dash-prestadores-pendentes').textContent = (pend||[]).length;
