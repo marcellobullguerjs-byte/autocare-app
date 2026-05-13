@@ -628,7 +628,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="menu-item" onclick="goScreen('a-dispatch')"><div class="menu-icon">📡</div><div class="menu-text"><div class="t">Dispatch · Jobs</div><div class="s">Alocação · Aceite · Realocação</div></div></div>
       <div class="menu-item" onclick="goScreen('a-supply')"><div class="menu-icon">📦</div><div class="menu-text"><div class="t">Supply Chain</div><div class="s">Fornecedores · Peças · Cotações</div></div></div>
       <div class="menu-item" onclick="goScreen('a-ranking')"><div class="menu-icon">⭐</div><div class="menu-text"><div class="t">Ranking de prestadores</div><div class="s">Score · Tiers · Dispatch priority</div></div></div>
-      <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s">2 pendentes</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s" id="menu-claims-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-jobs')"><div class="menu-icon">📄</div><div class="menu-text"><div class="t">Jobs</div><div class="s" id="dash-jobs-subtitulo">0 hoje</div></div></div>
       <!-- FIX 3: Pagamentos funciona agora -->
       <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s" id="dash-payments-subtitulo">R$ 0 hoje</div></div></div>
@@ -2587,7 +2587,7 @@ async function loadAdminDashboard(){
     document.getElementById('dash-prestadores-pendentes').textContent = (pend||[]).length;
     document.getElementById('dash-cotacoes-pendentes').textContent = (cot||[]).length;
     if(semPrestador>0){document.getElementById('dash-banner-semprestador').style.display='block';document.getElementById('dash-banner-semprestador-txt').textContent='🚨 '+semPrestador+' job'+(semPrestador>1?'s':'')+' sem prestador · Intervenção necessária';}
-    if(totalRecl>0){document.getElementById('dash-banner-reclamacoes').style.display='block';document.getElementById('dash-banner-reclamacoes-txt').textContent='⚠️ '+totalRecl+' reclamação'+(totalRecl>1?'ões':'')+(totalRecl>1?'':' ')+'aguardando análise';}
+    const menuClaims=document.getElementById('menu-claims-pendentes');if(menuClaims)menuClaims.textContent=totalRecl+' pendente'+(totalRecl!==1?'s':'');if(totalRecl>0){document.getElementById('dash-banner-reclamacoes').style.display='block';document.getElementById('dash-banner-reclamacoes-txt').textContent='⚠️ '+totalRecl+' reclamacao'+(totalRecl>1?'oes':'')+' aguardando analise';}
   } catch(e){ console.log('dash erro',e); }
 }
 
