@@ -2047,7 +2047,7 @@ async function buildVehicleHistory(){
     const stars='★'.repeat(nota)+'☆'.repeat(5-nota);
     const dt=j.scheduled_date?new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'';
     const d=document.createElement('div');d.className='hist-item';
-    d.innerHTML=`<div class="hist-icon">${icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${j.services?.name||'-'}</div><div style="font-size:11px;color:var(--muted)">${dt}</div><div style="font-size:11px;color:#FFA000;margin-top:2px">${nota>0?stars:'Sem avaliação'}</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--blue)">R$ ${Number(j.total_price||0).toFixed(0)}</div></div>`;
+    d.innerHTML='<div class="hist-icon">'+icon+'</div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+(j.services?.name||'-')+'</div><div style="font-size:11px;color:var(--muted)">'+dt+'</div><div style="font-size:11px;color:#FFA000;margin-top:2px">'+(nota>0?stars:'Sem avaliacao')+'</div><div style="margin-top:6px"><button class="btn btn-outline-red btn-sm" onclick="window._activeJobId='+j.id+';openClaimModal()">Reclamacao / Garantia</button></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--blue)">R$ '+Number(j.total_price||0).toFixed(0)+'</div></div>';
     list.appendChild(d);
   });
 }
