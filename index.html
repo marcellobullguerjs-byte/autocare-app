@@ -388,7 +388,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="info-box info-orange">⚠️ No trial: sem taxa de cancelamento.</div>
       <div id="cancelReasons">
         <div class="cancel-option" id="cr-1" onclick="selectCancelReason('cr-1')"><input type="radio" name="cr" style="margin-right:6px">Mudei de ideia</div>
-        <div class="cancel-option" id="cr-2" onclick="selectCancelReason('cr-2')"><input type="radio" name="cr" style="margin-right:6px">Preciso reagendar</div>
+        
         <div class="cancel-option" id="cr-3" onclick="selectCancelReason('cr-3')"><input type="radio" name="cr" style="margin-right:6px">Problema resolvido de outra forma</div>
         <div class="cancel-option" id="cr-4" onclick="selectCancelReason('cr-4')"><input type="radio" name="cr" style="margin-right:6px">Outro motivo</div>
       </div>
@@ -558,7 +558,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <div class="screen" id="p-job-done"><div style="text-align:center;padding:20px 0"><div style="font-size:48px;margin-bottom:12px">⏳</div><div style="font-size:18px;font-weight:500;margin-bottom:6px">Aguardando aprovação</div></div><div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Executado</div></div><div class="sp-step active"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Pago</div></div></div><div class="card"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Valor a receber</span><span style="color:var(--green);font-weight:500;font-size:15px" id="jobDoneValor">R$ --</span></div></div><button class="btn btn-outline" onclick="goScreen('p-ranking');loadProviderRanking()">Ver meu ranking</button></div>
 
-    <div class="screen" id="p-cancel"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Cancelar job</div><div class="info-box info-red">⚠️ Cancelamentos reduzem seu ranking.</div><div id="pCancelReasons"><div class="cancel-option" id="pc-1" onclick="selectPCancelReason('pc-1')"><input type="radio" name="pcr" style="margin-right:6px">Emergência pessoal</div><div class="cancel-option" id="pc-2" onclick="selectPCancelReason('pc-2')"><input type="radio" name="pcr" style="margin-right:6px">Veículo não acessível</div><div class="cancel-option" id="pc-3" onclick="selectPCancelReason('pc-3')"><input type="radio" name="pcr" style="margin-right:6px">Problema com as peças</div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goBack()">Voltar</button><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="confirmCancel('provider')">Confirmar</button></div></div>
+    <div class="screen" id="p-cancel"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Cancelar / Reagendar</div><div class="info-box info-red">⚠️ Cancelamentos reduzem seu ranking.</div><div id="pCancelReasons"><div class="cancel-option" id="pc-1" onclick="selectPCancelReason('pc-1')"><input type="radio" name="pcr" style="margin-right:6px">Emergência pessoal</div><div class="cancel-option" id="pc-2" onclick="selectPCancelReason('pc-2')"><input type="radio" name="pcr" style="margin-right:6px">Veículo não acessível</div><div class="cancel-option" id="pc-3" onclick="selectPCancelReason('pc-3')"><input type="radio" name="pcr" style="margin-right:6px">Problema com as peças</div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goBack()">Voltar</button><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="confirmCancel('provider')">Confirmar</button></div></div>
 
     <!-- RANKING PRESTADOR -->
     <div class="screen" id="p-ranking">
@@ -1217,7 +1217,7 @@ async function loadJobStatus() {
         <span style="color:var(--blue);font-weight:500">R$ ${Number(j.total_price||0).toFixed(2)}</span></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px">
-      ${showCancel  ? `<button class="btn btn-outline btn-sm" style="flex:1" onclick="goScreen('s-cancel-client')">Cancelar job</button>` : ''}
+      ${showCancel  ? `<button class="btn btn-outline btn-sm" style="flex:1" onclick="goScreen('s-cancel-client')">Cancelar / Reagendar</button>` : ''}
       ${showApprove ? `<button class="btn btn-primary btn-sm" style="flex:2" onclick="goScreen('s-approve');loadApproveScreen()">Aprovar serviço ✓</button>` : ''}
     </div>`;
 }
@@ -2003,7 +2003,7 @@ async function confirmCancel(who){
   goScreen(who==='client'?'s-home':'p-dashboard');
   if(who==='client'){ await loadRecentJobs(); }
 }
-function confirmReschedule(){showToast('✓ Reagendado! Prestador notificado.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
+async function confirmReschedule(){if(!jobState.selectedDate||!jobState.selectedSlot){showToast('Escolha data e horario.');return;}const{error}=await _supabase.from('jobs').update({scheduled_date:jobState.selectedDate,scheduled_time:jobState.selectedSlot}).eq('id',window._activeJobId);if(error){showToast('Erro ao reagendar.');return;}showToast('Reagendado! Prestador notificado.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
 
 // ============ VEHICLE HISTORY ============
 async function buildVehicleHistory(){
