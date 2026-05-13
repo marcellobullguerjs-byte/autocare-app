@@ -392,14 +392,14 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="cancel-option" id="cr-3" onclick="selectCancelReason('cr-3')"><input type="radio" name="cr" style="margin-right:6px">Problema resolvido de outra forma</div>
         <div class="cancel-option" id="cr-4" onclick="selectCancelReason('cr-4')"><input type="radio" name="cr" style="margin-right:6px">Outro motivo</div>
       </div>
-      <div class="card" style="background:var(--blue-light);margin-top:8px"><div style="font-size:13px;font-weight:500;color:var(--blue);margin-bottom:4px">Quer reagendar?</div><button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="goScreen('s-reschedule')">Reagendar →</button></div>
+      <div class="card" style="background:var(--blue-light);margin-top:8px"><div style="font-size:13px;font-weight:500;color:var(--blue);margin-bottom:4px">Quer reagendar?</div><button class="btn btn-primary btn-sm" style="margin-top:6px" onclick="goScreen('s-reschedule');loadRescheduleScreen()">Reagendar →</button></div>
       <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="goBack()">Voltar</button><button class="btn btn-outline-red btn-sm" style="flex:1" onclick="confirmCancel('client')">Confirmar cancelamento</button></div>
     </div>
 
     <!-- REAGENDAMENTO -->
     <div class="screen" id="s-reschedule">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Reagendar job</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Troca de óleo + filtro · VW Gol 2019</div>
+      <div id="reschedSubtitle" style="font-size:12px;color:var(--muted);margin-bottom:14px">Troca de óleo + filtro · VW Gol 2019</div>
       <div class="info-box info-blue">📅 Escolha uma nova data.</div>
       <div class="card" style="padding:12px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;font-weight:500" id="reschedCalLabel">Maio 2025</span><div style="display:flex;gap:6px"><button class="btn-ghost-sm" onclick="changeCalMonth(-1)">‹</button><button class="btn-ghost-sm" onclick="changeCalMonth(1)">›</button></div></div>
@@ -2006,6 +2006,7 @@ async function confirmCancel(who){
   if(who==='client'){ await loadRecentJobs(); }
 }
 async function confirmReschedule(){if(!jobState.selectedDate||!jobState.selectedSlot){showToast('Escolha data e horario.');return;}const{error}=await _supabase.from('jobs').update({scheduled_date:jobState.selectedDate,scheduled_time:jobState.selectedSlot,status:'rescheduled'}).eq('id',window._activeJobId);if(error){showToast('Erro ao reagendar.');return;}showToast('Reagendado! Aguardando confirmacao do prestador.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
+async function loadRescheduleScreen(){const el=document.getElementById('reschedSubtitle');if(!el||!window._activeJobId)return;const{data:j}=await _supabase.from('jobs').select('services(name),vehicles(brand,model,year)').eq('id',window._activeJobId).single();if(!j)return;const veh=j.vehicles?`${j.vehicles.brand} ${j.vehicles.model} ${j.vehicles.year}`:'';el.textContent=`${j.services?.name||''} - ${veh}`;}
 async function acceptReschedule(jobId){const{error}=await _supabase.from('jobs').update({status:'accepted'}).eq('id',jobId);if(error){showToast('Erro ao aceitar.');return;}showToast('Reagendamento aceito!');loadProviderDashboard();}
 async function rejectReschedule(jobId){const{error}=await _supabase.from('jobs').update({status:'pending'}).eq('id',jobId);if(error){showToast('Erro ao recusar.');return;}showToast('Reagendamento recusado. Job voltou para fila.');loadProviderDashboard();}
 
@@ -2523,7 +2524,7 @@ function showScreen(id){
   if(id==='s-home')buildCatGrid();
   if(id==='jf-vehicle')buildVehOptions();
   if(id==='jf-schedule')buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1);
-  if(id==='s-reschedule')buildCalendar('reschedCalLabel','reschedDays',1);
+  if(id==='s-reschedule'){buildCalendar('reschedCalLabel','reschedDays',1);loadRescheduleScreen();}
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
