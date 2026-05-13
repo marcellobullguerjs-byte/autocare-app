@@ -1590,7 +1590,8 @@ async function createJob(){
     scheduled_time:  jobState.selectedSlot,
     total_price:     jobState.price,
     payment_method:  'card',
-    payment_status:  'pending'
+    payment_status:  'pending',
+    client_photo:    jobState.clientPhoto||null
   };
 
   const { data: job, error } = await _supabase
