@@ -1275,7 +1275,7 @@ async function loadProviderDashboard() {
     const veh = j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model}` : '';
     const canClick = ['in_progress','accepted','confirmed'].includes(j.status);const needsReschedConfirm = j.status === 'rescheduled';
     return `
-      <div class="job-card confirmed" ${canClick ? `style="cursor:pointer" onclick="window._activeJobId='${j.id}';goScreen('p-job-exec');loadJobExec()"` : ''}>${needsReschedConfirm ? `<div style="font-size:11px;color:var(--red);font-weight:500;margin-bottom:6px">⚠️ Cliente pediu reagendamento</div>` : ''}
+      <div class="job-card confirmed" ${canClick ? `style="cursor:pointer" onclick="window._activeJobId='${j.id}';goScreen('p-job-exec');loadJobExec()"` : ''}>${needsReschedConfirm ? `<div style="font-size:11px;color:var(--red);font-weight:500;margin-bottom:6px">⚠️ Cliente pediu reagendamento para ${new Date(j.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} as ${j.scheduled_time?.slice(0,5)||'-'}</div>` : ''}
         <div class="row">
           <span style="font-size:13px;font-weight:500">${j.services?.name || '-'}</span>
           <span class="badge ${s.cls}">${s.text}</span>
