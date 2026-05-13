@@ -384,7 +384,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <!-- CANCELAMENTO CLIENTE -->
     <div class="screen" id="s-cancel-client">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Cancelar job</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Job #2047 · Troca de óleo + filtro · 06 mai 11:00</div>
+      <div id="cancelJobSubtitle" style="font-size:12px;color:var(--muted);margin-bottom:14px">Job #2047 · Troca de óleo + filtro · 06 mai 11:00</div>
       <div class="info-box info-orange">⚠️ No trial: sem taxa de cancelamento.</div>
       <div id="cancelReasons">
         <div class="cancel-option" id="cr-1" onclick="selectCancelReason('cr-1')"><input type="radio" name="cr" style="margin-right:6px">Mudei de ideia</div>
@@ -2006,6 +2006,7 @@ async function confirmCancel(who){
   if(who==='client'){ await loadRecentJobs(); }
 }
 async function confirmReschedule(){if(!jobState.selectedDate||!jobState.selectedSlot){showToast('Escolha data e horario.');return;}const{error}=await _supabase.from('jobs').update({scheduled_date:jobState.selectedDate,scheduled_time:jobState.selectedSlot,status:'rescheduled'}).eq('id',window._activeJobId);if(error){showToast('Erro ao reagendar.');return;}showToast('Reagendado! Aguardando confirmacao do prestador.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
+async function loadCancelScreen(){const el=document.getElementById('cancelJobSubtitle');if(!el||!window._activeJobId)return;const{data:j}=await _supabase.from('jobs').select('id,scheduled_date,scheduled_time,services(name)').eq('id',window._activeJobId).single();if(!j)return;const dt=j.scheduled_date?new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';el.textContent=`Job #${j.id} - ${j.services?.name||''} - ${dt} ${j.scheduled_time?.slice(0,5)||''}`;}
 async function loadRescheduleScreen(){const el=document.getElementById('reschedSubtitle');if(!el||!window._activeJobId)return;const{data:j}=await _supabase.from('jobs').select('services(name),vehicles(brand,model,year)').eq('id',window._activeJobId).single();if(!j)return;const veh=j.vehicles?`${j.vehicles.brand} ${j.vehicles.model} ${j.vehicles.year}`:'';el.textContent=`${j.services?.name||''} - ${veh}`;}
 async function acceptReschedule(jobId){const{error}=await _supabase.from('jobs').update({status:'accepted'}).eq('id',jobId);if(error){showToast('Erro ao aceitar.');return;}showToast('Reagendamento aceito!');loadProviderDashboard();}
 async function rejectReschedule(jobId){const{error}=await _supabase.from('jobs').update({status:'pending'}).eq('id',jobId);if(error){showToast('Erro ao recusar.');return;}showToast('Reagendamento recusado. Job voltou para fila.');loadProviderDashboard();}
@@ -2524,7 +2525,7 @@ function showScreen(id){
   if(id==='s-home')buildCatGrid();
   if(id==='jf-vehicle')buildVehOptions();
   if(id==='jf-schedule')buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1);
-  if(id==='s-reschedule'){buildCalendar('reschedCalLabel','reschedDays',1);loadRescheduleScreen();}
+  if(id==='s-reschedule'){buildCalendar('reschedCalLabel','reschedDays',1);loadRescheduleScreen();}if(id==='s-cancel-client')loadCancelScreen();
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
