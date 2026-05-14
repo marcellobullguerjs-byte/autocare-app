@@ -2547,7 +2547,7 @@ function showScreen(id){
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
   if(id==='p-ranking')loadProviderRanking();
   if(id==='p-profile')loadProviderProfile();
-  if(id==='p-agenda'){setTimeout(()=>buildAgendaConfig().then(()=>switchAgendaTab('config')),200);}
+  if(id==='p-agenda'){buildAgendaConfig().then(()=>switchAgendaTab('config'));}
   if(id==='a-services')buildAdminCatalog();
   if(id==='a-providers')buildProviderList();
   if(id==='a-dispatch')buildDispatchList();
