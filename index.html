@@ -858,7 +858,22 @@ let providerAgenda={
 async function buildAgendaConfig(){
   if(window._currentUser?.role==='provider'){
     const {data:pr}=await _supabase.from('providers').select('availability').eq('user_id',window._currentUser.id).single();
-    if(pr?.availability)providerAgenda=pr.availability;
+    const defaultAgenda={
+      dom:{on:false,start:'08:00',end:'18:00'},
+      seg:{on:true,start:'08:00',end:'18:00'},
+      ter:{on:true,start:'08:00',end:'18:00'},
+      qua:{on:true,start:'08:00',end:'18:00'},
+      qui:{on:true,start:'08:00',end:'18:00'},
+      sex:{on:true,start:'08:00',end:'18:00'},
+      sab:{on:true,start:'08:00',end:'13:00'},
+    };
+    if(pr?.availability && Object.keys(pr.availability).length>0){
+      DAY_KEYS.forEach(dk=>{if(!pr.availability[dk])pr.availability[dk]=defaultAgenda[dk];});
+      providerAgenda=pr.availability;
+    } else {
+      providerAgenda=defaultAgenda;
+      await _supabase.from('providers').update({availability:defaultAgenda}).eq('user_id',window._currentUser.id);
+    }
   }
   const card=document.getElementById('agendaDaysCard');if(!card)return;card.innerHTML='';
   const labels={dom:'Dom',seg:'Seg',ter:'Ter',qua:'Qua',qui:'Qui',sex:'Sex',sab:'Sáb'};
@@ -870,13 +885,14 @@ async function buildAgendaConfig(){
       <div class="toggle ${ag.on?'on':''}" id="atog-${dk}" onclick="toggleAgendaDay('${dk}')"></div>
       <div class="agenda-time-inputs" id="atime-${dk}">
         <input type="time" class="time-input" id="astart-${dk}" value="${ag.start}" onchange="updateAgendaTime('${dk}','start',this.value)">
-        <span style="font-size:11px;color:var(--muted)">até</span>
+        <span style="font-size:11px;color:var(--muted)">ate</span>
         <input type="time" class="time-input" id="aend-${dk}" value="${ag.end}" onchange="updateAgendaTime('${dk}','end',this.value)">
       </div>`;
     card.appendChild(row);
   });
 }
 function toggleAgendaDay(dk){
+  if(!providerAgenda[dk])providerAgenda[dk]={on:false,start:'08:00',end:'18:00'};
   providerAgenda[dk].on=!providerAgenda[dk].on;
   const tog=document.getElementById('atog-'+dk);if(tog)tog.classList.toggle('on',providerAgenda[dk].on);
   const row=document.getElementById('arow-'+dk);if(row)row.classList.toggle('disabled',!providerAgenda[dk].on);
@@ -2531,7 +2547,7 @@ function showScreen(id){
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
   if(id==='p-ranking')loadProviderRanking();
   if(id==='p-profile')loadProviderProfile();
-  if(id==='p-agenda'){buildAgendaConfig();switchAgendaTab('config');}
+  if(id==='p-agenda'){setTimeout(()=>buildAgendaConfig().then(()=>switchAgendaTab('config')),200);}
   if(id==='a-services')buildAdminCatalog();
   if(id==='a-providers')buildProviderList();
   if(id==='a-dispatch')buildDispatchList();
