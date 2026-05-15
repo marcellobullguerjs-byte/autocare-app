@@ -965,6 +965,8 @@ function switchPayTab(tab){
 async function buildPayments(){
   const el=document.getElementById('paymentsList');if(!el)return;
   el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
+  if(document.getElementById('pay-total-recebido'))document.getElementById('pay-total-recebido').textContent='R$ 0';
+  if(document.getElementById('pay-total-aguardando'))document.getElementById('pay-total-aguardando').textContent='R$ 0';
   let query=_supabase.from('payments').select('id,job_id,amount,method,status,released_at,jobs(scheduled_date,scheduled_time,total_price,payment_method,services(name))').order('id',{ascending:false}).limit(50);
   if(payTab==='pending') query=query.in('status',['waiting','pending']);
   if(payTab==='today'){const hoje=new Date().toISOString().slice(0,10);query=query.gte('released_at',hoje+'T00:00:00').lte('released_at',hoje+'T23:59:59');}
