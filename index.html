@@ -2538,6 +2538,17 @@ async function resolveClaim(id,action){
   const newStatus=action==='dismiss'?'resolved':'in_progress';
   const {error}=await _supabase.from('claims').update({status:newStatus,resolution:res[action],resolved_at:new Date().toISOString()}).eq('id',id);
   if(error){showToast('Erro ao resolver. Tente novamente.');return;}
+  if(action!=='dismiss'){
+    const {data:cl}=await _supabase.from('claims').select('provider_id').eq('id',id).single();
+    if(cl&&cl.provider_id){
+      const {data:prov}=await _supabase.from('providers').select('stats').eq('id',cl.provider_id).single();
+      if(prov){
+        const st=prov.stats||{};
+        st.reclamacoes=(st.reclamacoes||0)+1;
+        await _supabase.from('providers').update({stats:st}).eq('id',cl.provider_id);
+      }
+    }
+  }
   showToast(action==='dismiss'?'Reclamacao encerrada.':'Reclamacao em acompanhamento.');goScreen('a-claims');
 }
 
