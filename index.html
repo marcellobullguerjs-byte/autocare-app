@@ -682,7 +682,13 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- ADMIN JOBS -->
     <div class="screen" id="a-jobs">
-      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Últimos 50 jobs</div>
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Jobs</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px" id="jobsFilterChips"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <input type="date" class="input" id="jobsDateFrom" style="flex:1;font-size:12px" onchange="loadAdminJobs()">
+        <span style="font-size:12px;color:var(--muted)">ate</span>
+        <input type="date" class="input" id="jobsDateTo" style="flex:1;font-size:12px" onchange="loadAdminJobs()">
+      </div>
       <div id="a-jobs-list"><div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div></div>
     </div>
 
@@ -2613,22 +2619,25 @@ async function loadAdminDashboard(){
   } catch(e){ console.log('dash erro',e); }
 }
 
+let jobsStatusFilter='Todos';
 async function loadAdminJobs(){
-  const {data:jobs} = await _supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,total_price,payment_method,services(name),addresses(neighborhood)').order('id',{ascending:false}).limit(50);
-  console.log('jobs do banco:', jobs);
-  const el = document.getElementById('a-jobs-list');
-  console.log('jobs do banco:', jobs);
+  const el=document.getElementById('a-jobs-list');if(!el)return;
+  el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
+  const fr=document.getElementById('jobsFilterChips');
+  if(fr){fr.innerHTML='';['Todos','Aguardando','Em andamento','Concluido','Cancelado'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===jobsStatusFilter?' active':'');d.textContent=f;d.onclick=()=>{jobsStatusFilter=f;loadAdminJobs();};fr.appendChild(d);});}
+  const dateFrom=document.getElementById('jobsDateFrom')?.value;
+  const dateTo=document.getElementById('jobsDateTo')?.value;
+  let query=_supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,total_price,services(name),addresses(neighborhood)').order('scheduled_date',{ascending:false}).limit(100);
+  if(jobsStatusFilter==='Aguardando')query=query.eq('status','pending');
+  else if(jobsStatusFilter==='Em andamento')query=query.in('status',['accepted','in_progress','awaiting_approval']);
+  else if(jobsStatusFilter==='Concluido')query=query.eq('status','completed');
+  else if(jobsStatusFilter==='Cancelado')query=query.eq('status','cancelled');
+  if(dateFrom)query=query.gte('scheduled_date',dateFrom);
+  if(dateTo)query=query.lte('scheduled_date',dateTo);
+  const {data:jobs}=await query;
   if(!jobs||jobs.length===0){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum job encontrado</div>';return;}
-  const statusMap={pending:{cls:'waiting',badge:'badge-yellow',txt:'Aguardando'},accepted:{cls:'confirmed',badge:'badge-blue',txt:'Aceito'},in_progress:{cls:'confirmed',badge:'badge-orange',txt:'Em andamento'},awaiting_approval:{cls:'confirmed',badge:'badge-orange',txt:'Aguardando aprovação'},completed:{cls:'',badge:'badge-green',txt:'Concluído'},cancelled:{cls:'urgent',badge:'badge-red',txt:'Cancelado'}};
-  el.innerHTML = jobs.map(j=>{
-    const s = statusMap[j.status]||{cls:'',badge:'badge-yellow',txt:j.status};
-    const hr = j.scheduled_time ? j.scheduled_time.slice(0,5) : '--';
-    const svc = j.services?.name||'Serviço';
-    const cli = j.users?.name||'Cliente';
-    const bairro = j.addresses?.neighborhood||'';
-    const valor = j.total_price ? 'R$ '+parseFloat(j.total_price).toLocaleString('pt-BR',{minimumFractionDigits:0}) : '';
-    return `<div class="job-card ${s.cls}"><div class="row"><span style="font-size:13px;font-weight:500">#${j.id} · ${svc}</span><span class="badge ${s.badge}">${s.txt}</span></div><div style="font-size:12px;color:var(--muted)">${cli} · ${bairro} · ${hr} · ${valor}</div></div>`;
-  }).join('');
+  const statusMap={pending:{cls:'waiting',badge:'badge-yellow',txt:'Aguardando'},accepted:{cls:'confirmed',badge:'badge-blue',txt:'Aceito'},in_progress:{cls:'confirmed',badge:'badge-orange',txt:'Em andamento'},awaiting_approval:{cls:'confirmed',badge:'badge-orange',txt:'Aguard. aprovacao'},completed:{cls:'',badge:'badge-green',txt:'Concluido'},cancelled:{cls:'urgent',badge:'badge-red',txt:'Cancelado'}};
+  el.innerHTML=jobs.map(j=>{const s=statusMap[j.status]||{cls:'',badge:'badge-yellow',txt:j.status};const hr=j.scheduled_time?j.scheduled_time.slice(0,5):'--';const svc=j.services?.name||'Servico';const bairro=j.addresses?.neighborhood||'';const valor=j.total_price?'R$ '+parseFloat(j.total_price).toLocaleString('pt-BR',{minimumFractionDigits:0}):'';const dt=j.scheduled_date?new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';return '<div class="job-card '+s.cls+'"><div class="row"><span style="font-size:13px;font-weight:500">#'+j.id+' · '+svc+'</span><span class="badge '+s.badge+'">'+s.txt+'</span></div><div style="font-size:12px;color:var(--muted)">'+dt+' · '+bairro+' · '+hr+' · '+valor+'</div></div>';}).join('');
 }
 
 function goScreen(id){navHistory.push(currentScreen);showScreen(id);if(id==='s-job-status')loadJobStatus();if(id==='a-dashboard')loadAdminDashboard();if(id==='a-jobs')loadAdminJobs();if(id==='a-ranking')buildRanking();}
