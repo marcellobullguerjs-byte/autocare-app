@@ -511,7 +511,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     </div>
     <!-- ===== PROVIDER APP ===== -->
     <div class="screen" id="p-dashboard">
-      <div style="margin-bottom:14px"><div style="font-size:13px;color:var(--muted)">Olá, Carlos 👋</div><div style="font-size:16px;font-weight:500">Dashboard · Prestador</div><div style="margin-top:4px"><span class="badge badge-green" style="font-size:10px">✓ Aprovado</span> <span style="font-size:11px;color:var(--muted)">📍 Vila Madalena, Pinheiros</span></div></div>
+      <div style="margin-bottom:14px"><div style="font-size:13px;color:var(--muted)">Olá, <span id="providerGreetName">Prestador</span> 👋</div><div style="font-size:16px;font-weight:500">Dashboard · Prestador</div><div style="margin-top:4px"><span class="badge badge-green" style="font-size:10px">✓ Aprovado</span> <span style="font-size:11px;color:var(--muted)">📍 Vila Madalena, Pinheiros</span></div></div>
       <div class="notif-banner" onclick="goScreen('p-offer');loadOfferScreen()" id="offerNotif" style="display:none"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s" id="offerNotifText">Aguardando ofertas...</div></div><div class="nb-badge" id="offerNotifTime"></div></div>
       <div class="grid2" style="margin-bottom:14px">
   <div class="stat"><div class="n" id="provJobsHoje">-</div><div class="l">Jobs hoje</div></div>
@@ -1240,6 +1240,7 @@ async function loadJobStatus() {
 
 async function loadProviderDashboard() {
   if (!window._currentUser || window._currentUser.role !== 'provider') return;
+  const greetEl=document.getElementById('providerGreetName');if(greetEl)greetEl.textContent=window._currentUser.name||'Prestador';
 
   const { data: provRow } = await _supabase
     .from('providers')
