@@ -1768,7 +1768,8 @@ async function loadJobExec() {
   chkState={1:false,2:false,3:false,4:false};
   [1,2,3,4].forEach(n=>{const b=document.getElementById('chk'+n);if(b){b.classList.remove('checked');b.textContent='';}});
   if(!window._activeJobId) return;
-  const { data: j } = await _supabase.from('jobs').select('parts').eq('id', window._activeJobId).single();
+  const { data: j } = await _supabase.from('jobs').select('scheduled_date,scheduled_time,total_price,services(name),vehicles(brand,model)').eq('id', window._activeJobId).single();
+  if(j){const hdr=document.getElementById('jobExecHeader');if(hdr){hdr.innerHTML=`<div style="font-size:15px;font-weight:500;margin-bottom:4px">${j.services?.name||'Servico'}</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">${j.vehicles?.brand||''} ${j.vehicles?.model||''} &middot; ${j.addresses?.neighborhood||''} &middot; ${j.scheduled_time?.slice(0,5)||''}</div>`;}const det=document.getElementById('jobExecDetails');if(det){det.innerHTML=`<div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>${j.scheduled_date||'-'}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Horario</span><span>${j.scheduled_time?.slice(0,5)||'-'}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Valor</span><span style="color:var(--blue);font-weight:500">R$ ${Number(j.total_price||0).toFixed(0)}</span></div>`;}}
   const hasParts = j && j.parts && j.parts.length > 0;
   if(!hasParts) {
     chkState[4]=true;
