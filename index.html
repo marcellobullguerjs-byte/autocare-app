@@ -2828,6 +2828,9 @@ async function startRealtimeProvider() {
       .eq('scheduled_date', today)
       .order('id', { ascending: false })
       .limit(1);
+    const {data:provRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+    const provId=provRow?provRow.id:null;
+    if(provId){const{data:reschedJobs}=await _supabase.from('job_dispatch').select('job_id').eq('provider_id',provId).eq('status','accepted');const reschedIds=(reschedJobs||[]).map(d=>d.job_id);if(reschedIds.length>0){const{data:rjobs}=await _supabase.from('jobs').select('*').in('id',reschedIds).eq('status','rescheduled');if(rjobs&&rjobs.length>0){const rjob=rjobs[0];if(!window._seenOfferIds.has('r'+rjob.id)){window._seenOfferIds.add('r'+rjob.id);const notif=document.getElementById('offerNotif');const text=document.getElementById('offerNotifText');const time=document.getElementById('offerNotifTime');if(notif){const hora=rjob.scheduled_time?rjob.scheduled_time.slice(0,5):'';if(text)text.textContent=`Reagendamento · ${hora} · R$ ${Number(rjob.total_price).toFixed(0)}`;if(time)time.textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});notif.style.display='flex';window._currentOfferJobId=rjob.id;showToast('🔔 Cliente pediu reagendamento!');return;}}}}}
     if (!newJobs || newJobs.length === 0) return;
     const job = newJobs[0];
     if (window._seenOfferIds.has(job.id)) return;
