@@ -1607,7 +1607,7 @@ async function createJob(){
 
   const jobData = {
     customer_id:     customer.id,
-    vehicle_id:      customerVehicles.length>0 ? customerVehicles[0].id : null,
+    vehicle_id:      jobState.vehicle?.id || null,
     service_id:      jobState.service.uuid,
     address_id:      address ? address.id : null,
     status:          'pending',
