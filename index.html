@@ -836,8 +836,8 @@ function buildVehicleListScreen(){
 }
 async function deleteVehicle(id){
   if(!confirm('Remover este veículo?'))return;
-  const {error}=await _supabase.from('vehicles').delete().eq('id',id);
-  if(error){showToast('❌ Erro ao remover veículo');console.error(error);return;}
+  const {error}=await _supabase.from('vehicles').update({active:false}).eq('id',id);
+  if(error){showToast('❌ Erro ao remover veiculo');console.error(error);return;}
   showToast('✓ Veículo removido');
   await loadVehicles();
   buildVehicleListScreen();buildVehOptions();
@@ -1070,7 +1070,7 @@ async function loadVehicles(){
   if(!customer)return;
   const {data,error}=await _supabase
     .from('vehicles').select('*')
-    .eq('customer_id',customer.id);
+    .eq('customer_id',customer.id).eq('active',true);
   if(error){console.error('Erro ao carregar veículos:',error);return;}
   customerVehicles=data.map(row=>({
     id:    row.id,
