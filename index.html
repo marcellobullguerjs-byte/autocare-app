@@ -1372,13 +1372,7 @@ async function loadQuotations(){
   console.log(`✓ ${quotations.length} cotações carregadas do Supabase`);
 }
 
-// ============ DISPATCH DATA ============
-const dispatchJobs=[
-  {id:2047,service:'Troca de óleo + filtro',client:'Marcello Costa',bairro:'Vila Madalena',date:'06 mai',time:'11:00',price:240,dispatch:{status:'confirmed',providerId:1,offeredTo:[1],currentOfferId:null,offerExpires:null,history:[{providerId:1,action:'accepted',at:'08:15'}]}},
-  {id:2051,service:'Troca de filtro de ar',client:'Roberto Souza',bairro:'Jardins',date:'07 mai',time:'09:00',price:92,dispatch:{status:'offering',providerId:null,offeredTo:[1],currentOfferId:1,offerExpires:'08:47',history:[]}},
-  {id:2055,service:'Martelinho de ouro',client:'Pedro Monteiro',bairro:'Moema',date:'07 mai',time:'10:00',price:200,dispatch:{status:'no_provider',providerId:null,offeredTo:[],currentOfferId:null,offerExpires:null,history:[]}},
-  {id:2046,service:'Check-up geral',client:'Lúcia Carvalho',bairro:'Vila Madalena',date:'06 mai',time:'09:00',price:120,dispatch:{status:'completed',providerId:1,offeredTo:[1],currentOfferId:null,offerExpires:null,history:[{providerId:1,action:'accepted',at:'06:00'}]}},
-];
+
 
 // ============ CLAIMS ============
 const claims=[
@@ -2377,18 +2371,7 @@ async function buildDispatchList(){
     list.appendChild(d);
   });
 }
-function viewDispatch(id){
-  const job=dispatchJobs.find(j=>j.id===id);if(!job)return;
-  const DISPATCH_STATUS={confirmed:{label:'Confirmado',badge:'badge-green',icon:'✓'},offering:{label:'Aguardando aceite',badge:'badge-yellow',icon:'⏳'},no_provider:{label:'Sem prestador',badge:'badge-red',icon:'🚨'},completed:{label:'Concluído',badge:'badge-gray',icon:'✓'}};
-  const cfg=DISPATCH_STATUS[job.dispatch.status];
-  const steps=[{icon:'📄',title:'Job criado',sub:'Pagamento confirmado',state:'done'}];
-  job.dispatch.offeredTo.forEach(pid=>{const p=PROVIDERS.find(x=>x.id===pid);const h=job.dispatch.history.find(x=>x.providerId===pid);if(h&&h.action==='accepted')steps.push({icon:'✓',title:`Aceito · ${p?p.name:'?'}`,sub:h.at,state:'done'});else if(job.dispatch.currentOfferId===pid)steps.push({icon:'⏳',title:`Aguardando · ${p?p.name:'?'}`,sub:'15 min',state:'active'});});
-  if(job.dispatch.status==='confirmed')steps.push({icon:'✓',title:'Confirmado',sub:'Pronto',state:'done'});
-  else if(job.dispatch.status==='no_provider')steps.push({icon:'🚨',title:'Sem prestador',sub:'Intervenção necessária',state:'failed'});
-  const sh=steps.map(s=>`<div style="display:flex;gap:12px;padding-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:${s.state==='done'?'var(--green)':s.state==='active'?'var(--blue)':s.state==='failed'?'var(--red)':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#fff">${s.icon}</div><div><div style="font-size:13px;font-weight:500">${s.title}</div><div style="font-size:11px;color:var(--muted)">${s.sub}</div></div></div>`).join('');
-  document.getElementById('dispatchDetailContent').innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">#${job.id} · ${job.service}</div><span class="badge ${cfg.badge}" style="margin-top:8px">${cfg.icon} ${cfg.label}</span></div><div class="card">${sh}</div>${job.dispatch.status==='no_provider'||job.dispatch.status==='offering'?`<button class="btn btn-primary" onclick="openReallocModal(${job.id})">🔄 Realocar prestador</button><div style="height:8px"></div>`:''}<button class="btn btn-outline" onclick="goScreen('a-dispatch')">Voltar</button>`;
-  navHistory.push(currentScreen);showScreen('a-dispatch-detail');
-}
+
 let selectedReallocId=null;
 async function openReallocModal(jobId){
   document.getElementById('modalTitle').textContent='Realocar prestador';
