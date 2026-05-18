@@ -709,6 +709,10 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="snav-item" id="ptab-pending" onclick="switchPayTab('pending')">Pendentes</div>
         <div class="snav-item" id="ptab-all" onclick="switchPayTab('all')">Todos</div>
       </div>
+      <div id="payMonthFilter" style="display:none;margin-bottom:12px">
+        <select class="input" id="payMonthSelect" style="font-size:12px;width:100%;padding:8px" onchange="buildPayments()">
+        </select>
+      </div>
       <div id="paymentsList"></div>
     </div>
 
@@ -965,12 +969,28 @@ async function buildAgendaDayView(){
   document.getElementById('agEarnCount').textContent=`R$ ${earn}`;
 }
 
-/// ============ FIX 3: PAGAMENTOS ============
+// ============ PAGAMENTOS ============
 let payments=[];
 let payTab='today';
 function switchPayTab(tab){
   payTab=tab;
   ['today','pending','all'].forEach(t=>{const el=document.getElementById('ptab-'+t);if(el)el.classList.toggle('active',t===tab);});
+  const mf=document.getElementById('payMonthFilter');
+  if(mf)mf.style.display=tab==='all'?'block':'none';
+  if(tab==='all'){
+    const sel=document.getElementById('payMonthSelect');
+    if(sel){
+      sel.innerHTML='';
+      const now=new Date();
+      for(let i=0;i<12;i++){
+        const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+        const val=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        const lbl=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+        const opt=document.createElement('option');opt.value=val;opt.textContent=lbl;
+        sel.appendChild(opt);
+      }
+    }
+  }
   buildPayments();
 }
 async function buildPayments(){
@@ -979,30 +999,35 @@ async function buildPayments(){
   if(document.getElementById('pay-total-recebido'))document.getElementById('pay-total-recebido').textContent='R$ 0';
   if(document.getElementById('pay-total-aguardando'))document.getElementById('pay-total-aguardando').textContent='R$ 0';
   let query=_supabase.from('payments').select('id,job_id,amount,method,status,released_at,jobs(scheduled_date,scheduled_time,total_price,payment_method,services(name))').order('id',{ascending:false}).limit(50);
-  if(payTab==='pending') query=query.in('status',['waiting','pending']);
+  if(payTab==='pending')query=query.in('status',['waiting','pending']);
   if(payTab==='today'){const hoje=new Date().toISOString().slice(0,10);query=query.gte('released_at',hoje+'T00:00:00').lte('released_at',hoje+'T23:59:59');}
+  if(payTab==='all'){
+    const sel=document.getElementById('payMonthSelect');
+    const mes=sel?.value;
+    if(mes){const ultimo=new Date(mes.slice(0,4),parseInt(mes.slice(5,7)),0).getDate();query=query.gte('released_at',mes+'-01').lte('released_at',mes+'-'+String(ultimo).padStart(2,'0'));}
+  }
   const {data:pags}=await query;
   el.innerHTML='';
   if(!pags||pags.length===0){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum pagamento encontrado</div>';return;}
-  const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovação',cls:'ps-waiting'},pending:{label:'Pendente',cls:'ps-pending'}};
+  const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovacao',cls:'ps-waiting'},pending:{label:'Pendente',cls:'ps-pending'}};
   pags.forEach(p=>{
     const cfg=statusCfg[p.status]||{label:p.status,cls:'ps-pending'};
-    const svc=p.jobs?.services?.name||'Serviço';
+    const svc=p.jobs?.services?.name||'Servico';
     const hr=p.jobs?.scheduled_time?p.jobs.scheduled_time.slice(0,5):'--';
     const metodoRaw=p.method||p.jobs?.payment_method||'--';
-    const metodo=metodoRaw==='card'?'Cartão':metodoRaw==='pix'?'Pix':metodoRaw;
+    const metodo=metodoRaw==='card'?'Cartao':metodoRaw==='pix'?'Pix':metodoRaw;
     const valorRaw=parseFloat(p.amount||p.jobs?.total_price||0);
     const valor=valorRaw.toLocaleString('pt-BR',{minimumFractionDigits:0});
     const d=document.createElement('div');d.className='pay-item';
-    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">Job #${p.job_id} · ${svc}</span><span class="pay-status ${cfg.cls}">${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${hr} · ${metodo}</div><div class="row" style="margin-top:8px;margin-bottom:0"><span style="font-size:12px;color:var(--muted)">Job #${p.job_id}</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ ${valor}</span></div>`;
+    d.innerHTML='<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">Job #'+p.job_id+' · '+svc+'</span><span class="pay-status '+cfg.cls+'">'+cfg.label+'</span></div><div style="font-size:12px;color:var(--muted)">'+hr+' · '+metodo+'</div><div class="row" style="margin-top:8px;margin-bottom:0"><span style="font-size:12px;color:var(--muted)">Job #'+p.job_id+'</span><span style="font-size:15px;font-weight:500;color:var(--blue)">R$ '+valor+'</span></div>';
     el.appendChild(d);
   });
   const total=pags.filter(p=>p.status==='released').reduce((s,p)=>s+parseFloat(p.amount||p.jobs?.total_price||0),0);
-  const s=document.createElement('div');s.className='card';s.style.background='var(--blue-light)';s.innerHTML=`<div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Total liberado</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:0})}</span></div>`;
+  const s=document.createElement('div');s.className='card';s.style.background='var(--blue-light)';s.innerHTML='<div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Total liberado</span><span style="font-size:16px;font-weight:500;color:var(--blue)">R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:0})+'</span></div>';
   el.appendChild(s);
   const aguardando=pags.filter(p=>p.status==='waiting').reduce((s,p)=>s+parseFloat(p.amount||p.jobs?.total_price||0),0);
-  if(document.getElementById('pay-total-recebido')) document.getElementById('pay-total-recebido').textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:0});
-  if(document.getElementById('pay-total-aguardando')) document.getElementById('pay-total-aguardando').textContent='R$ '+aguardando.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  if(document.getElementById('pay-total-recebido'))document.getElementById('pay-total-recebido').textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:0});
+  if(document.getElementById('pay-total-aguardando'))document.getElementById('pay-total-aguardando').textContent='R$ '+aguardando.toLocaleString('pt-BR',{minimumFractionDigits:0});
 }
 
 // ============ PROVIDERS ============
