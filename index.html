@@ -667,8 +667,8 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="info-box info-orange" id="supply-banner-pendentes" style="display:none">📦 <span id="supply-banner-txt"></span></div>
       <div class="supply-nav"><div class="snav-item active" id="snav-q" onclick="switchSupply('q')">Cotações</div><div class="snav-item" id="snav-p" onclick="switchSupply('p')">Peças</div><div class="snav-item" id="snav-s" onclick="switchSupply('s')">Fornecedores</div></div>
       <div class="supply-screen active" id="ss-q"><div class="filter-row" id="quotFilter"></div><div id="quotationList"></div></div>
-      <div class="supply-screen" id="ss-p"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Peças</div><button class="btn btn-primary btn-sm" onclick="showToast('+ Nova peça')">+ Nova</button></div><div id="partList"></div></div>
-      <div class="supply-screen" id="ss-s"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Fornecedores</div></div><div id="supplierList"></div></div>
+<div class="supply-screen" id="ss-p"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Pecas</div><button class="btn btn-primary btn-sm" onclick="openPartModal()">+ Nova peca</button></div><div id="partList"></div></div>
+<div class="supply-screen" id="ss-s"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:500">Fornecedores</div><button class="btn btn-primary btn-sm" onclick="openSupplierModal()">+ Novo fornecedor</button></div><div id="supplierList"></div></div>
     </div>
 
     <!-- ADMIN RANKING -->
@@ -2501,9 +2501,87 @@ async function buildQuotations(){const fr=document.getElementById('quotFilter'),
 }
 async function confirmQuot(id){const {data:suppData}=await _supabase.from('suppliers').select('id,name,lead_time_h').eq('active',true);const opts=(suppData||[]).map(s=>'<option value="'+s.id+'">'+s.name+' ('+s.lead_time_h+'h)</option>').join('');document.getElementById('modalTitle').textContent='Confirmar peca com fornecedor';document.getElementById('modalContent').innerHTML='<div class="info-box info-orange">Pecas entregues no endereco do prestador antes do servico.</div><div class="label">Fornecedor</div><select class="input" id="confSupp"><option value="">Selecione...</option>'+opts+'</select><div class="info-box info-green">Ao confirmar: agenda do cliente e liberada automaticamente.</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-green btn-sm" style="flex:1" onclick="doConfirmQuot(\''+id+'\')">Confirmar e liberar agenda</button></div>';document.getElementById('modalBg').style.display='flex';}
 async function doConfirmQuot(id){const suppId=document.getElementById('confSupp').value;if(!suppId){showToast('Selecione um fornecedor');return;}const {data:supp}=await _supabase.from('suppliers').select('lead_time_h').eq('id',suppId).single();const now=new Date().toISOString();const {error}=await _supabase.from('quotations').update({supplier_id:suppId,lead_time_h:supp?supp.lead_time_h:2,status:'confirmed',confirmed_at:now}).eq('id',id);if(error){showToast('Erro ao confirmar. Tente novamente.');return;}closeModal();buildQuotations();showToast('Pecas confirmadas! Agenda do cliente liberada.');}
-async function buildPartsAdmin(){const list=document.getElementById('partList');if(!list)return;list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';const {data:partsData}=await _supabase.from('parts').select('id,name,category,supplier_id,price_unit,unit,available').order('name');const {data:suppData}=await _supabase.from('suppliers').select('id,name');list.innerHTML='';if(!partsData||!partsData.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma peca cadastrada.</div>';return;}partsData.forEach(p=>{const supp=(suppData||[]).find(s=>s.id===p.supplier_id);const d=document.createElement('div');d.className='svc-card';d.innerHTML='<div class="row"><span style="font-size:13px;font-weight:500">'+p.name+'</span><span style="font-size:13px;font-weight:500;color:var(--blue)">R$ '+Number(p.price_unit||0).toFixed(2)+'</span></div><div style="font-size:11px;color:var(--muted)">'+(p.category||'-')+' · '+(p.unit||'-')+(supp?' · '+supp.name:'')+'</div>';list.appendChild(d);});}
-async function buildSuppliersAdmin(){const list=document.getElementById('supplierList');if(!list)return;list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';const {data:suppData}=await _supabase.from('suppliers').select('id,name,contact,region,categories,lead_time_h,active').order('name');list.innerHTML='';if(!suppData||!suppData.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum fornecedor cadastrado.</div>';return;}suppData.forEach(s=>{const cats=(s.categories||[]);const d=document.createElement('div');d.className='svc-card';d.innerHTML='<div class="row"><span style="font-size:13px;font-weight:500">'+s.name+'</span><span class="badge '+(s.active?'badge-green':'badge-yellow')+'">'+(s.active?'Ativo':'Inativo')+'</span></div><div style="font-size:12px;color:var(--muted)">'+(s.region||'-')+' · '+( s.lead_time_h||'-')+'h</div><div style="margin-top:4px">'+cats.map(c=>'<span class="tag-cat">'+c+'</span>').join('')+'</div>';list.appendChild(d);});}
-
+async function buildPartsAdmin(){
+  const list=document.getElementById('partList');if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:partsData}=await _supabase.from('parts').select('id,name,category,supplier_id,price_unit,unit,available').order('name');
+  const {data:suppData}=await _supabase.from('suppliers').select('id,name');
+  list.innerHTML='';
+  if(!partsData||!partsData.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma peca cadastrada.</div>';return;}
+  partsData.forEach(p=>{
+    const supp=(suppData||[]).find(s=>s.id===p.supplier_id);
+    const d=document.createElement('div');d.className='svc-card';
+    d.innerHTML='<div class="row"><span style="font-size:13px;font-weight:500">'+p.name+'</span><span style="font-size:13px;font-weight:500;color:var(--blue)">R$ '+Number(p.price_unit||0).toFixed(2)+'</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">'+(p.category||'-')+' · '+(p.unit||'-')+(supp?' · '+supp.name:'')+'</div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" style="flex:1;font-size:11px" onclick="openPartModal(\''+p.id+'\')">Editar</button><button class="btn btn-sm" style="flex:1;font-size:11px;background:var(--'+(p.available?'orange':'green')+');color:#fff" onclick="togglePart(\''+p.id+'\','+p.available+');">'+(p.available?'Desativar':'Ativar')+'</button></div>';
+    list.appendChild(d);
+  });
+}
+async function togglePart(id,current){
+  const {error}=await _supabase.from('parts').update({available:!current}).eq('id',id);
+  if(error){showToast('Erro ao atualizar peca.');return;}
+  buildPartsAdmin();
+}
+async function openPartModal(id){
+  let part=null;
+  const {data:suppData}=await _supabase.from('suppliers').select('id,name').eq('active',true);
+  if(id){const {data:p}=await _supabase.from('parts').select('*').eq('id',id).single();part=p;}
+  const opts=(suppData||[]).map(s=>'<option value="'+s.id+'"'+(part&&part.supplier_id===s.id?' selected':'')+'>'+s.name+'</option>').join('');
+  document.getElementById('modalTitle').textContent=id?'Editar peca':'Nova peca';
+  document.getElementById('modalContent').innerHTML='<div class="label">Nome</div><input class="input" id="partName" value="'+(part?part.name||'':'')+'" placeholder="Ex: Filtro de oleo"><div class="label" style="margin-top:8px">Categoria</div><input class="input" id="partCategory" value="'+(part?part.category||'':'')+'" placeholder="Ex: Filtros"><div class="label" style="margin-top:8px">Preco unitario (R$)</div><input class="input" id="partPrice" type="number" value="'+(part?part.price_unit||'':'')+'" placeholder="0.00"><div class="label" style="margin-top:8px">Unidade</div><input class="input" id="partUnit" value="'+(part?part.unit||'':'')+'" placeholder="Ex: un, litro, par"><div class="label" style="margin-top:8px">Fornecedor</div><select class="input" id="partSupplier"><option value="">Selecione...</option>'+opts+'</select><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="savePartModal('+(id?'\''+id+'\'':'null')+')">Salvar</button></div>';
+  document.getElementById('modalBg').style.display='flex';
+}
+async function savePartModal(id){
+  const name=document.getElementById('partName').value.trim();
+  const category=document.getElementById('partCategory').value.trim();
+  const price=parseFloat(document.getElementById('partPrice').value)||0;
+  const unit=document.getElementById('partUnit').value.trim();
+  const supplier_id=document.getElementById('partSupplier').value||null;
+  if(!name){showToast('Nome obrigatorio');return;}
+  let error;
+  if(id){({error}=await _supabase.from('parts').update({name,category,price_unit:price,unit,supplier_id}).eq('id',id));}
+  else{({error}=await _supabase.from('parts').insert({name,category,price_unit:price,unit,supplier_id,available:true}));}
+  if(error){showToast('Erro ao salvar peca.');return;}
+  closeModal();buildPartsAdmin();showToast(id?'Peca atualizada!':'Peca criada!');
+}
+async function buildSuppliersAdmin(){
+  const list=document.getElementById('supplierList');if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:suppData}=await _supabase.from('suppliers').select('id,name,contact,region,categories,lead_time_h,active').order('name');
+  list.innerHTML='';
+  if(!suppData||!suppData.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum fornecedor cadastrado.</div>';return;}
+  suppData.forEach(s=>{
+    const cats=(s.categories||[]);
+    const d=document.createElement('div');d.className='svc-card';
+    d.innerHTML='<div class="row"><span style="font-size:13px;font-weight:500">'+s.name+'</span><span class="badge '+(s.active?'badge-green':'badge-yellow')+'">'+(s.active?'Ativo':'Inativo')+'</span></div><div style="font-size:12px;color:var(--muted);margin-bottom:4px">'+(s.region||'-')+' · '+(s.lead_time_h||'-')+'h · '+(s.contact||'-')+'</div><div style="margin-bottom:8px">'+cats.map(c=>'<span class="tag-cat">'+c+'</span>').join('')+'</div><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" style="flex:1;font-size:11px" onclick="openSupplierModal(\''+s.id+'\')">Editar</button><button class="btn btn-sm" style="flex:1;font-size:11px;background:var(--'+(s.active?'orange':'green')+');color:#fff" onclick="toggleSupplier(\''+s.id+'\','+s.active+');">'+(s.active?'Desativar':'Ativar')+'</button></div>';
+    list.appendChild(d);
+  });
+}
+async function toggleSupplier(id,current){
+  const {error}=await _supabase.from('suppliers').update({active:!current}).eq('id',id);
+  if(error){showToast('Erro ao atualizar fornecedor.');return;}
+  buildSuppliersAdmin();
+}
+async function openSupplierModal(id){
+  let supp=null;
+  if(id){const {data:s}=await _supabase.from('suppliers').select('*').eq('id',id).single();supp=s;}
+  const cats=supp?(supp.categories||[]).join(', '):'';
+  document.getElementById('modalTitle').textContent=id?'Editar fornecedor':'Novo fornecedor';
+  document.getElementById('modalContent').innerHTML='<div class="label">Nome</div><input class="input" id="suppName" value="'+(supp?supp.name||'':'')+'" placeholder="Ex: AutoPecas Silva"><div class="label" style="margin-top:8px">Contato</div><input class="input" id="suppContact" value="'+(supp?supp.contact||'':'')+'" placeholder="Tel ou email"><div class="label" style="margin-top:8px">Regiao</div><input class="input" id="suppRegion" value="'+(supp?supp.region||'':'')+'" placeholder="Ex: Vila Madalena"><div class="label" style="margin-top:8px">Categorias (separadas por virgula)</div><input class="input" id="suppCats" value="'+cats+'" placeholder="Ex: Filtros, Oleo, Freios"><div class="label" style="margin-top:8px">Lead time (horas)</div><input class="input" id="suppLead" type="number" value="'+(supp?supp.lead_time_h||'':'')+'" placeholder="Ex: 24"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="saveSupplierModal('+(id?'\''+id+'\'':'null')+')">Salvar</button></div>';
+  document.getElementById('modalBg').style.display='flex';
+}
+async function saveSupplierModal(id){
+  const name=document.getElementById('suppName').value.trim();
+  const contact=document.getElementById('suppContact').value.trim();
+  const region=document.getElementById('suppRegion').value.trim();
+  const catsRaw=document.getElementById('suppCats').value.trim();
+  const categories=catsRaw?catsRaw.split(',').map(c=>c.trim()).filter(Boolean):[];
+  const lead_time_h=parseInt(document.getElementById('suppLead').value)||0;
+  if(!name){showToast('Nome obrigatorio');return;}
+  let error;
+  if(id){({error}=await _supabase.from('suppliers').update({name,contact,region,categories,lead_time_h}).eq('id',id));}
+  else{({error}=await _supabase.from('suppliers').insert({name,contact,region,categories,lead_time_h,active:true}));}
+  if(error){showToast('Erro ao salvar fornecedor.');return;}
+  closeModal();buildSuppliersAdmin();showToast(id?'Fornecedor atualizado!':'Fornecedor criado!');
+}
 // ============ ADMIN RANKING ============
 async function buildRanking(){
   const fr=document.getElementById('rankFilter'),list=document.getElementById('rankingList');if(!fr||!list)return;
