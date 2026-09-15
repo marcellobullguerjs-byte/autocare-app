@@ -1,0 +1,267 @@
+{
+  "modulo": "3",
+  "nome": "Descarte Responsável",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Responsab.",
+      "pergunta": "Após uma troca de óleo, o cliente diz que vai descartar o óleo usado ele mesmo. Você pode deixar o óleo com ele e considerar sua responsabilidade encerrada?",
+      "alternativas": {
+        "A": "Sim --- a partir do momento que o cliente aceita, a responsabilidade passa para ele",
+        "B": "Sim, se o cliente assinar um termo de responsabilidade",
+        "C": "Não --- o prestador permanece responsável até que o resíduo chegue ao ponto de coleta correto",
+        "D": "Sim, se fotografar o cliente com o óleo antes de ir embora"
+      },
+      "correta": "C",
+      "justificativa": "A responsabilidade do gerador não se transfere verbalmente para o cliente. O prestador deve garantir o descarte correto ou registrar formalmente no app que o cliente assumiu a responsabilidade."
+    },
+    {
+      "id": "Q02",
+      "tema": "Responsab.",
+      "pergunta": "Qual legislação brasileira torna o descarte incorreto de resíduos perigosos um crime?",
+      "alternativas": {
+        "A": "Código de Defesa do Consumidor",
+        "B": "Lei 9.605/98 --- Lei de Crimes Ambientais",
+        "C": "Código de Trânsito Brasileiro",
+        "D": "CLT --- Consolidação das Leis do Trabalho"
+      },
+      "correta": "B",
+      "justificativa": "A Lei 9.605/98 prevê multa e até detenção para quem causa poluição ambiental, incluindo descarte incorreto de resíduos perigosos como óleo e baterias."
+    },
+    {
+      "id": "Q03",
+      "tema": "Óleo e fluidos",
+      "pergunta": "Onde descartar óleo de motor usado em São Paulo?",
+      "alternativas": {
+        "A": "No ralo da pia com bastante água para diluir",
+        "B": "Posto de combustível --- obrigado por lei a receber gratuitamente",
+        "C": "Ecoponto municipal --- único local autorizado",
+        "D": "No lixo comum em recipiente bem fechado"
+      },
+      "correta": "B",
+      "justificativa": "Postos de combustível em SP têm obrigação legal de receber óleo usado sem custo. É o ponto de coleta mais acessível e disponível em praticamente todo o estado."
+    },
+    {
+      "id": "Q04",
+      "tema": "Óleo e fluidos",
+      "pergunta": "Por que o óleo usado não pode ser misturado com outros líquidos antes do descarte?",
+      "alternativas": {
+        "A": "Pode ser misturado sem problema se for em pequena quantidade",
+        "B": "A mistura contamina o óleo e impede a reciclagem, além de dificultar o tratamento do resíduo",
+        "C": "É apenas uma preferência dos postos de coleta",
+        "D": "Aumenta o volume e dificulta o transporte"
+      },
+      "correta": "B",
+      "justificativa": "Óleo contaminado com água ou outros fluidos não pode ser reciclado. O processo de reciclagem exige óleo puro --- a mistura transforma um resíduo reciclável em resíduo perigoso sem destinação."
+    },
+    {
+      "id": "Q05",
+      "tema": "Óleo e fluidos",
+      "pergunta": "Água de lavagem com produto biodegradável bem diluído pode ser descartada:",
+      "alternativas": {
+        "A": "Diretamente na sarjeta ou rua",
+        "B": "Na rede de esgoto --- pelo ralo da pia",
+        "C": "No solo do jardim do cliente",
+        "D": "Em qualquer recipiente para coleta posterior"
+      },
+      "correta": "B",
+      "justificativa": "Produto biodegradável diluído no esgoto tratado é seguro --- a estação de tratamento consegue processar. Na sarjeta, vai direto para galeria pluvial sem tratamento, contaminando rios."
+    },
+    {
+      "id": "Q06",
+      "tema": "Resíduos sólidos",
+      "pergunta": "Como deve ser descartada uma embalagem de produto de limpeza automotivo que ainda tem resíduo?",
+      "alternativas": {
+        "A": "Lixo comum --- embalagem plástica é reciclável",
+        "B": "Tríplice lavagem antes de qualquer descarte. Se ainda tiver produto, leva para ecoponto",
+        "C": "Quebrar a embalagem para reduzir volume e jogar no lixo",
+        "D": "Queimar junto com outros resíduos do trabalho"
+      },
+      "correta": "B",
+      "justificativa": "Embalagem com resíduo químico não vai para lixo comum. Tríplice lavagem remove o resíduo e libera a embalagem para lixo comum. Resíduo líquido restante vai para ecoponto."
+    },
+    {
+      "id": "Q07",
+      "tema": "Resíduos sólidos",
+      "pergunta": "O que é a tríplice lavagem de embalagem?",
+      "alternativas": {
+        "A": "Lavar a embalagem três vezes na torneira com água e sabão",
+        "B": "Encher um terço com água, agitar, despejar no esgoto --- repetir 3 vezes, depois lacrar",
+        "C": "Mergulhar a embalagem em balde de água por 3 minutos",
+        "D": "Qualquer lavagem realizada três dias seguidos"
+      },
+      "correta": "B",
+      "justificativa": "A tríplice lavagem é o método oficial de descontaminação de embalagens de produtos químicos. Três ciclos de um terço de volume garantem a remoção do resíduo."
+    },
+    {
+      "id": "Q08",
+      "tema": "Bateria",
+      "pergunta": "Para onde vai uma bateria de carro velha após a troca?",
+      "alternativas": {
+        "A": "Lixo eletrônico comum --- é um componente elétrico",
+        "B": "Lixo comum em saco plástico resistente",
+        "C": "De volta à loja onde comprou a nova --- ela é obrigada a receber",
+        "D": "Ecoponto municipal --- único local autorizado"
+      },
+      "correta": "C",
+      "justificativa": "Lojas que vendem baterias são obrigadas por lei a receber as velhas para destinação correta. É o canal mais simples e disponível --- e funciona mesmo sem nota fiscal."
+    },
+    {
+      "id": "Q09",
+      "tema": "Bateria e elétricos",
+      "pergunta": "Qual o descarte correto de lâmpadas de LED queimadas?",
+      "alternativas": {
+        "A": "Lixo comum --- LED não tem substâncias perigosas",
+        "B": "Pontos de coleta específicos em farmácias ou supermercados",
+        "C": "Lixo eletrônico junto com celulares velhos",
+        "D": "Devolver ao fabricante por correio"
+      },
+      "correta": "B",
+      "justificativa": "LEDs contêm componentes que não devem ir para aterro comum. Farmácias e supermercados geralmente têm coletores específicos. Consulte o app Ecopontos SP para locais próximos."
+    },
+    {
+      "id": "Q10",
+      "tema": "Pontos de coleta",
+      "pergunta": "Qual app gratuito mostra pontos de coleta de resíduos em São Paulo?",
+      "alternativas": {
+        "A": "Coleta Fácil SP",
+        "B": "Ecopontos SP",
+        "C": "Descarte Verde",
+        "D": "RecicloMaps"
+      },
+      "correta": "B",
+      "justificativa": "O app Ecopontos SP da Prefeitura de São Paulo mostra pontos de coleta por tipo de resíduo com endereço, horário e o que cada ponto aceita."
+    },
+    {
+      "id": "Q11",
+      "tema": "Pontos de coleta",
+      "pergunta": "Um posto de combustível recusa receber seu óleo usado. O que fazer?",
+      "alternativas": {
+        "A": "Desistir e jogar o óleo no ralo em casa",
+        "B": "Aceitar --- o posto não é obrigado a receber",
+        "C": "Pedir pelo gerente, mencionar a obrigação legal. Se mantiver a recusa, reportar no app AutoCare e ir a outro posto ou ecoponto",
+        "D": "Deixar o óleo na calçada do posto"
+      },
+      "correta": "C",
+      "justificativa": "A obrigação dos postos de receber óleo usado é legal --- não é opção. Se recusarem, você tem o direito de insistir e de reportar a irregularidade."
+    },
+    {
+      "id": "Q12",
+      "tema": "Kit de descarte",
+      "pergunta": "Qual o item MAIS importante do kit de descarte que todo prestador deve ter no carro?",
+      "alternativas": {
+        "A": "Luva extra para manuseio de resíduos",
+        "B": "Garrafa PET fechada e identificada para óleo usado",
+        "C": "Saco de lixo colorido para separação",
+        "D": "Formulário de registro de descarte"
+      },
+      "correta": "B",
+      "justificativa": "A garrafa PET para óleo é o item que evita o descarte incorreto mais comum e de maior impacto ambiental. Sem ela, a tentação de jogar no ralo é grande --- e o dano é enorme."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Você não tem recipiente para o óleo usado ao chegar no serviço. O que fazer?",
+      "alternativas": {
+        "A": "Faz a troca e improvisa jogando no ralo depois",
+        "B": "Pede um recipiente emprestado ao cliente para levar",
+        "C": "Não inicia a troca de óleo sem o recipiente adequado. Reporta no app e resolve antes de começar",
+        "D": "Usa o saco plástico do lixo do cliente para carregar o óleo"
+      },
+      "correta": "C",
+      "justificativa": "Sem recipiente = sem serviço. Saco plástico vaza, não é recipiente seguro para óleo. O prestador precisa estar equipado antes de sair para o job."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "O cliente insiste que você deixe o pneu velho com ele pois \"tem uma borracharia do lado\". O que fazer?",
+      "alternativas": {
+        "A": "Aceita --- a responsabilidade passa para o cliente",
+        "B": "Deixa o pneu e registra no app que o cliente assumiu a responsabilidade",
+        "C": "Explica que é responsabilidade do gerador até o descarte correto. Se o cliente assumir formalmente, registra no app e obtém confirmação",
+        "D": "Leva o pneu de volta sem discussão"
+      },
+      "correta": "C",
+      "justificativa": "Se o cliente se comprometer a descartar corretamente, o registro no app cria um rastro de responsabilidade. Sem esse registro, o prestador continua exposto."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Detailer usa produto de cera ácida e ao enxaguar o carro, a água escorre para a sarjeta. Ele deve:",
+      "alternativas": {
+        "A": "Não se preocupar --- água com cera ácida dilui rápido",
+        "B": "Avisar o cliente e pedir desculpas --- é tudo que pode fazer",
+        "C": "Usar balde para conter a água de enxágue de produtos ácidos e descartar no esgoto. Para próximos serviços, planejar o descarte da água com antecedência",
+        "D": "Só se preocupar se alguém reclamar"
+      },
+      "correta": "C",
+      "justificativa": "Produto ácido vai para galeria pluvial sem tratamento e contamina diretamente o sistema hídrico. A contenção com balde é o procedimento correto para produtos agressivos."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Após uma troca de filtro de ar e óleo, você tem: filtro usado, embalagem do filtro novo e 4L de óleo usado. Qual a ordem de prioridade de descarte?",
+      "alternativas": {
+        "A": "Óleo no posto, filtro no lixo embalado, embalagem no lixo após verificar se está vazia",
+        "B": "Tudo no mesmo saco plástico --- vai para o lixo comum",
+        "C": "Óleo no ralo, o resto no lixo --- é quantidade pequena",
+        "D": "Deixar tudo no lixo do cliente pois é lixo gerado no serviço dele"
+      },
+      "correta": "A",
+      "justificativa": "Óleo é o mais crítico --- posto de combustível imediatamente. Filtro embalado pode ir ao lixo comum. Embalagem vazia do filtro também, desde que sem resíduo."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Um cliente pede para você jogar os resíduos do serviço no lixo da rua pois \"é lixo reciclável de qualquer forma\". Você deve:",
+      "alternativas": {
+        "A": "Aceitar --- o cliente conhece melhor as regras do bairro",
+        "B": "Verificar se o lixo da rua tem coleta seletiva antes de decidir",
+        "C": "Recusar --- resíduos automotivos como óleo e filtros não vão para lixo de rua independente da coleta",
+        "D": "Aceitar apenas para os resíduos sólidos, não para líquidos"
+      },
+      "correta": "C",
+      "justificativa": "Coleta seletiva de rua não aceita resíduos contaminados com óleo ou substâncias químicas. Esses resíduos contaminam todo o lote de reciclagem."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Você trouxe o óleo usado do último serviço e o posto mais próximo está fechado. O que fazer?",
+      "alternativas": {
+        "A": "Jogar no ralo em casa --- é só um pouco",
+        "B": "Guardar o óleo no porta-malas até encontrar um posto aberto --- pode ser no próximo abastecimento",
+        "C": "Jogar no lixo comum bem embalado",
+        "D": "Deixar o recipiente na porta do posto"
+      },
+      "correta": "B",
+      "justificativa": "Armazenar temporariamente no porta-malas é a solução correta. O óleo em recipiente fechado não oferece risco enquanto aguarda o descarte correto."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Qual destes resíduos pode ir para o lixo comum sem nenhum tratamento prévio?",
+      "alternativas": {
+        "A": "Embalagem de solvente com resíduo",
+        "B": "Filtro de óleo sem embrulho",
+        "C": "Resíduos de lixamento embalados em saco plástico fechado",
+        "D": "Água de lavagem com produto concentrado"
+      },
+      "correta": "C",
+      "justificativa": "Resíduos de lixamento (pó, limalha) em pequeno volume, devidamente embalados, podem ir para o lixo comum. Os outros itens requerem tratamento ou ponto de coleta específico."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual é a consequência legal para o prestador que descarta óleo usado no ralo repetidamente?",
+      "alternativas": {
+        "A": "Nenhuma --- é responsabilidade da empresa de saneamento tratar o esgoto",
+        "B": "Apenas advertência informal da AutoCare",
+        "C": "Pode configurar crime ambiental com multa e detenção conforme a Lei de Crimes Ambientais",
+        "D": "Somente multa municipal sem registro criminal"
+      },
+      "correta": "C",
+      "justificativa": "A Lei 9.605/98 prevê detenção de 1 a 4 anos e multa para quem polui recursos hídricos com substâncias perigosas. Descarte frequente de óleo no ralo é exatamente esse caso."
+    }
+  ]
+}

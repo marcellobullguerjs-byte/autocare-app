@@ -1,0 +1,267 @@
+{
+  "modulo": "4",
+  "nome": "Responsabilidade sobre o Veículo",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Foto antes",
+      "pergunta": "Por que a foto \"antes\" é obrigatória antes de qualquer serviço?",
+      "alternativas": {
+        "A": "É uma formalidade burocrática da AutoCare sem impacto prático",
+        "B": "Documenta o estado do veículo antes do serviço, protegendo o prestador de acusações de danos pré-existentes",
+        "C": "Serve apenas para o cliente ter registro do estado do carro",
+        "D": "É opcional para serviços rápidos de menos de 30 minutos"
+      },
+      "correta": "B",
+      "justificativa": "Sem a foto antes, qualquer dano pré-existente pode ser atribuído ao prestador após o serviço. Com ela, há evidência datada e geolocada do estado real do veículo antes da intervenção."
+    },
+    {
+      "id": "Q02",
+      "tema": "Foto antes",
+      "pergunta": "O cliente pede para você começar logo e diz que não precisa de foto. O que você faz?",
+      "alternativas": {
+        "A": "Começa o serviço --- o cliente tem razão, é desnecessário",
+        "B": "Explica que a foto é obrigatória e parte do protocolo AutoCare --- não pode ser pulada, independente do pedido",
+        "C": "Pula a foto mas documenta verbalmente que o cliente pediu",
+        "D": "Pula a foto pois a solicitação foi do cliente, eximindo sua responsabilidade"
+      },
+      "correta": "B",
+      "justificativa": "Nenhum cliente pode dispensar o protocolo obrigatório. A foto protege ambos os lados --- inclusive o cliente, que também fica protegido de um prestador desonesto."
+    },
+    {
+      "id": "Q03",
+      "tema": "Foto antes",
+      "pergunta": "Você chega ao serviço e nota um arranhão profundo na lateral que claramente é anterior. O que fazer antes de fotografar?",
+      "alternativas": {
+        "A": "Fotografar sem mencionar ao cliente --- está documentado, não precisa falar",
+        "B": "Apontar o arranhão ao cliente antes de fotografar e dizer que vai documentar como pré-existente",
+        "C": "Ignorar --- não é sua responsabilidade identificar danos anteriores",
+        "D": "Recusar o serviço --- dano pré-existente significa que o veículo está comprometido"
+      },
+      "correta": "B",
+      "justificativa": "Apontar o dano ao cliente antes de documentar cria transparência imediata e evita qualquer mal-entendido posterior. O cliente sabe que você viu --- e que você documentou."
+    },
+    {
+      "id": "Q04",
+      "tema": "Limites",
+      "pergunta": "Durante a troca de óleo você nota que a mangueira do radiador está ressecada e prestes a romper. O que fazer?",
+      "alternativas": {
+        "A": "Troca a mangueira também --- o cliente vai agradecer",
+        "B": "Ignora --- não foi contratado para isso",
+        "C": "Documenta com foto, informa o cliente sobre o risco e sugere que abra um novo pedido no app para esse serviço",
+        "D": "Cobra diretamente do cliente pela troca da mangueira"
+      },
+      "correta": "C",
+      "justificativa": "Informar é obrigatório --- ignorar seria negligência. Mas intervir sem autorização é extrapolar o escopo. O caminho correto é documentar, informar e criar um novo pedido formalizado."
+    },
+    {
+      "id": "Q05",
+      "tema": "Limites",
+      "pergunta": "O cliente pede verbalmente um serviço extra após você já ter chegado. Qual a resposta correta?",
+      "alternativas": {
+        "A": "Faz o serviço extra --- é rápido e o cliente ficará satisfeito",
+        "B": "Recusa completamente --- não foi combinado",
+        "C": "Explica que pode inspecionar visualmente, mas qualquer intervenção exige novo pedido no app",
+        "D": "Faz o serviço e cobra diretamente do cliente em dinheiro"
+      },
+      "correta": "C",
+      "justificativa": "Serviço não registrado no app não tem cobertura, garantia nem proteção para nenhuma das partes. Inspeção visual informal é permitida --- intervenção técnica não."
+    },
+    {
+      "id": "Q06",
+      "tema": "Dano causado",
+      "pergunta": "Você acidentalmente risca a lataria durante o serviço. Qual é o primeiro passo imediato?",
+      "alternativas": {
+        "A": "Tentar polir o risco antes que o cliente veja",
+        "B": "Parar o serviço e fotografar o dano imediatamente",
+        "C": "Continuar o serviço e mencionar ao finalizar",
+        "D": "Avaliar se o dano é suficientemente grande para merecer ser reportado"
+      },
+      "correta": "B",
+      "justificativa": "Fotografar imediatamente documenta a extensão real do dano no momento em que ocorreu --- antes de qualquer alteração. Todo dano, independente do tamanho, deve ser fotografado e reportado."
+    },
+    {
+      "id": "Q07",
+      "tema": "Dano causado",
+      "pergunta": "Após fotografar o dano que causou, qual é o próximo passo?",
+      "alternativas": {
+        "A": "Oferecer um valor de indenização ao cliente para resolver rapidamente",
+        "B": "Comunicar ao cliente de forma direta e factual, e reportar no app antes de sair",
+        "C": "Minimizar o dano na conversa para reduzir o impacto na avaliação",
+        "D": "Ir embora e deixar o suporte AutoCare contatar o cliente"
+      },
+      "correta": "B",
+      "justificativa": "A comunicação direta ao cliente e o reporte no app são obrigatórios. Oferecer indenização por conta própria pode criar problemas legais adicionais --- a AutoCare conduz esse processo."
+    },
+    {
+      "id": "Q08",
+      "tema": "Problema encontrado",
+      "pergunta": "Qual é a diferença entre \"problema encontrado\" e \"dano causado\" na prática?",
+      "alternativas": {
+        "A": "São a mesma coisa --- qualquer problema no veículo após o serviço é responsabilidade do prestador",
+        "B": "Problema encontrado é pré-existente e deve ser comunicado ao cliente. Dano causado ocorreu durante o serviço e exige o protocolo de reporte imediato.",
+        "C": "Problema encontrado não precisa ser reportado --- só dano causado",
+        "D": "A distinção não importa --- ambos seguem o mesmo protocolo"
+      },
+      "correta": "B",
+      "justificativa": "Confundir os dois cria problemas desnecessários. Informar problema pré-existente é transparência e proteção mútua. Dano causado é responsabilidade direta que exige protocolo específico."
+    },
+    {
+      "id": "Q09",
+      "tema": "Garantia",
+      "pergunta": "Um cliente reclama 25 dias após o serviço que o problema voltou. O que acontece?",
+      "alternativas": {
+        "A": "Já passou muito tempo --- a reclamação não é mais válida",
+        "B": "O cliente está dentro do prazo de 30 dias de garantia. A AutoCare abre uma análise e o prestador será contactado",
+        "C": "O prestador é automaticamente responsabilizado e deve refazer o serviço sem custo",
+        "D": "A garantia só vale para os primeiros 7 dias"
+      },
+      "correta": "B",
+      "justificativa": "30 dias de garantia --- o cliente está no prazo. A AutoCare analisa com base na documentação do serviço. Prestador com checklist completo e fotos tem muito mais chance de resultado favorável."
+    },
+    {
+      "id": "Q10",
+      "tema": "Garantia",
+      "pergunta": "O que protege o prestador numa análise de garantia da AutoCare?",
+      "alternativas": {
+        "A": "O tempo de cadastro na plataforma",
+        "B": "A avaliação média histórica do prestador",
+        "C": "Checklist completo no app, fotos antes e depois, e anotações do serviço",
+        "D": "A ausência de reclamações anteriores"
+      },
+      "correta": "C",
+      "justificativa": "Documentação é a proteção concreta. Prestador sem fotos e sem checklist não tem como demonstrar o que foi feito --- e fica vulnerável independente de ter feito tudo certo."
+    },
+    {
+      "id": "Q11",
+      "tema": "Comunicação",
+      "pergunta": "Qual frase é um exemplo correto de comunicação preventiva antes de iniciar o serviço?",
+      "alternativas": {
+        "A": "\"Pode ser que eu cause algum arranhão --- é normal no processo\"",
+        "B": "\"Vou fazer um registro fotográfico do veículo antes de iniciar --- é padrão AutoCare e protege os dois\"",
+        "C": "\"Se tiver algum problema me avisa depois\"",
+        "D": "\"O senhor assina aqui confirmando que o carro estava com esses danos antes?\""
+      },
+      "correta": "B",
+      "justificativa": "A frase correta é informativa, profissional e coloca o protocolo como proteção mútua --- não como desconfiança ou burocracia. As outras opções criam desconforto ou problemas."
+    },
+    {
+      "id": "Q12",
+      "tema": "Checklist",
+      "pergunta": "Qual item do checklist pós-serviço é mais crítico para a segurança do cliente?",
+      "alternativas": {
+        "A": "Verificar se todas as ferramentas foram recolhidas",
+        "B": "Verificar se não há vazamentos novos no veículo antes de liberar",
+        "C": "Fotografar o resultado do serviço",
+        "D": "Confirmar a finalização no app"
+      },
+      "correta": "B",
+      "justificativa": "Vazamento não identificado antes da liberação pode causar dano ao motor ou falha de freio em movimento --- risco de vida. É o item com maior consequência potencial se ignorado."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Você está no meio do serviço e nota que acidentalmente tocou no para-choque com a caixa de ferramentas, mas não há marca visível. Deve reportar?",
+      "alternativas": {
+        "A": "Não --- se não há marca visível, não há dano",
+        "B": "Sim --- qualquer contato físico não intencional deve ser registrado como precaução",
+        "C": "Só se o cliente perguntar diretamente",
+        "D": "Depende do valor do veículo"
+      },
+      "correta": "B",
+      "justificativa": "Registrar mesmo sem marca visível protege o prestador caso o cliente alegue depois que havia uma marca. A transparência imediata sempre pesa positivamente na análise da AutoCare."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "O cliente diz que o carro estava bem antes do serviço e agora está fazendo um barulho novo. Você tem certeza que não causou nada. O que fazer?",
+      "alternativas": {
+        "A": "Defender sua posição verbalmente e ir embora",
+        "B": "Negar qualquer responsabilidade e bloquear o cliente no app",
+        "C": "Apresentar as fotos antes e depois, o checklist completo, e deixar a AutoCare conduzir a análise técnica",
+        "D": "Oferecer um valor para o cliente ficar quieto"
+      },
+      "correta": "C",
+      "justificativa": "A documentação completa fala por você. Deixar a AutoCare conduzir é o protocolo correto --- é exatamente para isso que existe o sistema de resolução."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Após uma troca de filtro de ar, o cliente relata que o capô não fecha direito. O que fazer?",
+      "alternativas": {
+        "A": "Dizer que o capô não tem nada a ver com o filtro de ar",
+        "B": "Verificar imediatamente --- mesmo que improvável, o prestador mexeu na área do capô e deve garantir que está em ordem",
+        "C": "Sugerir que o cliente leve a uma oficina",
+        "D": "Ignorar --- barulho de capô é normal após serviço"
+      },
+      "correta": "B",
+      "justificativa": "O prestador mexeu na área do motor. Mesmo que improvável, deve verificar antes de encerrar. Se encontrar problema: reportar. Se não encontrar: documentar que verificou."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Você encontra uma trinca no bloco do motor enquanto faz a troca de óleo --- é claramente anterior e grave. Qual a ação correta?",
+      "alternativas": {
+        "A": "Não mencionar --- problema do motor é sério e pode assustar o cliente",
+        "B": "Documentar com foto, informar ao cliente com clareza sobre o risco e registrar no app como observação do serviço",
+        "C": "Tentar consertar como cortesia",
+        "D": "Encerrar o serviço sem concluir --- veículo com problema grave não deve ser servido"
+      },
+      "correta": "B",
+      "justificativa": "Informar problema grave encontrado é obrigação ética e profissional. O cliente precisa dessa informação para sua segurança. A documentação no app cria registro formal da comunicação."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "O cliente não está presente no momento do serviço (deixou a chave com o porteiro). Como proceder com a documentação?",
+      "alternativas": {
+        "A": "Pular a foto antes --- não há como mostrar ao cliente de qualquer forma",
+        "B": "Fazer a documentação fotográfica completa normalmente --- o registro no app não depende da presença do cliente",
+        "C": "Fazer o serviço sem documentação e avisar o cliente depois",
+        "D": "Recusar o serviço sem a presença do cliente"
+      },
+      "correta": "B",
+      "justificativa": "A documentação protege o prestador independente da presença do cliente. O upload no app é imediato e datado --- a ausência do cliente não altera a obrigação."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Prestador fez troca de bateria. O veículo não liga ao final. Qual a ação correta?",
+      "alternativas": {
+        "A": "Dizer que deve ser problema elétrico pré-existente e ir embora",
+        "B": "Verificar cabos e conexões da bateria antes de qualquer outra coisa. Se não resolver, acionar suporte AutoCare antes de sair",
+        "C": "Ligar para o cliente e pedir que ele chame um eletricista",
+        "D": "Deixar o cliente tentando ligar e ir atender outro job"
+      },
+      "correta": "B",
+      "justificativa": "O veículo estava funcionando antes e não está mais --- isso é responsabilidade do prestador enquanto ainda está no local. Nunca deixe o cliente com o veículo parado após uma intervenção."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Durante a garantia de 30 dias, o cliente abre reclamação dizendo que o serviço foi feito errado. O prestador tem fotos, checklist e anotações completos. Qual o resultado mais provável?",
+      "alternativas": {
+        "A": "O prestador é automaticamente responsabilizado independente da documentação",
+        "B": "A AutoCare analisa a documentação. Com evidências completas, o prestador tem alta probabilidade de resultado favorável",
+        "C": "A reclamação é descartada automaticamente se houver documentação",
+        "D": "O prestador precisa pagar independente das evidências"
+      },
+      "correta": "B",
+      "justificativa": "A análise da AutoCare é baseada em evidências --- não em quem reclamou primeiro. Documentação completa é a diferença entre um resultado favorável e uma responsabilização injusta."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual destas ações é sempre errada, independente da situação?",
+      "alternativas": {
+        "A": "Fotografar o veículo antes do serviço",
+        "B": "Informar o cliente sobre problema grave encontrado",
+        "C": "Esconder um dano causado e torcer para o cliente não notar",
+        "D": "Reportar dano causado no app antes de ir embora"
+      },
+      "correta": "C",
+      "justificativa": "Esconder dano causado é falta grave que resulta em suspensão. O dano será descoberto --- e a falta de transparência agrava enormemente a situação para o prestador."
+    }
+  ]
+}

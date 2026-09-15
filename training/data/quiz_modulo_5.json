@@ -1,0 +1,267 @@
+{
+  "modulo": "5",
+  "nome": "Qualidade e Padrão de Entrega",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "4 Pilares",
+      "pergunta": "Quais são os quatro pilares de um serviço AutoCare excelente?",
+      "alternativas": {
+        "A": "Preço, velocidade, técnica e aparência do prestador",
+        "B": "Pontualidade, excelência técnica, limpeza e experiência do cliente",
+        "C": "Pontualidade, foto antes, checklist e reporte no app",
+        "D": "Atendimento, segurança, descarte e responsabilidade"
+      },
+      "correta": "B",
+      "justificativa": "Os quatro pilares cobrem as dimensões que o cliente percebe e avalia: chegou no horário, fez bem feito, deixou tudo organizado, e o cliente se sentiu cuidado. Todos os quatro são necessários --- não basta ter três."
+    },
+    {
+      "id": "Q02",
+      "tema": "4 Pilares",
+      "pergunta": "Um prestador fez um serviço tecnicamente impecável mas deixou embalagens no chão e não explicou nada ao cliente. Qual pilar está faltando?",
+      "alternativas": {
+        "A": "Pontualidade",
+        "B": "Excelência técnica",
+        "C": "Limpeza e organização + experiência do cliente",
+        "D": "Apenas experiência do cliente"
+      },
+      "correta": "C",
+      "justificativa": "Dois pilares falharam: limpeza (embalagens no chão) e experiência do cliente (sem comunicação). Serviço técnico bom não compensa a ausência dos outros pilares na percepção do cliente."
+    },
+    {
+      "id": "Q03",
+      "tema": "Erros comuns",
+      "pergunta": "Qual é o erro mais frequente que causa avaliação baixa mesmo quando o serviço técnico foi bem feito?",
+      "alternativas": {
+        "A": "Usar ferramentas antigas",
+        "B": "Atraso sem aviso prévio ao cliente",
+        "C": "Não usar uniforme",
+        "D": "Trabalhar muito rápido"
+      },
+      "correta": "B",
+      "justificativa": "Atraso sem comunicação é o erro mais frequente e impactante. O cliente reorganizou a agenda para receber você --- a falta de aviso é percebida como descaso."
+    },
+    {
+      "id": "Q04",
+      "tema": "Erros comuns",
+      "pergunta": "O serviço estimado em 40 minutos está levando 1h10. O que você deve fazer?",
+      "alternativas": {
+        "A": "Terminar rápido e não mencionar o atraso",
+        "B": "Informar o cliente imediatamente: o que causou o atraso e quanto tempo ainda falta",
+        "C": "Finalizar o serviço de qualquer jeito para cumprir o prazo",
+        "D": "Inventar uma justificativa técnica para o atraso"
+      },
+      "correta": "B",
+      "justificativa": "Comunicação imediata sobre qualquer desvio de prazo é obrigatória. O cliente pode ter compromisso --- ele precisa decidir se pode aguardar. A honestidade sobre o porquê aumenta --- não diminui --- a satisfação."
+    },
+    {
+      "id": "Q05",
+      "tema": "Erros comuns",
+      "pergunta": "Qual comportamento pode causar avaliação negativa por excesso de familiaridade?",
+      "alternativas": {
+        "A": "Usar luvas durante o serviço",
+        "B": "Chamar o cliente de \"mano\" e fazer comentários sobre o apartamento",
+        "C": "Levar caixa de ferramentas organizada",
+        "D": "Apresentar o resultado ao finalizar"
+      },
+      "correta": "B",
+      "justificativa": "Cada pessoa tem um limite diferente para informalidade. O prestador não conhece o cliente --- manter tom profissional é a abordagem segura. O cliente sinaliza se prefere algo mais informal."
+    },
+    {
+      "id": "Q06",
+      "tema": "Apresentação final",
+      "pergunta": "Por que apresentar o resultado ao cliente em vez de apenas dizer \"está pronto\"?",
+      "alternativas": {
+        "A": "É uma exigência burocrática da AutoCare",
+        "B": "Gera mais gorjetas",
+        "C": "Cria o momento de maior impacto positivo --- o cliente vê o trabalho, entende o que foi feito e se sente valorizado",
+        "D": "Serve para o prestador comprovar que fez o serviço"
+      },
+      "correta": "C",
+      "justificativa": "A apresentação final de 60 segundos transforma a percepção do serviço inteiro. É quando o cliente consolida a experiência --- e decide mentalmente quantas estrelas vai dar."
+    },
+    {
+      "id": "Q07",
+      "tema": "Apresentação final",
+      "pergunta": "Qual destas apresentações finais está correta?",
+      "alternativas": {
+        "A": "\"Pronto, pode usar.\"",
+        "B": "\"Terminei. Qualquer problema me chama.\"",
+        "C": "\"Vou te mostrar --- troquei o óleo e o filtro, nível na máxima. Notei que o pneu esquerdo está um pouco baixo --- vale calibrar. O local está limpo. Foi um prazer!\"",
+        "D": "\"Assinei no app. Tchau.\""
+      },
+      "correta": "C",
+      "justificativa": "A opção correta inclui: convite para ver, explicação do que foi feito, observação adicional útil e encerramento profissional. As outras são encerramentos abruptos que deixam o cliente sem informação."
+    },
+    {
+      "id": "Q08",
+      "tema": "Limpeza",
+      "pergunta": "O que define o padrão AutoCare de limpeza ao finalizar um serviço?",
+      "alternativas": {
+        "A": "Deixar o local igual a como estava antes",
+        "B": "O local fica mais limpo depois do serviço do que estava antes",
+        "C": "Limpar apenas o que o prestador sujou",
+        "D": "Varrer apenas se o cliente pedir"
+      },
+      "correta": "B",
+      "justificativa": "O padrão AutoCare é deixar o local melhor do que estava. Esse detalhe é o que mais surpreende positivamente os clientes e frequentemente é mencionado em avaliações 5 estrelas."
+    },
+    {
+      "id": "Q09",
+      "tema": "Resultado parcial",
+      "pergunta": "O polimento não removeu completamente um risco profundo. Como comunicar ao cliente?",
+      "alternativas": {
+        "A": "Dizer que ficou ótimo e evitar mostrar o ponto que não saiu",
+        "B": "Ser honesto: mostrar o que ficou bom, explicar por que o ponto específico não saiu totalmente e oferecer alternativas",
+        "C": "Fazer desconto automático sem explicar nada",
+        "D": "Culpar a qualidade da pintura do veículo"
+      },
+      "correta": "B",
+      "justificativa": "Honestidade antes que o cliente descubra por conta própria é sempre melhor. Explicação técnica simples + alternativa = cliente insatisfeito com o resultado mas satisfeito com o prestador."
+    },
+    {
+      "id": "Q10",
+      "tema": "Reputação",
+      "pergunta": "Por que uma avaliação de 1 estrela impacta mais o score do que uma de 5 estrelas eleva?",
+      "alternativas": {
+        "A": "Não impacta da mesma forma --- as avaliações têm peso igual",
+        "B": "O sistema AutoCare penaliza avaliações baixas com peso maior para proteger a qualidade da plataforma",
+        "C": "Por isso consistência é mais valiosa do que excelência esporádica --- evitar avaliações baixas protege mais o score do que ter avaliações altíssimas",
+        "D": "Avaliações de 1 estrela são descartadas automaticamente após revisão"
+      },
+      "correta": "C",
+      "justificativa": "Matematicamente, consistência de 4.5 é mais valiosa do que alternância entre 5.0 e 2.0. Evitar avaliações baixas é a estratégia mais eficaz para manter score alto."
+    },
+    {
+      "id": "Q11",
+      "tema": "Reputação",
+      "pergunta": "Prestador aceita muitos jobs seguidos e começa a apressar as finalizações. O resultado mais provável é:",
+      "alternativas": {
+        "A": "Score aumenta pela quantidade de jobs concluídos",
+        "B": "Score permanece estável --- volume compensa qualidade",
+        "C": "Score cai pelo aumento de avaliações medianas, resultando em menos jobs e menos ganhos a médio prazo",
+        "D": "Score sobe temporariamente e depois estabiliza"
+      },
+      "correta": "C",
+      "justificativa": "O componente \"jobs concluídos\" do score é menos impactante do que a nota média do cliente (40%). Apressar = entregas piores = notas mais baixas = score menor = menos jobs. O ciclo se inverte."
+    },
+    {
+      "id": "Q12",
+      "tema": "Padrão AutoCare",
+      "pergunta": "Qual fase do serviço tem a maior diferença entre o \"mínimo esperado\" e o \"padrão AutoCare 5 estrelas\"?",
+      "alternativas": {
+        "A": "Chegada --- o mínimo é apenas chegar no horário",
+        "B": "Pré-serviço --- a diferença entre foto e foto + proteção + comunicação",
+        "C": "Finalização --- a diferença entre confirmar no app e fazer a apresentação completa de 60s ao cliente",
+        "D": "Durante --- a diferença entre executar e manter o cliente informado"
+      },
+      "correta": "C",
+      "justificativa": "A finalização é onde mais prestadores ficam abaixo do potencial. Confirmar no app é o mínimo. Apresentação completa com resultado + observações + limpeza é o que gera 5 estrelas consistentemente."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Prestador faz serviço técnico excelente mas chega 30 min atrasado sem avisar e vai embora sem explicar nada. Qual avaliação esperada?",
+      "alternativas": {
+        "A": "5 estrelas --- o serviço técnico foi impecável",
+        "B": "3 ou menos --- atraso sem aviso e ausência de comunicação derrubam a experiência independente da técnica",
+        "C": "4 estrelas --- o serviço bom compensa o resto parcialmente",
+        "D": "Depende do humor do cliente no dia"
+      },
+      "correta": "B",
+      "justificativa": "O cliente não avalia apenas a técnica --- avalia a experiência completa. Dois dos quatro pilares falharam: pontualidade e experiência do cliente."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "Você tem 3 jobs no dia e está com o último atrasando. O cliente do último job está esperando. Qual a ação correta?",
+      "alternativas": {
+        "A": "Apressar o job atual para chegar no horário --- mesmo comprometendo a qualidade",
+        "B": "Avisar o próximo cliente pelo app que haverá atraso e qual o novo horário estimado",
+        "C": "Não avisar --- talvez você consiga se recuperar no trânsito",
+        "D": "Cancelar o último job para não atrasar"
+      },
+      "correta": "B",
+      "justificativa": "Avisar com antecedência respeita o cliente e mantém sua reputação. Um cliente avisado com 30 minutos de antecedência raramente dá avaliação baixa por atraso --- cliente pego de surpresa quase sempre dá."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Após uma higienização interna, você nota que a garagem tem areia no chão que estava lá antes de você chegar. O padrão AutoCare é:",
+      "alternativas": {
+        "A": "Ignorar --- não foi você que sujou",
+        "B": "Perguntar ao cliente se quer que você varra",
+        "C": "Varrer junto com a sua limpeza pós-serviço --- o local deve sair melhor do que você encontrou",
+        "D": "Mencionar ao cliente que a garagem estava suja antes"
+      },
+      "correta": "C",
+      "justificativa": "O padrão não é \"limpar o que você sujou\" --- é \"o local sai melhor do que você encontrou\". Varrer 2 minutos de areia cria uma impressão memorável e diferenciadora."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Cliente pergunta antes do serviço se a lavagem premium inclui polimento do painel. Você não tem certeza se consegue o resultado esperado. O que dizer?",
+      "alternativas": {
+        "A": "Sim, com certeza --- você tenta depois",
+        "B": "Depende do estado do painel. Posso verificar e te dizer antes de começar se o resultado vai ser o que você espera",
+        "C": "Não está incluído --- para não criar expectativa",
+        "D": "Sim, está incluído e fica perfeito"
+      },
+      "correta": "B",
+      "justificativa": "Gerenciar expectativa antes é a resposta profissional. Verificar e ser honesto sobre o possível resultado protege ambos os lados."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Ao apresentar o resultado de um polimento, você percebe que o cliente ficou levemente desapontado mas não falou nada. O que fazer?",
+      "alternativas": {
+        "A": "Não mencionar --- se o cliente não reclamou, está bem",
+        "B": "Perguntar diretamente: \"Ficou como você esperava? Se tiver algum ponto que queira que eu reveja, me fala agora.\"",
+        "C": "Oferecer desconto imediatamente para evitar avaliação baixa",
+        "D": "Listar todos os pontos positivos do serviço repetidamente"
+      },
+      "correta": "B",
+      "justificativa": "Perguntar diretamente e dar espaço para o cliente expressar insatisfação no momento é muito melhor do que receber uma avaliação baixa depois. A maioria das insatisfações pode ser resolvida no ato."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Prestador tem score 9.1 e decide aceitar o dobro de jobs por mês para aumentar os ganhos. Score cai para 7.8 em 4 semanas. O que aconteceu?",
+      "alternativas": {
+        "A": "Score cai porque a AutoCare penaliza quem aceita muitos jobs seguidos",
+        "B": "Volume excessivo levou a finalizações apressadas, avaliações medianas e queda do componente de nota média (40% do score)",
+        "C": "É coincidência --- score flutua naturalmente",
+        "D": "Clientes avaliam negativamente prestadores que parecem muito ocupados"
+      },
+      "correta": "B",
+      "justificativa": "A nota média do cliente é o componente de maior peso. Qualidade comprometida pelo volume destrói o que levou semanas para construir."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Um cliente dá 3 estrelas e comenta \"serviço ok mas não explicou nada\". Como usar esse feedback?",
+      "alternativas": {
+        "A": "Ignorar --- 3 estrelas é aceitável",
+        "B": "Reportar o cliente por avaliação injusta",
+        "C": "Incorporar o feedback: a apresentação final precisa ser parte fixa do protocolo a partir de agora",
+        "D": "Argumentar na resposta da avaliação que o serviço foi correto"
+      },
+      "correta": "C",
+      "justificativa": "Feedback de cliente é informação valiosa. \"Não explicou nada\" é solucionável com a apresentação final de 60 segundos. Um prestador que aprende com avaliações evolui consistentemente."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual destas atitudes, praticada consistentemente, tem o maior impacto positivo no score ao longo do tempo?",
+      "alternativas": {
+        "A": "Aceitar todos os jobs disponíveis independente de agenda",
+        "B": "Prometer sempre o melhor resultado para fechar mais jobs",
+        "C": "Tratar cada job como o primeiro --- mesma atenção, mesma comunicação, mesma limpeza --- independente do cansaço ou da quantidade",
+        "D": "Focar apenas na técnica e não se preocupar com a experiência do cliente"
+      },
+      "correta": "C",
+      "justificativa": "Consistência é o fator determinante de score alto sustentado. \"Tratar cada job como o primeiro\" é o princípio que sintetiza todos os módulos de qualidade."
+    }
+  ]
+}

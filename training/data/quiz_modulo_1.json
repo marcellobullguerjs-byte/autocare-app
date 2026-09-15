@@ -1,0 +1,267 @@
+{
+  "modulo": "1",
+  "nome": "Atendimento e Conduta Profissional",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Pontualidade",
+      "pergunta": "Você está a caminho e percebe que vai atrasar 20 minutos. O que fazer?",
+      "alternativas": {
+        "A": "Ligar diretamente para o cliente pelo celular pessoal",
+        "B": "Avisar pelo app antes do horário previsto",
+        "C": "Aguardar chegar e pedir desculpas ao cliente",
+        "D": "Atrasos de até 30 min não precisam de aviso"
+      },
+      "correta": "B",
+      "justificativa": "A comunicação prévia pelo app é obrigatória. Ligar pelo celular pessoal viola a privacidade de dados e não fica registrado na plataforma."
+    },
+    {
+      "id": "Q02",
+      "tema": "Pontualidade",
+      "pergunta": "O cliente liga reclamando que você atrasou 10 minutos. Qual a resposta correta?",
+      "alternativas": {
+        "A": "Diz que o trânsito é imprevisível e que ele deveria entender",
+        "B": "Explica que 10 minutos é dentro da tolerância",
+        "C": "Reconhece o atraso, se desculpa e confirma que está a caminho",
+        "D": "Ignora a ligação e vai direto ao endereço"
+      },
+      "correta": "C",
+      "justificativa": "Reconhecer o erro e comunicar o status atual é o protocolo correto. Justificativas sem pedido de desculpas são percebidas como arrogância."
+    },
+    {
+      "id": "Q03",
+      "tema": "Comunicação",
+      "pergunta": "Antes de iniciar o serviço, qual o primeiro passo obrigatório?",
+      "alternativas": {
+        "A": "Começar imediatamente para não atrasar",
+        "B": "Pedir uma água ao cliente para demonstrar intimidade",
+        "C": "Mostrar o estado atual do veículo ao cliente e tirar a foto no app",
+        "D": "Perguntar se o cliente quer algum serviço extra"
+      },
+      "correta": "C",
+      "justificativa": "Documentar o estado pré-serviço protege o prestador de acusações de danos. A foto no app é obrigatória no checklist."
+    },
+    {
+      "id": "Q04",
+      "tema": "Comunicação",
+      "pergunta": "Durante a execução você encontra um problema além do serviço contratado. O que fazer?",
+      "alternativas": {
+        "A": "Resolve por conta — o cliente vai agradecer depois",
+        "B": "Ignora e foca só no serviço pedido",
+        "C": "Documenta, informa o cliente e aciona o suporte no app",
+        "D": "Combina um valor adicional direto com o cliente"
+      },
+      "correta": "C",
+      "justificativa": "Qualquer desvio do serviço contratado precisa de nova solicitação. Resolver por conta própria ou cobrar diretamente viola os termos da plataforma."
+    },
+    {
+      "id": "Q05",
+      "tema": "Comunicação",
+      "pergunta": "O cliente usa linguagem técnica e diz que quer um \"diagnóstico OBD com leitura de sensores\". Você não sabe ao certo o que isso significa. O que fazer?",
+      "alternativas": {
+        "A": "Confirma que sabe fazer e improvisa na hora",
+        "B": "Diz que não sabe e vai embora",
+        "C": "Pergunta ao cliente o que exatamente ele precisa e, se necessário, aciona o suporte AutoCare",
+        "D": "Aceita o serviço mas avisa que pode demorar mais"
+      },
+      "correta": "C",
+      "justificativa": "Honestidade sobre limitações é sempre melhor do que prometer e errar. O suporte AutoCare pode ajudar na triagem de serviços fora do padrão."
+    },
+    {
+      "id": "Q06",
+      "tema": "Privacidade",
+      "pergunta": "O cliente pede que você busque algo dentro do apartamento enquanto ele atende o telefone. O que fazer?",
+      "alternativas": {
+        "A": "Entra rapidamente — é só um segundo",
+        "B": "Pede ao cliente que pause o telefonema e busque o item",
+        "C": "Espera do lado de fora até o cliente estar disponível",
+        "D": "Entra, mas evita olhar para os objetos pessoais"
+      },
+      "correta": "C",
+      "justificativa": "Minimizar presença dentro do imóvel é regra fundamental. O desconforto gerado por uma entrada não autorizada pode resultar em reclamação formal."
+    },
+    {
+      "id": "Q07",
+      "tema": "Privacidade",
+      "pergunta": "Qual destas perguntas é APROPRIADA fazer ao cliente?",
+      "alternativas": {
+        "A": "Você trabalha fora? A que horas costuma sair?",
+        "B": "Tem mais carros aqui no condomínio?",
+        "C": "O serviço de hoje vai ser pago por você ou por outra pessoa?",
+        "D": "Você mora sozinho aqui?"
+      },
+      "correta": "C",
+      "justificativa": "Perguntas sobre rotina, horários e moradores são invasivas. Perguntar sobre responsabilidade pelo pagamento é pertinente ao serviço."
+    },
+    {
+      "id": "Q08",
+      "tema": "Situações difíceis",
+      "pergunta": "O cliente está visivelmente irritado e fala em tom agressivo desde o início. Qual a melhor abordagem?",
+      "alternativas": {
+        "A": "Responde com firmeza para não parecer fraco",
+        "B": "Vai embora imediatamente",
+        "C": "Mantém o tom calmo, reconhece o estado emocional do cliente e foca no serviço",
+        "D": "Pede ao cliente para se acalmar ou não faz o serviço"
+      },
+      "correta": "C",
+      "justificativa": "Espelhar a agressividade escala o conflito. Manter calma e profissionalismo é o protocolo — e frequentemente resolve a situação sozinho."
+    },
+    {
+      "id": "Q09",
+      "tema": "Situações difíceis",
+      "pergunta": "O cliente ameaça fisicamente o prestador. Qual a ação correta?",
+      "alternativas": {
+        "A": "Tenta acalmar o cliente e continua o serviço",
+        "B": "Encerra o atendimento, vai a um local seguro, aciona a polícia se necessário e reporta no app",
+        "C": "Grava o cliente e posta nas redes sociais",
+        "D": "Chama outros prestadores para ajudar"
+      },
+      "correta": "B",
+      "justificativa": "Segurança física é absoluta e inegociável. Nenhuma avaliação, job ou pagamento vale uma situação de risco real."
+    },
+    {
+      "id": "Q10",
+      "tema": "Encerramento",
+      "pergunta": "Qual a sequência correta ao finalizar um atendimento?",
+      "alternativas": {
+        "A": "Cobra o serviço, agradece e vai embora",
+        "B": "Mostra o resultado, limpa o local, confirma no app, agradece",
+        "C": "Confirma no app, mostra o resultado e pede avaliação",
+        "D": "Limpa o local, tira foto e aguarda o cliente avaliar"
+      },
+      "correta": "B",
+      "justificativa": "A sequência correta garante que o cliente viu o resultado, o local está limpo, e o job está registrado antes de você partir."
+    },
+    {
+      "id": "Q11",
+      "tema": "Encerramento",
+      "pergunta": "O que você NUNCA deve fazer ao encerrar um atendimento?",
+      "alternativas": {
+        "A": "Mostrar a foto \"depois\" ao cliente",
+        "B": "Recolher materiais e embalagens do local",
+        "C": "Pedir explicitamente ao cliente que dê 5 estrelas",
+        "D": "Confirmar a finalização no app"
+      },
+      "correta": "C",
+      "justificativa": "Solicitar avaliação diretamente pode irritar o cliente e gerar o efeito oposto. Um bom serviço bem encerrado gera avaliação positiva naturalmente."
+    },
+    {
+      "id": "Q12",
+      "tema": "Cliente mal-educado",
+      "pergunta": "O cliente usa palavrões e fala em tom desrespeitoso durante todo o serviço. Você deve:",
+      "alternativas": {
+        "A": "Responder com palavrões também para mostrar que não aceita desrespeito",
+        "B": "Manter o tom profissional, finalizar o serviço e reportar no app",
+        "C": "Ir embora imediatamente sem finalizar",
+        "D": "Gravar o cliente sem ele saber"
+      },
+      "correta": "B",
+      "justificativa": "Elevar o tom gera conflito e pode resultar em reclamação sua junto com a do cliente. Reportar no app cria um registro que protege você."
+    },
+    {
+      "id": "Q13",
+      "tema": "Cliente mal-educado",
+      "pergunta": "O cliente critica seu trabalho de forma ofensiva e humilhante. O que fazer?",
+      "alternativas": {
+        "A": "Defende seu trabalho com o mesmo nível de intensidade",
+        "B": "Escuta com calma, pergunta especificamente o que incomodou e aciona o suporte AutoCare se necessário",
+        "C": "Finaliza em silêncio e vai embora sem se despedir",
+        "D": "Devolve o insulto de forma sutil"
+      },
+      "correta": "B",
+      "justificativa": "Perguntar especificamente o que incomodou pode revelar um problema legítimo — ou deixar claro que é uma crítica infundada. De qualquer forma, o suporte AutoCare gerencia isso."
+    },
+    {
+      "id": "Q14",
+      "tema": "Gorjeta",
+      "pergunta": "O cliente fica satisfeito com o serviço e espontaneamente te oferece R$30 de gorjeta. Você:",
+      "alternativas": {
+        "A": "Recusa — a AutoCare não permite gorjetas",
+        "B": "Aceita com naturalidade e agradece",
+        "C": "Aceita mas reporta no app",
+        "D": "Recusa e sugere que avalie com 5 estrelas"
+      },
+      "correta": "B",
+      "justificativa": "Gorjeta espontânea do cliente é permitida. Aceite com naturalidade. Não há nada a reportar nem a recusar — é um gesto do cliente, não uma solicitação sua."
+    },
+    {
+      "id": "Q15",
+      "tema": "Gorjeta",
+      "pergunta": "Você finalizou um serviço excelente. Qual destas frases você pode dizer ao cliente?",
+      "alternativas": {
+        "A": "\"Se quiser deixar uma gorjetinha, fico feliz em aceitar!\"",
+        "B": "\"Normalmente os clientes costumam deixar algo a mais pelo capricho.\"",
+        "C": "\"Foi um prazer! Qualquer necessidade futura, pode me chamar pelo app.\"",
+        "D": "\"Trabalhei muito bem hoje, né? Valeu a pena!\""
+      },
+      "correta": "C",
+      "justificativa": "As opções A e B solicitam ou sugerem gorjeta — proibido e passível de suspensão. A opção C é profissional e fecha o atendimento corretamente."
+    },
+    {
+      "id": "Q16",
+      "tema": "Ameaças/pressão",
+      "pergunta": "O cliente diz: \"Se você não terminar em 10 minutos eu vou dar 1 estrela\". Como responder?",
+      "alternativas": {
+        "A": "Acelera o serviço para evitar a avaliação negativa",
+        "B": "Explica o prazo realista com calma e registra a ameaça no app ao finalizar",
+        "C": "Para tudo e vai embora",
+        "D": "Negocia um desconto em troca de mais tempo"
+      },
+      "correta": "B",
+      "justificativa": "Pressão por avaliação negativa é uma prática que a AutoCare monitora. Registre no app — avaliações com contexto de coerção são analisadas e podem ser removidas."
+    },
+    {
+      "id": "Q17",
+      "tema": "Ameaças/pressão",
+      "pergunta": "O cliente ameaça \"postar nas redes sociais\" se você não der um serviço extra de graça. O que fazer?",
+      "alternativas": {
+        "A": "Faz o serviço extra para evitar exposição",
+        "B": "Explica que serviços extras precisam ser solicitados pelo app e encerra a conversa",
+        "C": "Ameaça também postar sobre o comportamento dele",
+        "D": "Aciona imediatamente a polícia"
+      },
+      "correta": "B",
+      "justificativa": "Ceder a chantagens cria precedente e incentiva o comportamento. O canal correto é o app AutoCare — não redes sociais nem confronto direto."
+    },
+    {
+      "id": "Q18",
+      "tema": "Pagamento",
+      "pergunta": "O cliente propõe: \"Paga direto no meu Pix, sem passar pelo app, e te dou 20% a mais\". O que você faz?",
+      "alternativas": {
+        "A": "Aceita — você recebe mais e o cliente economiza",
+        "B": "Recusa educadamente e explica que todos os pagamentos precisam passar pelo app",
+        "C": "Aceita mas reporta no app depois",
+        "D": "Consulta outros prestadores sobre o que fazer"
+      },
+      "correta": "B",
+      "justificativa": "Pagamento fora da plataforma é proibido independente do valor. Resulta em suspensão imediata. O \"20% a mais\" não compensa a perda do acesso à plataforma."
+    },
+    {
+      "id": "Q19",
+      "tema": "Pagamento",
+      "pergunta": "O serviço foi finalizado mas o cliente diz que não tem como pagar agora e pede para pagar depois diretamente para você. O que fazer?",
+      "alternativas": {
+        "A": "Aceita — o cliente parece honesto",
+        "B": "Aguarda o cliente resolver e só vai embora após confirmação no app",
+        "C": "Reporta ao suporte AutoCare pelo app antes de sair e não aceita pagamento direto",
+        "D": "Deixa o serviço incompleto para garantir o pagamento"
+      },
+      "correta": "C",
+      "justificativa": "O suporte AutoCare gerencia inadimplências. Aceitar \"pagamento depois direto\" é exatamente o que não deve ser feito — além de proibido, você provavelmente não vai receber."
+    },
+    {
+      "id": "Q20",
+      "tema": "Pagamento",
+      "pergunta": "Qual destas afirmações sobre pagamento é VERDADEIRA?",
+      "alternativas": {
+        "A": "Gorjeta espontânea do cliente é proibida pela AutoCare",
+        "B": "Você pode receber até 10% do valor diretamente se o cliente solicitar",
+        "C": "Todos os pagamentos pelos serviços devem passar pela plataforma AutoCare",
+        "D": "Pagamento em dinheiro vivo no local é permitido se o valor for abaixo de R$50"
+      },
+      "correta": "C",
+      "justificativa": "A gorjeta espontânea é permitida (não é pagamento pelo serviço). Qualquer valor relativo ao serviço contratado deve passar pela plataforma, independente de forma ou valor."
+    }
+  ]
+}

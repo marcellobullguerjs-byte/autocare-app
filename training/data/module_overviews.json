@@ -1,0 +1,124 @@
+{
+  "1": {
+    "modulo": "1",
+    "nome": "Atendimento e Conduta Profissional",
+    "visao_geral": "Este módulo prepara você para representar a AutoCare com excelência no atendimento ao cliente. Você vai aprender como se apresentar, como se comunicar durante o serviço, e como agir nas situações mais comuns — incluindo as difíceis.",
+    "objetivos": [
+      "Fazer uma primeira impressão profissional e confiável",
+      "Comunicar o que vai fazer — e o que encontrou — de forma clara e honesta",
+      "Lidar com clientes difíceis sem escalar o problema",
+      "Saber o que fazer — e o que absolutamente não fazer — em situações delicadas",
+      "Encerrar o atendimento de forma que gere 5 estrelas"
+    ],
+    "regra_geral": {
+      "emoji": "⚠️",
+      "titulo": "Importante",
+      "texto": "Aprovação com 60% (mínimo 3 de 5 questões sorteadas). O quiz sorteia 5 questões de um banco de 20 — cada tentativa é diferente. Em caso de reprovação, novo acesso liberado após 24 horas."
+    }
+  },
+  "2A": {
+    "modulo": "2A",
+    "nome": "Segurança no Trabalho — Geral",
+    "visao_geral": "Você vai até a casa ou trabalho do cliente — e isso significa trabalhar em ambientes que não foram preparados para um serviço técnico. Piso de garagem, rua movimentada, luz ruim, espaço apertado. A segurança não é obrigação do cliente: é sua responsabilidade.",
+    "objetivos": [
+      "Quais EPIs usar e em qual situação",
+      "Como sinalizar e trabalhar com segurança em via pública",
+      "O que fazer nos primeiros minutos de um acidente: corte, queimadura ou inalação",
+      "Como reconhecer quando a situação exige o SAMU ou Bombeiros",
+      "O que registrar no app em caso de acidente durante o serviço"
+    ],
+    "regra_geral": {
+      "emoji": "🦺",
+      "titulo": "Regra geral",
+      "texto": "Nenhum serviço começa sem o EPI adequado. Se você não tiver o equipamento necessário no momento, você é obrigado a reportar no app e reagendar. Executar serviço sem EPI correto é falta grave."
+    }
+  },
+  "2B": {
+    "modulo": "2B",
+    "nome": "Segurança Elétrica e Química",
+    "visao_geral": "Elétrica, solventes e produtos concentrados têm algo em comum: o dano pode ser instantâneo, invisível até acontecer, e em alguns casos irreversível. Choque elétrico, ácido de bateria, gás refrigerante, vapores de solvente — cada um desses riscos tem um protocolo específico. É isso que este módulo cobre.",
+    "objetivos": [
+      "Quais riscos específicos existem em cada especialidade",
+      "Os EPIs adicionais exigidos para trabalho elétrico e com produtos químicos",
+      "Como trabalhar com segurança em bateria, sistema elétrico e fiação",
+      "Como manusear, diluir e descartar produtos concentrados corretamente",
+      "O que fazer em caso de choque elétrico, contato com ácido e exposição química grave"
+    ],
+    "regra_geral": {
+      "emoji": "⚡",
+      "titulo": "Regra geral",
+      "texto": "Qualquer serviço elétrico em veículo começa com bateria desconectada — exceto quando o diagnóstico exige o contrário, e mesmo assim com EPIs completos e ciência do cliente. Sem exceção."
+    }
+  },
+  "3": {
+    "modulo": "3",
+    "nome": "Descarte Responsável",
+    "visao_geral": "Cada serviço que você faz gera resíduo. Óleo usado, bateria velha, filtros saturados, embalagens de produto químico, pneus, água de lavagem com detergente. O destino errado desses materiais contamina solo, rios e lençóis freáticos — e você responde por isso legalmente.",
+    "objetivos": [
+      "Quais resíduos cada serviço gera e como classificá-los",
+      "Como armazenar temporariamente cada resíduo no local do cliente",
+      "Onde descartar cada tipo de resíduo corretamente em São Paulo",
+      "O que nunca descartar no ralo, lixo comum ou via pública",
+      "Como encontrar pontos de coleta próximos ao serviço",
+      "O que registrar no app em caso de geração de resíduo especial"
+    ],
+    "regra_geral": {
+      "emoji": "♻️",
+      "titulo": "Regra geral",
+      "texto": "Você saiu do local de serviço? Então não sobrou nenhum resíduo lá. Tudo que você gerou vai com você para descarte correto. Sem exceção, sem \"o cliente disse que descarta\"."
+    }
+  },
+  "4": {
+    "modulo": "4",
+    "nome": "Responsabilidade sobre o Veículo",
+    "visao_geral": "Você vai mexer no carro de outra pessoa. Isso cria uma relação de confiança — e de responsabilidade legal. Se algo der errado, seja por acidente, negligência ou erro técnico, você responde. Mas há um lado positivo: os protocolos corretos te protegem tanto quanto protegem o cliente.",
+    "objetivos": [
+      "Por que e como documentar o estado do veículo antes de qualquer serviço",
+      "O que fazer imediatamente quando causar um dano — pequeno ou grande",
+      "Como comunicar problemas encontrados sem gerar conflito",
+      "Onde termina sua responsabilidade e começa a do cliente",
+      "Quais serviços nunca fazer sem autorização explícita",
+      "Como o seguro e a garantia AutoCare funcionam neste contexto"
+    ],
+    "regra_geral": {
+      "emoji": "📸",
+      "titulo": "Regra absoluta",
+      "texto": "A foto \"antes\" no app é obrigatória em 100% dos serviços, sem exceção. Ela existe para proteger você — não para burocratizar o serviço. Um prestador que pula este passo está vulnerável a qualquer acusação de dano pré-existente."
+    }
+  },
+  "5": {
+    "modulo": "5",
+    "nome": "Qualidade e Padrão de Entrega",
+    "visao_geral": "Fazer o serviço tecnicamente certo é o mínimo. O que separa um prestador com score 7 de um prestador com score 9 não é a técnica — é o conjunto de atitudes antes, durante e depois do serviço que fazem o cliente sentir que foi muito bem cuidado.",
+    "objetivos": [
+      "O que define um serviço de qualidade AutoCare do ponto de vista do cliente",
+      "Os erros mais comuns que derrubam avaliações — mesmo quando o serviço técnico está correto",
+      "Como apresentar o resultado do serviço de forma que impacte positivamente o cliente",
+      "O que fazer quando o resultado não ficou como esperado",
+      "Como construir reputação consistente na plataforma"
+    ],
+    "regra_geral": {
+      "emoji": "🏆",
+      "titulo": "O padrão AutoCare",
+      "texto": "Um serviço AutoCare é considerado excelente quando: foi feito no prazo, o cliente entendeu o que foi feito, o local ficou mais limpo do que estava, e o cliente se sentiu respeitado durante todo o processo. Os quatro elementos juntos — não apenas o técnico."
+    }
+  },
+  "6": {
+    "modulo": "6",
+    "nome": "Uso da Plataforma",
+    "visao_geral": "O app AutoCare é sua central de operações. É por ele que você recebe jobs, documenta serviços, reporta ocorrências, acompanha seu score, gerencia sua agenda e acessa o suporte. Dominar o app é tão importante quanto a habilidade técnica.",
+    "objetivos": [
+      "Navegar pelo app com fluência — todas as telas e funções principais",
+      "Entender o fluxo completo de um job: da oferta ao pagamento",
+      "Como seu score é calculado e o que fazer para melhorá-lo",
+      "Como e quando você recebe o pagamento",
+      "O que fazer quando o app apresentar erro ou situação não prevista",
+      "Como acionar o suporte AutoCare de forma eficiente"
+    ],
+    "regra_geral": {
+      "emoji": "📱",
+      "titulo": "Regra simples",
+      "texto": "Tudo que acontece no job passa pelo app. Oferta, aceite, foto antes, checklist, finalização, ocorrências, avaliação, pagamento. Se não está no app, não existe oficialmente."
+    }
+  }
+}

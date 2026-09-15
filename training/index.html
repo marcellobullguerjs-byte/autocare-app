@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="AutoCare — Treinamento e Certificação de Prestadores.">
+  <title>AutoCare · Treinamento e Certificação</title>
+  <!-- Supabase SDK (mesmo padrão do index.html principal: standalone, sem servidor, sem ES modules) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const _supabase = supabase.createClient(
+      'https://djzczgabtbnxyyfguise.supabase.co',
+      'sb_publishable_ja6fB1NeJq3kQ2ZTVzPZXA__ii6zj-0'
+    )
+  </script>
+  <link rel="stylesheet" href="../src/styles.css">
+  <style>
+    /* ─── Estilos específicos do módulo de treinamento ────────────────── */
+    .quiz-option{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border);
+      border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:13px;line-height:1.45;transition:.15s}
+    .quiz-option:hover{border-color:var(--blue)}
+    .quiz-option.selected{border-color:var(--blue);background:var(--blue-light)}
+    .quiz-option-letter{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--blue-light);
+      color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+    .quiz-option.selected .quiz-option-letter{background:var(--blue);color:#fff}
+    .quiz-progress-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden}
+    .quiz-progress-fill{height:100%;background:var(--blue);transition:.2s}
+    .module-card-title{font-weight:500;font-size:13.5px}
+    .module-card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .t-body{padding:16px;overflow-y:auto;max-height:540px}
+    .module-rule-box{display:flex;gap:10px;align-items:flex-start}
+    .module-rule-box .mrb-emoji{font-size:20px;line-height:1;flex-shrink:0}
+    .module-rule-box .mrb-titulo{font-weight:600;margin-bottom:2px}
+    .module-objectives{margin:0;padding-left:18px;font-size:13px;line-height:1.65;color:var(--text)}
+    .module-objectives li{margin-bottom:2px}
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ===== LOGIN ===== -->
+    <div class="screen full active" id="t-login" style="padding:0">
+      <div class="splash">
+        <div class="splash-logo">🎓</div>
+        <h1 style="color:#fff;font-size:22px;font-weight:500;margin-bottom:6px">Treinamento AutoCare</h1>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin-bottom:28px">Entre com sua conta de prestador para começar a certificação</p>
+        <div style="width:100%;max-width:320px;margin:0 auto">
+          <input id="t-email" type="email" placeholder="Seu e-mail"
+            style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;
+                   margin-bottom:12px;box-sizing:border-box;outline:none">
+          <input id="t-password" type="password" placeholder="Senha"
+            style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;
+                   margin-bottom:8px;box-sizing:border-box;outline:none">
+          <div id="t-login-error" style="color:#ffcccc;font-size:13px;min-height:20px;
+                                       margin-bottom:12px;text-align:center"></div>
+          <button id="t-login-btn" class="btn btn-white" onclick="submitLoginT()" style="width:100%">Entrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="screen full" id="t-dashboard" style="padding:0">
+      <div class="topbar">
+        <h1>Treinamento e Certificação</h1>
+        <span class="back" onclick="doLogoutT()" title="Sair">⎋</span>
+      </div>
+      <div class="t-body">
+        <div id="t-cert-banner"></div>
+        <div id="t-module-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== MÓDULO (VÍDEO) ===== -->
+    <div class="screen full" id="t-module-intro" style="padding:0">
+      <div class="topbar">
+        <span class="back" onclick="goDashboardT()">←</span>
+        <h1 id="t-module-intro-title">Módulo</h1>
+      </div>
+      <div class="t-body">
+        <div id="t-module-overview"></div>
+        <div id="t-module-video-wrap"></div>
+        <button id="t-module-start-quiz-btn" class="btn btn-primary" style="margin-top:14px"
+          onclick="startQuizFromIntroT()" hidden>Iniciar quiz</button>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="screen full" id="t-quiz" style="padding:0">
+      <div class="topbar">
+        <span class="back" onclick="confirmExitQuiz()">←</span>
+        <h1 id="t-quiz-title">Módulo</h1>
+      </div>
+      <div class="t-body">
+        <div id="t-quiz-progress" style="font-size:12px;color:var(--muted);margin-bottom:6px"></div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="t-quiz-progress-fill" style="width:0%"></div></div>
+        <div id="t-quiz-question"></div>
+        <button id="t-quiz-next" class="btn btn-primary" onclick="quizNext()" disabled>Próxima</button>
+      </div>
+    </div>
+
+    <!-- ===== RESULTADO ===== -->
+    <div class="screen full" id="t-result" style="padding:0">
+      <div class="topbar">
+        <h1>Resultado</h1>
+      </div>
+      <div class="t-body">
+        <div id="t-result-content"></div>
+        <button class="btn btn-primary" onclick="goDashboardT()" style="margin-top:8px">Voltar ao painel</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ─── Banco de questões (fonte: training/data/*.json — embutido para funcionar
+    // sem servidor, já que fetch() de arquivo local é bloqueado sob file://) ──────
+    const QUESTION_BANK = {
+      "1": {
+  "modulo": "1",
+  "nome": "Atendimento e Conduta Profissional",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Pontualidade",
+      "pergunta": "Você está a caminho e percebe que vai atrasar 20 minutos. O que fazer?",
+      "alternativas": {
+        "A": "Ligar diretamente para o cliente pelo celular pessoal",
+        "B": "Avisar pelo app antes do horário previsto",
+        "C": "Aguardar chegar e pedir desculpas ao cliente",
+        "D": "Atrasos de até 30 min não precisam de aviso"
+      },
+      "correta": "B",
+      "justificativa": "A comunicação prévia pelo app é obrigatória. Ligar pelo celular pessoal viola a privacidade de dados e não fica registrado na plataforma."
+    },
+    {
+      "id": "Q02",
+      "tema": "Pontualidade",
+      "pergunta": "O cliente liga reclamando que você atrasou 10 minutos. Qual a resposta correta?",
+      "alternativas": {
+        "A": "Diz que o trânsito é imprevisível e que ele deveria entender",
+        "B": "Explica que 10 minutos é dentro da tolerância",
+        "C": "Reconhece o atraso, se desculpa e confirma que está a caminho",
+        "D": "Ignora a ligação e vai direto ao endereço"
+      },
+      "correta": "C",
+      "justificativa": "Reconhecer o erro e comunicar o status atual é o protocolo correto. Justificativas sem pedido de desculpas são percebidas como arrogância."
+    },
+    {
+      "id": "Q03",
+      "tema": "Comunicação",
+      "pergunta": "Antes de iniciar o serviço, qual o primeiro passo obrigatório?",
+      "alternativas": {
+        "A": "Começar imediatamente para não atrasar",
+        "B": "Pedir uma água ao cliente para demonstrar intimidade",
+        "C": "Mostrar o estado atual do veículo ao cliente e tirar a foto no app",
+        "D": "Perguntar se o cliente quer algum serviço extra"
+      },
+      "correta": "C",
+      "justificativa": "Documentar o estado pré-serviço protege o prestador de acusações de danos. A foto no app é obrigatória no checklist."
+    },
+    {
+      "id": "Q04",
+      "tema": "Comunicação",
+      "pergunta": "Durante a execução você encontra um problema além do serviço contratado. O que fazer?",
+      "alternativas": {
+        "A": "Resolve por conta — o cliente vai agradecer depois",
+        "B": "Ignora e foca só no serviço pedido",
+        "C": "Documenta, informa o cliente e aciona o suporte no app",
+        "D": "Combina um valor adicional direto com o cliente"
+      },
+      "correta": "C",
+      "justificativa": "Qualquer desvio do serviço contratado precisa de nova solicitação. Resolver por conta própria ou cobrar diretamente viola os termos da plataforma."
+    },
+    {
+      "id": "Q05",
+      "tema": "Comunicação",
+      "pergunta": "O cliente usa linguagem técnica e diz que quer um \"diagnóstico OBD com leitura de sensores\". Você não sabe ao certo o que isso significa. O que fazer?",
+      "alternativas": {
+        "A": "Confirma que sabe fazer e improvisa na hora",
+        "B": "Diz que não sabe e vai embora",
+        "C": "Pergunta ao cliente o que exatamente ele precisa e, se necessário, aciona o suporte AutoCare",
+        "D": "Aceita o serviço mas avisa que pode demorar mais"
+      },
+      "correta": "C",
+      "justificativa": "Honestidade sobre limitações é sempre melhor do que prometer e errar. O suporte AutoCare pode ajudar na triagem de serviços fora do padrão."
+    },
+    {
+      "id": "Q06",
+      "tema": "Privacidade",
+      "pergunta": "O cliente pede que você busque algo dentro do apartamento enquanto ele atende o telefone. O que fazer?",
+      "alternativas": {
+        "A": "Entra rapidamente — é só um segundo",
+        "B": "Pede ao cliente que pause o telefonema e busque o item",
+        "C": "Espera do lado de fora até o cliente estar disponível",
+        "D": "Entra, mas evita olhar para os objetos pessoais"
+      },
+      "correta": "C",
+      "justificativa": "Minimizar presença dentro do imóvel é regra fundamental. O desconforto gerado por uma entrada não autorizada pode resultar em reclamação formal."
+    },
+    {
+      "id": "Q07",
+      "tema": "Privacidade",
+      "pergunta": "Qual destas perguntas é APROPRIADA fazer ao cliente?",
+      "alternativas": {
+        "A": "Você trabalha fora? A que horas costuma sair?",
+        "B": "Tem mais carros aqui no condomínio?",
+        "C": "O serviço de hoje vai ser pago por você ou por outra pessoa?",
+        "D": "Você mora sozinho aqui?"
+      },
+      "correta": "C",
+      "justificativa": "Perguntas sobre rotina, horários e moradores são invasivas. Perguntar sobre responsabilidade pelo pagamento é pertinente ao serviço."
+    },
+    {
+      "id": "Q08",
+      "tema": "Situações difíceis",
+      "pergunta": "O cliente está visivelmente irritado e fala em tom agressivo desde o início. Qual a melhor abordagem?",
+      "alternativas": {
+        "A": "Responde com firmeza para não parecer fraco",
+        "B": "Vai embora imediatamente",
+        "C": "Mantém o tom calmo, reconhece o estado emocional do cliente e foca no serviço",
+        "D": "Pede ao cliente para se acalmar ou não faz o serviço"
+      },
+      "correta": "C",
+      "justificativa": "Espelhar a agressividade escala o conflito. Manter calma e profissionalismo é o protocolo — e frequentemente resolve a situação sozinho."
+    },
+    {
+      "id": "Q09",
+      "tema": "Situações difíceis",
+      "pergunta": "O cliente ameaça fisicamente o prestador. Qual a ação correta?",
+      "alternativas": {
+        "A": "Tenta acalmar o cliente e continua o serviço",
+        "B": "Encerra o atendimento, vai a um local seguro, aciona a polícia se necessário e reporta no app",
+        "C": "Grava o cliente e posta nas redes sociais",
+        "D": "Chama outros prestadores para ajudar"
+      },
+      "correta": "B",
+      "justificativa": "Segurança física é absoluta e inegociável. Nenhuma avaliação, job ou pagamento vale uma situação de risco real."
+    },
+    {
+      "id": "Q10",
+      "tema": "Encerramento",
+      "pergunta": "Qual a sequência correta ao finalizar um atendimento?",
+      "alternativas": {
+        "A": "Cobra o serviço, agradece e vai embora",
+        "B": "Mostra o resultado, limpa o local, confirma no app, agradece",
+        "C": "Confirma no app, mostra o resultado e pede avaliação",
+        "D": "Limpa o local, tira foto e aguarda o cliente avaliar"
+      },
+      "correta": "B",
+      "justificativa": "A sequência correta garante que o cliente viu o resultado, o local está limpo, e o job está registrado antes de você partir."
+    },
+    {
+      "id": "Q11",
+      "tema": "Encerramento",
+      "pergunta": "O que você NUNCA deve fazer ao encerrar um atendimento?",
+      "alternativas": {
+        "A": "Mostrar a foto \"depois\" ao cliente",
+        "B": "Recolher materiais e embalagens do local",
+        "C": "Pedir explicitamente ao cliente que dê 5 estrelas",
+        "D": "Confirmar a finalização no app"
+      },
+      "correta": "C",
+      "justificativa": "Solicitar avaliação diretamente pode irritar o cliente e gerar o efeito oposto. Um bom serviço bem encerrado gera avaliação positiva naturalmente."
+    },
+    {
+      "id": "Q12",
+      "tema": "Cliente mal-educado",
+      "pergunta": "O cliente usa palavrões e fala em tom desrespeitoso durante todo o serviço. Você deve:",
+      "alternativas": {
+        "A": "Responder com palavrões também para mostrar que não aceita desrespeito",
+        "B": "Manter o tom profissional, finalizar o serviço e reportar no app",
+        "C": "Ir embora imediatamente sem finalizar",
+        "D": "Gravar o cliente sem ele saber"
+      },
+      "correta": "B",
+      "justificativa": "Elevar o tom gera conflito e pode resultar em reclamação sua junto com a do cliente. Reportar no app cria um registro que protege você."
+    },
+    {
+      "id": "Q13",
+      "tema": "Cliente mal-educado",
+      "pergunta": "O cliente critica seu trabalho de forma ofensiva e humilhante. O que fazer?",
+      "alternativas": {
+        "A": "Defende seu trabalho com o mesmo nível de intensidade",
+        "B": "Escuta com calma, pergunta especificamente o que incomodou e aciona o suporte AutoCare se necessário",
+        "C": "Finaliza em silêncio e vai embora sem se despedir",
+        "D": "Devolve o insulto de forma sutil"
+      },
+      "correta": "B",
+      "justificativa": "Perguntar especificamente o que incomodou pode revelar um problema legítimo — ou deixar claro que é uma crítica infundada. De qualquer forma, o suporte AutoCare gerencia isso."
+    },
+    {
+      "id": "Q14",
+      "tema": "Gorjeta",
+      "pergunta": "O cliente fica satisfeito com o serviço e espontaneamente te oferece R$30 de gorjeta. Você:",
+      "alternativas": {
+        "A": "Recusa — a AutoCare não permite gorjetas",
+        "B": "Aceita com naturalidade e agradece",
+        "C": "Aceita mas reporta no app",
+        "D": "Recusa e sugere que avalie com 5 estrelas"
+      },
+      "correta": "B",
+      "justificativa": "Gorjeta espontânea do cliente é permitida. Aceite com naturalidade. Não há nada a reportar nem a recusar — é um gesto do cliente, não uma solicitação sua."
+    },
+    {
+      "id": "Q15",
+      "tema": "Gorjeta",
+      "pergunta": "Você finalizou um serviço excelente. Qual destas frases você pode dizer ao cliente?",
+      "alternativas": {
+        "A": "\"Se quiser deixar uma gorjetinha, fico feliz em aceitar!\"",
+        "B": "\"Normalmente os clientes costumam deixar algo a mais pelo capricho.\"",
+        "C": "\"Foi um prazer! Qualquer necessidade futura, pode me chamar pelo app.\"",
+        "D": "\"Trabalhei muito bem hoje, né? Valeu a pena!\""
+      },
+      "correta": "C",
+      "justificativa": "As opções A e B solicitam ou sugerem gorjeta — proibido e passível de suspensão. A opção C é profissional e fecha o atendimento corretamente."
+    },
+    {
+      "id": "Q16",
+      "tema": "Ameaças/pressão",
+      "pergunta": "O cliente diz: \"Se você não terminar em 10 minutos eu vou dar 1 estrela\". Como responder?",
+      "alternativas": {
+        "A": "Acelera o serviço para evitar a avaliação negativa",
+        "B": "Explica o prazo realista com calma e registra a ameaça no app ao finalizar",
+        "C": "Para tudo e vai embora",
+        "D": "Negocia um desconto em troca de mais tempo"
+      },
+      "correta": "B",
+      "justificativa": "Pressão por avaliação negativa é uma prática que a AutoCare monitora. Registre no app — avaliações com contexto de coerção são analisadas e podem ser removidas."
+    },
+    {
+      "id": "Q17",
+      "tema": "Ameaças/pressão",
+      "pergunta": "O cliente ameaça \"postar nas redes sociais\" se você não der um serviço extra de graça. O que fazer?",
+      "alternativas": {
+        "A": "Faz o serviço extra para evitar exposição",
+        "B": "Explica que serviços extras precisam ser solicitados pelo app e encerra a conversa",
+        "C": "Ameaça também postar sobre o comportamento dele",
+        "D": "Aciona imediatamente a polícia"
+      },
+      "correta": "B",
+      "justificativa": "Ceder a chantagens cria precedente e incentiva o comportamento. O canal correto é o app AutoCare — não redes sociais nem confronto direto."
+    },
+    {
+      "id": "Q18",
+      "tema": "Pagamento",
+      "pergunta": "O cliente propõe: \"Paga direto no meu Pix, sem passar pelo app, e te dou 20% a mais\". O que você faz?",
+      "alternativas": {
+        "A": "Aceita — você recebe mais e o cliente economiza",
+        "B": "Recusa educadamente e explica que todos os pagamentos precisam passar pelo app",
+        "C": "Aceita mas reporta no app depois",
+        "D": "Consulta outros prestadores sobre o que fazer"
+      },
+      "correta": "B",
+      "justificativa": "Pagamento fora da plataforma é proibido independente do valor. Resulta em suspensão imediata. O \"20% a mais\" não compensa a perda do acesso à plataforma."
+    },
+    {
+      "id": "Q19",
+      "tema": "Pagamento",
+      "pergunta": "O serviço foi finalizado mas o cliente diz que não tem como pagar agora e pede para pagar depois diretamente para você. O que fazer?",
+      "alternativas": {
+        "A": "Aceita — o cliente parece honesto",
+        "B": "Aguarda o cliente resolver e só vai embora após confirmação no app",
+        "C": "Reporta ao suporte AutoCare pelo app antes de sair e não aceita pagamento direto",
+        "D": "Deixa o serviço incompleto para garantir o pagamento"
+      },
+      "correta": "C",
+      "justificativa": "O suporte AutoCare gerencia inadimplências. Aceitar \"pagamento depois direto\" é exatamente o que não deve ser feito — além de proibido, você provavelmente não vai receber."
+    },
+    {
+      "id": "Q20",
+      "tema": "Pagamento",
+      "pergunta": "Qual destas afirmações sobre pagamento é VERDADEIRA?",
+      "alternativas": {
+        "A": "Gorjeta espontânea do cliente é proibida pela AutoCare",
+        "B": "Você pode receber até 10% do valor diretamente se o cliente solicitar",
+        "C": "Todos os pagamentos pelos serviços devem passar pela plataforma AutoCare",
+        "D": "Pagamento em dinheiro vivo no local é permitido se o valor for abaixo de R$50"
+      },
+      "correta": "C",
+      "justificativa": "A gorjeta espontânea é permitida (não é pagamento pelo serviço). Qualquer valor relativo ao serviço contratado deve passar pela plataforma, independente de forma ou valor."
+    }
+  ]
+}
+,
+      "2A": {
+  "modulo": "2A",
+  "nome": "Segurança no Trabalho — Geral",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "EPIs",
+      "pergunta": "Qual EPI é obrigatório em QUALQUER serviço AutoCare, sem exceção?",
+      "alternativas": {
+        "A": "Máscara PFF1",
+        "B": "Colete refletivo",
+        "C": "Luvas nitrílicas e calçado fechado antiderrapante",
+        "D": "Joelheira"
+      },
+      "correta": "C",
+      "justificativa": "Luvas e calçado fechado são a base de proteção em todos os serviços --- contato com fluidos e risco de queda estão presentes em qualquer job."
+    },
+    {
+      "id": "Q02",
+      "tema": "EPIs",
+      "pergunta": "Um cliente pede que você tire as luvas para não \"marcar o couro do banco\". O que você faz?",
+      "alternativas": {
+        "A": "Tira as luvas --- o cliente tem razão em se preocupar com o acabamento",
+        "B": "Explica que não pode trabalhar sem luvas e oferece alternativa como luvas de algodão por cima",
+        "C": "Ignora o pedido sem explicar nada",
+        "D": "Desiste do serviço imediatamente"
+      },
+      "correta": "B",
+      "justificativa": "EPIs não são negociáveis a pedido do cliente. A explicação educada com oferta de alternativa é o protocolo correto."
+    },
+    {
+      "id": "Q03",
+      "tema": "EPIs",
+      "pergunta": "Para qual situação a máscara PFF1 é obrigatória?",
+      "alternativas": {
+        "A": "Apenas para funilaria e lixamento",
+        "B": "Qualquer serviço em espaço fechado ou com produto concentrado sem ventilação adequada",
+        "C": "Somente quando há odor forte",
+        "D": "Apenas para eletricistas"
+      },
+      "correta": "B",
+      "justificativa": "Vapores de produtos de limpeza concentrados em espaço fechado acumulam independente de odor. A máscara cirúrgica comum não protege contra vapores."
+    },
+    {
+      "id": "Q04",
+      "tema": "Via pública",
+      "pergunta": "Quantos cones são necessários para trabalho em via pública?",
+      "alternativas": {
+        "A": "1 cone atrás do veículo é suficiente",
+        "B": "2 cones --- um na frente e um atrás",
+        "C": "Mínimo 4 cones --- 2 na frente e 2 atrás, a pelo menos 5 metros",
+        "D": "Cones são recomendados mas não obrigatórios"
+      },
+      "correta": "C",
+      "justificativa": "A sinalização mínima são 4 cones posicionados a pelo menos 5 metros do veículo. Em vias com maior velocidade, a distância deve ser maior."
+    },
+    {
+      "id": "Q05",
+      "tema": "Via pública",
+      "pergunta": "Você chega ao local e o veículo está numa rua sem espaço seguro para trabalhar. O que fazer?",
+      "alternativas": {
+        "A": "Começa o serviço --- vai com cuidado",
+        "B": "Usa só um cone e trabalha rápido para terminar logo",
+        "C": "Avalia o local, e se não houver condições seguras, recusa e reporta no app",
+        "D": "Espera o movimento de carros diminuir"
+      },
+      "correta": "C",
+      "justificativa": "Recusar serviço em local sem condições de segurança é um direito e uma obrigação. Não afeta o score do prestador."
+    },
+    {
+      "id": "Q06",
+      "tema": "Via pública",
+      "pergunta": "Onde o prestador deve se posicionar ao trabalhar em via pública?",
+      "alternativas": {
+        "A": "Do lado da pista, de frente para o trânsito",
+        "B": "Entre o veículo e a calçada, nunca de costas para o trânsito",
+        "C": "Pode ser qualquer lado desde que use o colete",
+        "D": "Atrás do veículo, perto dos cones"
+      },
+      "correta": "B",
+      "justificativa": "A posição entre veículo e calçada é a mais segura --- você está protegido pelo veículo em caso de carro desatento. Nunca de costas para o trânsito."
+    },
+    {
+      "id": "Q07",
+      "tema": "Ergonomia",
+      "pergunta": "Como levantar corretamente uma bateria de carro (aprox. 15 kg)?",
+      "alternativas": {
+        "A": "Curvar a coluna e puxar para cima com os braços",
+        "B": "Dobrar os joelhos, manter coluna reta e usar a força das pernas",
+        "C": "Levantar rapidamente para evitar esforço prolongado",
+        "D": "Pedir para o cliente ajudar sempre"
+      },
+      "correta": "B",
+      "justificativa": "A técnica correta de levantamento protege a coluna lombar, que é a região mais vulnerável. Hérnia de disco é uma das lesões ocupacionais mais comuns."
+    },
+    {
+      "id": "Q08",
+      "tema": "Ergonomia / hidratação",
+      "pergunta": "Você está fazendo um polimento de 3 horas no sol e começa a sentir tontura. O que fazer?",
+      "alternativas": {
+        "A": "Toma um café e continua --- cafeína dá energia",
+        "B": "Ignora --- é normal sentir um pouco de calor",
+        "C": "Para imediatamente, vai para a sombra, senta e bebe água. Se persistir, reporta no app e aciona o SAMU",
+        "D": "Termina o serviço rapidamente e descansa depois"
+      },
+      "correta": "C",
+      "justificativa": "Tontura durante trabalho ao sol é sinal de desidratação ou insolação. Continuar trabalhando aumenta o risco de desmaio com queda sobre o veículo ou ferramentas."
+    },
+    {
+      "id": "Q09",
+      "tema": "Corte",
+      "pergunta": "Você se corta numa borda metálica e começa a sangrar. Qual o primeiro passo?",
+      "alternativas": {
+        "A": "Limpar com álcool diretamente no ferimento",
+        "B": "Pressionar o local com pano limpo por no mínimo 3 minutos contínuos",
+        "C": "Ver o quanto está sangrando antes de decidir o que fazer",
+        "D": "Continuar o serviço e cuidar depois"
+      },
+      "correta": "B",
+      "justificativa": "Pressão contínua é o que interrompe o sangramento. Soltar para \"ver se parou\" desfaz o coágulo que estava se formando."
+    },
+    {
+      "id": "Q10",
+      "tema": "Corte",
+      "pergunta": "O que você NUNCA deve usar num corte aberto?",
+      "alternativas": {
+        "A": "Gaze estéril",
+        "B": "Água limpa corrente",
+        "C": "Álcool diretamente no ferimento aberto",
+        "D": "Esparadrapo"
+      },
+      "correta": "C",
+      "justificativa": "Álcool em ferimento aberto causa dano tecidual e não é mais eficaz que água limpa para limpeza inicial. Aumenta a dor sem benefício adicional."
+    },
+    {
+      "id": "Q11",
+      "tema": "Queimadura",
+      "pergunta": "Respingo de fluido de radiador quente atingiu seu antebraço. O que fazer primeiro?",
+      "alternativas": {
+        "A": "Passar pasta de dente para refrescar",
+        "B": "Água fria corrente por no mínimo 10 minutos",
+        "C": "Gelo diretamente no local para resfriar rápido",
+        "D": "Ignorar se a dor for leve --- fluido de radiador não queima tanto"
+      },
+      "correta": "B",
+      "justificativa": "Água fria corrente por 10 minutos é o único tratamento eficaz no local. Gelo causa queimadura pelo frio. Pasta de dente retém calor e contamina."
+    },
+    {
+      "id": "Q12",
+      "tema": "Queimadura",
+      "pergunta": "Quando ligar para o SAMU (192) após uma queimadura?",
+      "alternativas": {
+        "A": "Sempre --- qualquer queimadura exige socorro",
+        "B": "Nunca --- queimaduras leves passam sozinhas",
+        "C": "Quando a queimadura for maior que a palma da mão, tiver bolhas extensas, ou atingir rosto, mãos ou articulações",
+        "D": "Somente se a pele estiver chamuscada"
+      },
+      "correta": "C",
+      "justificativa": "A regra da palma da mão é um referencial prático: área maior que isso já merece avaliação médica profissional urgente."
+    },
+    {
+      "id": "Q13",
+      "tema": "Inalação",
+      "pergunta": "Ao usar produto concentrado numa garagem fechada você sente tontura e tosse. O que fazer?",
+      "alternativas": {
+        "A": "Abrir uma janela e continuar o serviço",
+        "B": "Sair imediatamente para o ar livre, sentar e respirar fundo",
+        "C": "Tomar água e aguardar passar",
+        "D": "Usar a máscara cirúrgica e continuar"
+      },
+      "correta": "B",
+      "justificativa": "A ação imediata é sair do ambiente --- a máscara cirúrgica não protege contra vapores. Sentar é importante para evitar queda por tontura."
+    },
+    {
+      "id": "Q14",
+      "tema": "Inalação",
+      "pergunta": "Qual máscara protege corretamente contra vapores de produtos de limpeza?",
+      "alternativas": {
+        "A": "Máscara cirúrgica descartável comum",
+        "B": "Máscara de tecido lavável",
+        "C": "Máscara PFF1 ou superior",
+        "D": "Qualquer máscara funciona se cobrir nariz e boca"
+      },
+      "correta": "C",
+      "justificativa": "Máscaras cirúrgicas e de tecido filtram partículas sólidas mas não vapores químicos. PFF1 tem filtração adequada para vapores de produtos de limpeza automotiva."
+    },
+    {
+      "id": "Q15",
+      "tema": "Registro no app",
+      "pergunta": "Você se machuca levemente durante o serviço mas se recupera rapidamente. Deve registrar no app?",
+      "alternativas": {
+        "A": "Não --- acidentes pequenos não precisam de registro",
+        "B": "Somente se precisar de atendimento médico",
+        "C": "Sim --- todo acidente com ferimento deve ser registrado no app, mesmo os pequenos",
+        "D": "Apenas se o cliente presenciou"
+      },
+      "correta": "C",
+      "justificativa": "O registro protege o prestador legalmente se houver qualquer complicação posterior. Acidentes sem registro não têm cobertura de suporte da AutoCare."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "O cliente tem um carro esportivo e diz que a garagem é muito pequena para cones. O que fazer?",
+      "alternativas": {
+        "A": "Trabalha sem cones --- a garagem é fechada de qualquer jeito",
+        "B": "Usa apenas 2 cones dentro da garagem para sinalizar",
+        "C": "Avalia se há circulação de veículos. Se for garagem privada completamente fechada e sem circulação, adapta a sinalização. Se houver qualquer trânsito, exige cones ou recusa",
+        "D": "Decide com base no humor do cliente"
+      },
+      "correta": "C",
+      "justificativa": "Garagem privada completamente fechada sem circulação tem risco menor. Mas qualquer área com circulação de veículos exige sinalização --- não há exceção."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Durante o serviço você inalou produto e passou mal. O cliente sugere que você \"respire um pouco e continue\". O que fazer?",
+      "alternativas": {
+        "A": "Segue o conselho do cliente --- ele está tentando ajudar",
+        "B": "Respira um pouco e tenta voltar ao serviço se a tontura diminuir",
+        "C": "Recusa continuar até estar completamente recuperado, reporta no app e avalia se precisa de atendimento médico",
+        "D": "Vai embora sem avisar o cliente"
+      },
+      "correta": "C",
+      "justificativa": "Sintomas de inalação podem voltar ou piorar. Você não deve voltar ao serviço no mesmo dia em ambiente com vapores. O app AutoCare gerencia a situação com o cliente."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Você não tem todos os EPIs no dia do serviço --- esqueceu as luvas. O que fazer?",
+      "alternativas": {
+        "A": "Faz o serviço sem luvas --- é rápido",
+        "B": "Usa sacolas plásticas improvisadas como proteção",
+        "C": "Reporta no app antes de começar e combina a entrega dos EPIs ou o reagendamento",
+        "D": "Compra luvas descartáveis no caminho sem avisar"
+      },
+      "correta": "C",
+      "justificativa": "Executar serviço sem EPI obrigatório é falta grave. Reportar antes e resolver é o protocolo correto. Comprar as luvas no caminho pode funcionar na prática, mas o registro deve ser feito."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Qual o número correto para acionar o SAMU em caso de acidente grave?",
+      "alternativas": {
+        "A": "190",
+        "B": "193",
+        "C": "192",
+        "D": "197"
+      },
+      "correta": "C",
+      "justificativa": "192 é o SAMU --- Serviço de Atendimento Móvel de Urgência. 190 é a Polícia. 193 são os Bombeiros. Ambos SAMU e Bombeiros atendem emergências médicas."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Ao finalizar um serviço onde houve um pequeno incidente de segurança (que você resolveu sozinho), o que é obrigatório?",
+      "alternativas": {
+        "A": "Nada --- se resolveu sozinho não precisa informar ninguém",
+        "B": "Avisar o cliente verbalmente e ir embora",
+        "C": "Registrar o ocorrido no app AutoCare antes de finalizar o serviço",
+        "D": "Só registrar se o cliente reclamou"
+      },
+      "correta": "C",
+      "justificativa": "Todo incidente de segurança, mesmo resolvido, deve ser registrado no app. Isso cria um histórico que protege o prestador e permite que a AutoCare melhore os processos."
+    }
+  ]
+}
+,
+      "2B": {
+  "modulo": "2B",
+  "nome": "Segurança Elétrica e Química",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Risco elétrico",
+      "pergunta": "Qual é o primeiro passo antes de qualquer trabalho no sistema elétrico de um veículo?",
+      "alternativas": {
+        "A": "Ligar o multímetro para testar a tensão",
+        "B": "Desconectar o polo negativo da bateria",
+        "C": "Verificar se o motor está frio",
+        "D": "Avisar o cliente para ficar longe"
+      },
+      "correta": "B",
+      "justificativa": "Desconectar o polo negativo antes de qualquer intervenção elétrica é a regra fundamental. Elimina o risco de curto-circuito e choque durante o serviço."
+    },
+    {
+      "id": "Q02",
+      "tema": "Risco elétrico",
+      "pergunta": "Ao reconectar a bateria, qual polo deve ser conectado primeiro?",
+      "alternativas": {
+        "A": "Negativo --- mesma ordem da desconexão",
+        "B": "Positivo --- sempre positivo primeiro ao reconectar",
+        "C": "Tanto faz --- o que estiver mais acessível",
+        "D": "Negativo se o motor estiver frio, positivo se estiver quente"
+      },
+      "correta": "B",
+      "justificativa": "A regra é: desconectar = negativo primeiro. Reconectar = positivo primeiro. Essa sequência evita faíscas ao fechar o circuito."
+    },
+    {
+      "id": "Q03",
+      "tema": "Risco elétrico",
+      "pergunta": "Um cliente tem um carro elétrico (EV) e pede um serviço no sistema de carga. O que você faz?",
+      "alternativas": {
+        "A": "Trata como veículo convencional --- é só elétrica",
+        "B": "Usa luvas duplas e prossegue normalmente",
+        "C": "Não inicia o serviço e consulta o suporte AutoCare antes de qualquer intervenção",
+        "D": "Verifica a tensão com multímetro e decide na hora"
+      },
+      "correta": "C",
+      "justificativa": "Veículos elétricos e híbridos podem ter tensão de 400V ou mais --- risco de morte real. Nunca iniciar sem orientação específica. Esta regra não tem exceção."
+    },
+    {
+      "id": "Q04",
+      "tema": "Bateria",
+      "pergunta": "Por que uma bateria pode explodir?",
+      "alternativas": {
+        "A": "Excesso de carga elétrica acumulada nos terminais",
+        "B": "Liberação de gás hidrogênio que se acumula e ignita com faísca",
+        "C": "Temperatura muito alta do ambiente",
+        "D": "Bateria velha perde a estrutura interna e implode"
+      },
+      "correta": "B",
+      "justificativa": "Baterias em carga ou com baixa carga liberam gás hidrogênio --- inodoro, incolor e altamente inflamável. Uma faísca ao conectar os cabos é suficiente para causar explosão com projeção de ácido."
+    },
+    {
+      "id": "Q05",
+      "tema": "Bateria",
+      "pergunta": "Você nota pó branco (sulfatação) nos terminais da bateria. Qual o procedimento correto antes de tocá-los?",
+      "alternativas": {
+        "A": "Soprar o pó para limpar antes de tocar",
+        "B": "Usar luvas e óculos. Limpar com solução de bicarbonato de sódio e água antes de qualquer toque",
+        "C": "Tocar normalmente --- sulfatação é só sujeira",
+        "D": "Molhar com água da torneira para amolecer"
+      },
+      "correta": "B",
+      "justificativa": "Sulfato de chumbo é tóxico e irritante. EPI obrigatório antes de tocar. A solução de bicarbonato neutraliza a acidez residual com segurança."
+    },
+    {
+      "id": "Q06",
+      "tema": "Risco químico",
+      "pergunta": "Qual é a principal diferença entre usar produto de limpeza automotiva diluído vs. concentrado?",
+      "alternativas": {
+        "A": "Nenhuma --- o produto é o mesmo em qualquer concentração",
+        "B": "Produto concentrado exige EPI mais robusto (luvas grossas, máscara com filtro para vapores) e nunca deve ser usado em espaço fechado sem ventilação",
+        "C": "Produto concentrado só é perigoso se ingerido",
+        "D": "Produto diluído é mais perigoso porque mancha a pintura"
+      },
+      "correta": "B",
+      "justificativa": "Concentração altera drasticamente o risco de dano químico à pele, olhos e vias respiratórias. Os EPIs do Módulo 2A (luvas nitrílicas finas) podem não ser suficientes para produtos concentrados."
+    },
+    {
+      "id": "Q07",
+      "tema": "Risco químico",
+      "pergunta": "Ao diluir um produto concentrado, qual é a ordem correta?",
+      "alternativas": {
+        "A": "Colocar o produto na água",
+        "B": "Colocar a água no produto",
+        "C": "Pode ser qualquer ordem",
+        "D": "Agitar o produto primeiro e depois adicionar água"
+      },
+      "correta": "A",
+      "justificativa": "A regra química universal: sempre adicione o produto concentrado na água, nunca o contrário. Adicionar água a ácido concentrado causa reação exotérmica violenta (calor e respingo)."
+    },
+    {
+      "id": "Q08",
+      "tema": "Choque --- socorro",
+      "pergunta": "Seu assistente recebe um choque e está em contato com o cabo energizado. Qual é a primeira ação?",
+      "alternativas": {
+        "A": "Agarrá-lo pelos ombros e afastá-lo do cabo",
+        "B": "Desligar a fonte de energia ou usar objeto não-condutor para afastá-lo",
+        "C": "Ligar imediatamente para o 192 antes de qualquer coisa",
+        "D": "Chamar o cliente para ajudar a segurar"
+      },
+      "correta": "B",
+      "justificativa": "Tocar a vítima em contato com fonte elétrica transmite o choque para você. Primeiro desligue a fonte --- polo negativo ou ignição. Só então toque a vítima."
+    },
+    {
+      "id": "Q09",
+      "tema": "Choque --- socorro",
+      "pergunta": "Após desconectar a fonte elétrica, a vítima de choque está consciente e diz que está bem. O que fazer?",
+      "alternativas": {
+        "A": "Deixar ela voltar ao trabalho se se sentir bem",
+        "B": "Dar água e aguardar 10 minutos para ver se passa",
+        "C": "Acionar 192 de qualquer forma --- dano cardíaco por choque pode ser silencioso e surgir horas depois",
+        "D": "Verificar se há queimaduras visíveis e, se não houver, encerrar o atendimento"
+      },
+      "correta": "C",
+      "justificativa": "Choque elétrico pode causar arritmia cardíaca sem sintomas imediatos. A vítima deve ser avaliada por médico independente de como se sentir no momento."
+    },
+    {
+      "id": "Q10",
+      "tema": "Ácido --- socorro",
+      "pergunta": "Respingo de ácido de bateria na pele. Por quanto tempo lavar com água?",
+      "alternativas": {
+        "A": "2 minutos é suficiente",
+        "B": "5 minutos",
+        "C": "No mínimo 20 minutos de água fria corrente",
+        "D": "Até a ardência parar"
+      },
+      "correta": "C",
+      "justificativa": "20 minutos é o tempo mínimo para lavagem de contato com ácido na pele. Parar antes aumenta o risco de dano profundo ao tecido."
+    },
+    {
+      "id": "Q11",
+      "tema": "Ácido --- socorro",
+      "pergunta": "Respingo de ácido de bateria no olho. Você deve:",
+      "alternativas": {
+        "A": "Iniciar lavagem com água por 15--20 min e ligar 192 durante a lavagem",
+        "B": "Colocar colírio para neutralizar e aguardar",
+        "C": "Esfregar levemente para remover o líquido",
+        "D": "Tampar o olho e ir ao pronto-socorro sem lavar"
+      },
+      "correta": "A",
+      "justificativa": "Lavagem imediata e prolongada é a única intervenção eficaz no local. Colírio antes de avaliação médica pode interferir no diagnóstico. Esfregar aumenta o dano."
+    },
+    {
+      "id": "Q12",
+      "tema": "Inalação grave",
+      "pergunta": "Qual é o número do CIATox para orientação sobre intoxicação química?",
+      "alternativas": {
+        "A": "192",
+        "B": "193",
+        "C": "0800 722 6001",
+        "D": "0800 591 1234"
+      },
+      "correta": "C",
+      "justificativa": "CIATox --- Centro de Informação e Assistência Toxicológica --- é gratuito, funciona 24 horas e conta com toxicologistas para orientar sobre qualquer produto específico. É diferente do SAMU, que cuida do socorro físico."
+    },
+    {
+      "id": "Q13",
+      "tema": "Descarte",
+      "pergunta": "Onde descartar óleo de motor usado corretamente?",
+      "alternativas": {
+        "A": "No ralo com bastante água para diluir",
+        "B": "No lixo comum em saco plástico fechado",
+        "C": "Em posto de combustível (obrigado a receber) ou ecoponto municipal",
+        "D": "No esgoto --- vai para tratamento de qualquer forma"
+      },
+      "correta": "C",
+      "justificativa": "1 litro de óleo usado contamina até 1 milhão de litros de água. Postos de combustível são legalmente obrigados a receber óleo usado sem custo."
+    },
+    {
+      "id": "Q14",
+      "tema": "Descarte",
+      "pergunta": "Como descartar corretamente uma embalagem de produto químico vazia?",
+      "alternativas": {
+        "A": "Lixo comum direto",
+        "B": "Tríplice lavagem (3x com água), depois lixo comum",
+        "C": "Queimar junto com outros resíduos de trabalho",
+        "D": "Devolver ao fornecedor em qualquer situação"
+      },
+      "correta": "B",
+      "justificativa": "A tríplice lavagem remove os resíduos do produto e torna a embalagem apta para lixo comum. Sem a lavagem, a embalagem tem resíduo perigoso e não pode ir ao lixo comum."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Por que desconectar o polo negativo antes de trabalhar no sistema elétrico, mesmo em serviços \"simples\" como trocar uma lâmpada?",
+      "alternativas": {
+        "A": "Faz parte do protocolo mas na prática não muda nada",
+        "B": "Evita curto-circuito que pode danificar módulos eletrônicos, causar incêndio e queimaduras --- independente do tamanho do serviço",
+        "C": "Só é necessário em carros mais antigos",
+        "D": "Apenas para proteger o voltímetro do prestador"
+      },
+      "correta": "B",
+      "justificativa": "Sistemas elétricos modernos têm módulos sensíveis e correntes altas. Curto em qualquer ponto pode causar dano irreversível --- ao veículo e ao prestador."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Você vai fazer troca de bateria e esqueceu as luvas. O que fazer?",
+      "alternativas": {
+        "A": "Trabalha sem luvas --- é só uma bateria",
+        "B": "Usa sacolas plásticas como improviso",
+        "C": "Reporta no app, explica ao cliente e só prossegue se conseguir luvas adequadas antes de começar",
+        "D": "Usa apenas uma luva --- pelo menos uma mão fica protegida"
+      },
+      "correta": "C",
+      "justificativa": "Bateria sem luvas = exposição a ácido e sulfatação. Não há improviso aceitável para EPI em trabalho com bateria. Reportar e resolver é o protocolo correto."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Um Detailer está aplicando produto em garagem fechada e sente dor de cabeça após 15 minutos. O que fazer?",
+      "alternativas": {
+        "A": "Termina rápido --- já está quase no final",
+        "B": "Abre uma fresta na porta e continua",
+        "C": "Para imediatamente, vai ao ar livre, senta e avalia. Se não melhorar em 5 min, aciona 192",
+        "D": "Toma um analgésico e continua"
+      },
+      "correta": "C",
+      "justificativa": "Dor de cabeça durante aplicação de solventes é sintoma de inalação em curso. A concentração continua aumentando no ambiente fechado --- o risco piora se você continuar."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Após troca de óleo, o cliente pede para você descartar o óleo velho no ralo da garagem. O que fazer?",
+      "alternativas": {
+        "A": "Atende o pedido --- a decisão é do cliente no imóvel dele",
+        "B": "Explica que descarte no ralo é infração ambiental e que levará o óleo para descarte correto",
+        "C": "Despeja metade e leva o resto",
+        "D": "Coloca o óleo num saco plástico e joga no lixo comum"
+      },
+      "correta": "B",
+      "justificativa": "O prestador é responsável pelo descarte correto dos resíduos que gerou, independente do que o cliente solicitar. Descarte no ralo é infração ambiental --- não importa quem pediu."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Funileiro percebe que o produto de primer que vai usar é corrosivo mas não tem óculos de proteção. O que fazer?",
+      "alternativas": {
+        "A": "Usa óculos de sol --- protege parcialmente",
+        "B": "Aplica com cuidado evitando respingos",
+        "C": "Não inicia o serviço com produto corrosivo sem EPI ocular adequado. Reporta no app e resolve antes de começar",
+        "D": "Pede ao cliente um óculos emprestado"
+      },
+      "correta": "C",
+      "justificativa": "Primer corrosivo sem óculos de proteção = risco de dano ocular permanente. Não há workaround aceitável para este EPI em serviço com produto corrosivo."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual informação você deve passar ao CIATox ao ligar?",
+      "alternativas": {
+        "A": "Apenas seu nome e CPF",
+        "B": "O nome comercial ou composição do produto envolvido, a rota de exposição (pele, olho, inalação) e os sintomas",
+        "C": "Só os sintomas --- o produto não importa para eles",
+        "D": "O número do job no app AutoCare"
+      },
+      "correta": "B",
+      "justificativa": "O CIATox precisa saber o produto específico para dar orientação precisa --- cada substância tem tratamento diferente. Nome comercial ou composição química + rota de exposição + sintomas são as informações essenciais."
+    }
+  ]
+}
+,
+      "3": {
+  "modulo": "3",
+  "nome": "Descarte Responsável",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Responsab.",
+      "pergunta": "Após uma troca de óleo, o cliente diz que vai descartar o óleo usado ele mesmo. Você pode deixar o óleo com ele e considerar sua responsabilidade encerrada?",
+      "alternativas": {
+        "A": "Sim --- a partir do momento que o cliente aceita, a responsabilidade passa para ele",
+        "B": "Sim, se o cliente assinar um termo de responsabilidade",
+        "C": "Não --- o prestador permanece responsável até que o resíduo chegue ao ponto de coleta correto",
+        "D": "Sim, se fotografar o cliente com o óleo antes de ir embora"
+      },
+      "correta": "C",
+      "justificativa": "A responsabilidade do gerador não se transfere verbalmente para o cliente. O prestador deve garantir o descarte correto ou registrar formalmente no app que o cliente assumiu a responsabilidade."
+    },
+    {
+      "id": "Q02",
+      "tema": "Responsab.",
+      "pergunta": "Qual legislação brasileira torna o descarte incorreto de resíduos perigosos um crime?",
+      "alternativas": {
+        "A": "Código de Defesa do Consumidor",
+        "B": "Lei 9.605/98 --- Lei de Crimes Ambientais",
+        "C": "Código de Trânsito Brasileiro",
+        "D": "CLT --- Consolidação das Leis do Trabalho"
+      },
+      "correta": "B",
+      "justificativa": "A Lei 9.605/98 prevê multa e até detenção para quem causa poluição ambiental, incluindo descarte incorreto de resíduos perigosos como óleo e baterias."
+    },
+    {
+      "id": "Q03",
+      "tema": "Óleo e fluidos",
+      "pergunta": "Onde descartar óleo de motor usado em São Paulo?",
+      "alternativas": {
+        "A": "No ralo da pia com bastante água para diluir",
+        "B": "Posto de combustível --- obrigado por lei a receber gratuitamente",
+        "C": "Ecoponto municipal --- único local autorizado",
+        "D": "No lixo comum em recipiente bem fechado"
+      },
+      "correta": "B",
+      "justificativa": "Postos de combustível em SP têm obrigação legal de receber óleo usado sem custo. É o ponto de coleta mais acessível e disponível em praticamente todo o estado."
+    },
+    {
+      "id": "Q04",
+      "tema": "Óleo e fluidos",
+      "pergunta": "Por que o óleo usado não pode ser misturado com outros líquidos antes do descarte?",
+      "alternativas": {
+        "A": "Pode ser misturado sem problema se for em pequena quantidade",
+        "B": "A mistura contamina o óleo e impede a reciclagem, além de dificultar o tratamento do resíduo",
+        "C": "É apenas uma preferência dos postos de coleta",
+        "D": "Aumenta o volume e dificulta o transporte"
+      },
+      "correta": "B",
+      "justificativa": "Óleo contaminado com água ou outros fluidos não pode ser reciclado. O processo de reciclagem exige óleo puro --- a mistura transforma um resíduo reciclável em resíduo perigoso sem destinação."
+    },
+    {
+      "id": "Q05",
+      "tema": "Óleo e fluidos",
+      "pergunta": "Água de lavagem com produto biodegradável bem diluído pode ser descartada:",
+      "alternativas": {
+        "A": "Diretamente na sarjeta ou rua",
+        "B": "Na rede de esgoto --- pelo ralo da pia",
+        "C": "No solo do jardim do cliente",
+        "D": "Em qualquer recipiente para coleta posterior"
+      },
+      "correta": "B",
+      "justificativa": "Produto biodegradável diluído no esgoto tratado é seguro --- a estação de tratamento consegue processar. Na sarjeta, vai direto para galeria pluvial sem tratamento, contaminando rios."
+    },
+    {
+      "id": "Q06",
+      "tema": "Resíduos sólidos",
+      "pergunta": "Como deve ser descartada uma embalagem de produto de limpeza automotivo que ainda tem resíduo?",
+      "alternativas": {
+        "A": "Lixo comum --- embalagem plástica é reciclável",
+        "B": "Tríplice lavagem antes de qualquer descarte. Se ainda tiver produto, leva para ecoponto",
+        "C": "Quebrar a embalagem para reduzir volume e jogar no lixo",
+        "D": "Queimar junto com outros resíduos do trabalho"
+      },
+      "correta": "B",
+      "justificativa": "Embalagem com resíduo químico não vai para lixo comum. Tríplice lavagem remove o resíduo e libera a embalagem para lixo comum. Resíduo líquido restante vai para ecoponto."
+    },
+    {
+      "id": "Q07",
+      "tema": "Resíduos sólidos",
+      "pergunta": "O que é a tríplice lavagem de embalagem?",
+      "alternativas": {
+        "A": "Lavar a embalagem três vezes na torneira com água e sabão",
+        "B": "Encher um terço com água, agitar, despejar no esgoto --- repetir 3 vezes, depois lacrar",
+        "C": "Mergulhar a embalagem em balde de água por 3 minutos",
+        "D": "Qualquer lavagem realizada três dias seguidos"
+      },
+      "correta": "B",
+      "justificativa": "A tríplice lavagem é o método oficial de descontaminação de embalagens de produtos químicos. Três ciclos de um terço de volume garantem a remoção do resíduo."
+    },
+    {
+      "id": "Q08",
+      "tema": "Bateria",
+      "pergunta": "Para onde vai uma bateria de carro velha após a troca?",
+      "alternativas": {
+        "A": "Lixo eletrônico comum --- é um componente elétrico",
+        "B": "Lixo comum em saco plástico resistente",
+        "C": "De volta à loja onde comprou a nova --- ela é obrigada a receber",
+        "D": "Ecoponto municipal --- único local autorizado"
+      },
+      "correta": "C",
+      "justificativa": "Lojas que vendem baterias são obrigadas por lei a receber as velhas para destinação correta. É o canal mais simples e disponível --- e funciona mesmo sem nota fiscal."
+    },
+    {
+      "id": "Q09",
+      "tema": "Bateria e elétricos",
+      "pergunta": "Qual o descarte correto de lâmpadas de LED queimadas?",
+      "alternativas": {
+        "A": "Lixo comum --- LED não tem substâncias perigosas",
+        "B": "Pontos de coleta específicos em farmácias ou supermercados",
+        "C": "Lixo eletrônico junto com celulares velhos",
+        "D": "Devolver ao fabricante por correio"
+      },
+      "correta": "B",
+      "justificativa": "LEDs contêm componentes que não devem ir para aterro comum. Farmácias e supermercados geralmente têm coletores específicos. Consulte o app Ecopontos SP para locais próximos."
+    },
+    {
+      "id": "Q10",
+      "tema": "Pontos de coleta",
+      "pergunta": "Qual app gratuito mostra pontos de coleta de resíduos em São Paulo?",
+      "alternativas": {
+        "A": "Coleta Fácil SP",
+        "B": "Ecopontos SP",
+        "C": "Descarte Verde",
+        "D": "RecicloMaps"
+      },
+      "correta": "B",
+      "justificativa": "O app Ecopontos SP da Prefeitura de São Paulo mostra pontos de coleta por tipo de resíduo com endereço, horário e o que cada ponto aceita."
+    },
+    {
+      "id": "Q11",
+      "tema": "Pontos de coleta",
+      "pergunta": "Um posto de combustível recusa receber seu óleo usado. O que fazer?",
+      "alternativas": {
+        "A": "Desistir e jogar o óleo no ralo em casa",
+        "B": "Aceitar --- o posto não é obrigado a receber",
+        "C": "Pedir pelo gerente, mencionar a obrigação legal. Se mantiver a recusa, reportar no app AutoCare e ir a outro posto ou ecoponto",
+        "D": "Deixar o óleo na calçada do posto"
+      },
+      "correta": "C",
+      "justificativa": "A obrigação dos postos de receber óleo usado é legal --- não é opção. Se recusarem, você tem o direito de insistir e de reportar a irregularidade."
+    },
+    {
+      "id": "Q12",
+      "tema": "Kit de descarte",
+      "pergunta": "Qual o item MAIS importante do kit de descarte que todo prestador deve ter no carro?",
+      "alternativas": {
+        "A": "Luva extra para manuseio de resíduos",
+        "B": "Garrafa PET fechada e identificada para óleo usado",
+        "C": "Saco de lixo colorido para separação",
+        "D": "Formulário de registro de descarte"
+      },
+      "correta": "B",
+      "justificativa": "A garrafa PET para óleo é o item que evita o descarte incorreto mais comum e de maior impacto ambiental. Sem ela, a tentação de jogar no ralo é grande --- e o dano é enorme."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Você não tem recipiente para o óleo usado ao chegar no serviço. O que fazer?",
+      "alternativas": {
+        "A": "Faz a troca e improvisa jogando no ralo depois",
+        "B": "Pede um recipiente emprestado ao cliente para levar",
+        "C": "Não inicia a troca de óleo sem o recipiente adequado. Reporta no app e resolve antes de começar",
+        "D": "Usa o saco plástico do lixo do cliente para carregar o óleo"
+      },
+      "correta": "C",
+      "justificativa": "Sem recipiente = sem serviço. Saco plástico vaza, não é recipiente seguro para óleo. O prestador precisa estar equipado antes de sair para o job."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "O cliente insiste que você deixe o pneu velho com ele pois \"tem uma borracharia do lado\". O que fazer?",
+      "alternativas": {
+        "A": "Aceita --- a responsabilidade passa para o cliente",
+        "B": "Deixa o pneu e registra no app que o cliente assumiu a responsabilidade",
+        "C": "Explica que é responsabilidade do gerador até o descarte correto. Se o cliente assumir formalmente, registra no app e obtém confirmação",
+        "D": "Leva o pneu de volta sem discussão"
+      },
+      "correta": "C",
+      "justificativa": "Se o cliente se comprometer a descartar corretamente, o registro no app cria um rastro de responsabilidade. Sem esse registro, o prestador continua exposto."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Detailer usa produto de cera ácida e ao enxaguar o carro, a água escorre para a sarjeta. Ele deve:",
+      "alternativas": {
+        "A": "Não se preocupar --- água com cera ácida dilui rápido",
+        "B": "Avisar o cliente e pedir desculpas --- é tudo que pode fazer",
+        "C": "Usar balde para conter a água de enxágue de produtos ácidos e descartar no esgoto. Para próximos serviços, planejar o descarte da água com antecedência",
+        "D": "Só se preocupar se alguém reclamar"
+      },
+      "correta": "C",
+      "justificativa": "Produto ácido vai para galeria pluvial sem tratamento e contamina diretamente o sistema hídrico. A contenção com balde é o procedimento correto para produtos agressivos."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Após uma troca de filtro de ar e óleo, você tem: filtro usado, embalagem do filtro novo e 4L de óleo usado. Qual a ordem de prioridade de descarte?",
+      "alternativas": {
+        "A": "Óleo no posto, filtro no lixo embalado, embalagem no lixo após verificar se está vazia",
+        "B": "Tudo no mesmo saco plástico --- vai para o lixo comum",
+        "C": "Óleo no ralo, o resto no lixo --- é quantidade pequena",
+        "D": "Deixar tudo no lixo do cliente pois é lixo gerado no serviço dele"
+      },
+      "correta": "A",
+      "justificativa": "Óleo é o mais crítico --- posto de combustível imediatamente. Filtro embalado pode ir ao lixo comum. Embalagem vazia do filtro também, desde que sem resíduo."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Um cliente pede para você jogar os resíduos do serviço no lixo da rua pois \"é lixo reciclável de qualquer forma\". Você deve:",
+      "alternativas": {
+        "A": "Aceitar --- o cliente conhece melhor as regras do bairro",
+        "B": "Verificar se o lixo da rua tem coleta seletiva antes de decidir",
+        "C": "Recusar --- resíduos automotivos como óleo e filtros não vão para lixo de rua independente da coleta",
+        "D": "Aceitar apenas para os resíduos sólidos, não para líquidos"
+      },
+      "correta": "C",
+      "justificativa": "Coleta seletiva de rua não aceita resíduos contaminados com óleo ou substâncias químicas. Esses resíduos contaminam todo o lote de reciclagem."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Você trouxe o óleo usado do último serviço e o posto mais próximo está fechado. O que fazer?",
+      "alternativas": {
+        "A": "Jogar no ralo em casa --- é só um pouco",
+        "B": "Guardar o óleo no porta-malas até encontrar um posto aberto --- pode ser no próximo abastecimento",
+        "C": "Jogar no lixo comum bem embalado",
+        "D": "Deixar o recipiente na porta do posto"
+      },
+      "correta": "B",
+      "justificativa": "Armazenar temporariamente no porta-malas é a solução correta. O óleo em recipiente fechado não oferece risco enquanto aguarda o descarte correto."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Qual destes resíduos pode ir para o lixo comum sem nenhum tratamento prévio?",
+      "alternativas": {
+        "A": "Embalagem de solvente com resíduo",
+        "B": "Filtro de óleo sem embrulho",
+        "C": "Resíduos de lixamento embalados em saco plástico fechado",
+        "D": "Água de lavagem com produto concentrado"
+      },
+      "correta": "C",
+      "justificativa": "Resíduos de lixamento (pó, limalha) em pequeno volume, devidamente embalados, podem ir para o lixo comum. Os outros itens requerem tratamento ou ponto de coleta específico."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual é a consequência legal para o prestador que descarta óleo usado no ralo repetidamente?",
+      "alternativas": {
+        "A": "Nenhuma --- é responsabilidade da empresa de saneamento tratar o esgoto",
+        "B": "Apenas advertência informal da AutoCare",
+        "C": "Pode configurar crime ambiental com multa e detenção conforme a Lei de Crimes Ambientais",
+        "D": "Somente multa municipal sem registro criminal"
+      },
+      "correta": "C",
+      "justificativa": "A Lei 9.605/98 prevê detenção de 1 a 4 anos e multa para quem polui recursos hídricos com substâncias perigosas. Descarte frequente de óleo no ralo é exatamente esse caso."
+    }
+  ]
+}
+,
+      "4": {
+  "modulo": "4",
+  "nome": "Responsabilidade sobre o Veículo",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Foto antes",
+      "pergunta": "Por que a foto \"antes\" é obrigatória antes de qualquer serviço?",
+      "alternativas": {
+        "A": "É uma formalidade burocrática da AutoCare sem impacto prático",
+        "B": "Documenta o estado do veículo antes do serviço, protegendo o prestador de acusações de danos pré-existentes",
+        "C": "Serve apenas para o cliente ter registro do estado do carro",
+        "D": "É opcional para serviços rápidos de menos de 30 minutos"
+      },
+      "correta": "B",
+      "justificativa": "Sem a foto antes, qualquer dano pré-existente pode ser atribuído ao prestador após o serviço. Com ela, há evidência datada e geolocada do estado real do veículo antes da intervenção."
+    },
+    {
+      "id": "Q02",
+      "tema": "Foto antes",
+      "pergunta": "O cliente pede para você começar logo e diz que não precisa de foto. O que você faz?",
+      "alternativas": {
+        "A": "Começa o serviço --- o cliente tem razão, é desnecessário",
+        "B": "Explica que a foto é obrigatória e parte do protocolo AutoCare --- não pode ser pulada, independente do pedido",
+        "C": "Pula a foto mas documenta verbalmente que o cliente pediu",
+        "D": "Pula a foto pois a solicitação foi do cliente, eximindo sua responsabilidade"
+      },
+      "correta": "B",
+      "justificativa": "Nenhum cliente pode dispensar o protocolo obrigatório. A foto protege ambos os lados --- inclusive o cliente, que também fica protegido de um prestador desonesto."
+    },
+    {
+      "id": "Q03",
+      "tema": "Foto antes",
+      "pergunta": "Você chega ao serviço e nota um arranhão profundo na lateral que claramente é anterior. O que fazer antes de fotografar?",
+      "alternativas": {
+        "A": "Fotografar sem mencionar ao cliente --- está documentado, não precisa falar",
+        "B": "Apontar o arranhão ao cliente antes de fotografar e dizer que vai documentar como pré-existente",
+        "C": "Ignorar --- não é sua responsabilidade identificar danos anteriores",
+        "D": "Recusar o serviço --- dano pré-existente significa que o veículo está comprometido"
+      },
+      "correta": "B",
+      "justificativa": "Apontar o dano ao cliente antes de documentar cria transparência imediata e evita qualquer mal-entendido posterior. O cliente sabe que você viu --- e que você documentou."
+    },
+    {
+      "id": "Q04",
+      "tema": "Limites",
+      "pergunta": "Durante a troca de óleo você nota que a mangueira do radiador está ressecada e prestes a romper. O que fazer?",
+      "alternativas": {
+        "A": "Troca a mangueira também --- o cliente vai agradecer",
+        "B": "Ignora --- não foi contratado para isso",
+        "C": "Documenta com foto, informa o cliente sobre o risco e sugere que abra um novo pedido no app para esse serviço",
+        "D": "Cobra diretamente do cliente pela troca da mangueira"
+      },
+      "correta": "C",
+      "justificativa": "Informar é obrigatório --- ignorar seria negligência. Mas intervir sem autorização é extrapolar o escopo. O caminho correto é documentar, informar e criar um novo pedido formalizado."
+    },
+    {
+      "id": "Q05",
+      "tema": "Limites",
+      "pergunta": "O cliente pede verbalmente um serviço extra após você já ter chegado. Qual a resposta correta?",
+      "alternativas": {
+        "A": "Faz o serviço extra --- é rápido e o cliente ficará satisfeito",
+        "B": "Recusa completamente --- não foi combinado",
+        "C": "Explica que pode inspecionar visualmente, mas qualquer intervenção exige novo pedido no app",
+        "D": "Faz o serviço e cobra diretamente do cliente em dinheiro"
+      },
+      "correta": "C",
+      "justificativa": "Serviço não registrado no app não tem cobertura, garantia nem proteção para nenhuma das partes. Inspeção visual informal é permitida --- intervenção técnica não."
+    },
+    {
+      "id": "Q06",
+      "tema": "Dano causado",
+      "pergunta": "Você acidentalmente risca a lataria durante o serviço. Qual é o primeiro passo imediato?",
+      "alternativas": {
+        "A": "Tentar polir o risco antes que o cliente veja",
+        "B": "Parar o serviço e fotografar o dano imediatamente",
+        "C": "Continuar o serviço e mencionar ao finalizar",
+        "D": "Avaliar se o dano é suficientemente grande para merecer ser reportado"
+      },
+      "correta": "B",
+      "justificativa": "Fotografar imediatamente documenta a extensão real do dano no momento em que ocorreu --- antes de qualquer alteração. Todo dano, independente do tamanho, deve ser fotografado e reportado."
+    },
+    {
+      "id": "Q07",
+      "tema": "Dano causado",
+      "pergunta": "Após fotografar o dano que causou, qual é o próximo passo?",
+      "alternativas": {
+        "A": "Oferecer um valor de indenização ao cliente para resolver rapidamente",
+        "B": "Comunicar ao cliente de forma direta e factual, e reportar no app antes de sair",
+        "C": "Minimizar o dano na conversa para reduzir o impacto na avaliação",
+        "D": "Ir embora e deixar o suporte AutoCare contatar o cliente"
+      },
+      "correta": "B",
+      "justificativa": "A comunicação direta ao cliente e o reporte no app são obrigatórios. Oferecer indenização por conta própria pode criar problemas legais adicionais --- a AutoCare conduz esse processo."
+    },
+    {
+      "id": "Q08",
+      "tema": "Problema encontrado",
+      "pergunta": "Qual é a diferença entre \"problema encontrado\" e \"dano causado\" na prática?",
+      "alternativas": {
+        "A": "São a mesma coisa --- qualquer problema no veículo após o serviço é responsabilidade do prestador",
+        "B": "Problema encontrado é pré-existente e deve ser comunicado ao cliente. Dano causado ocorreu durante o serviço e exige o protocolo de reporte imediato.",
+        "C": "Problema encontrado não precisa ser reportado --- só dano causado",
+        "D": "A distinção não importa --- ambos seguem o mesmo protocolo"
+      },
+      "correta": "B",
+      "justificativa": "Confundir os dois cria problemas desnecessários. Informar problema pré-existente é transparência e proteção mútua. Dano causado é responsabilidade direta que exige protocolo específico."
+    },
+    {
+      "id": "Q09",
+      "tema": "Garantia",
+      "pergunta": "Um cliente reclama 25 dias após o serviço que o problema voltou. O que acontece?",
+      "alternativas": {
+        "A": "Já passou muito tempo --- a reclamação não é mais válida",
+        "B": "O cliente está dentro do prazo de 30 dias de garantia. A AutoCare abre uma análise e o prestador será contactado",
+        "C": "O prestador é automaticamente responsabilizado e deve refazer o serviço sem custo",
+        "D": "A garantia só vale para os primeiros 7 dias"
+      },
+      "correta": "B",
+      "justificativa": "30 dias de garantia --- o cliente está no prazo. A AutoCare analisa com base na documentação do serviço. Prestador com checklist completo e fotos tem muito mais chance de resultado favorável."
+    },
+    {
+      "id": "Q10",
+      "tema": "Garantia",
+      "pergunta": "O que protege o prestador numa análise de garantia da AutoCare?",
+      "alternativas": {
+        "A": "O tempo de cadastro na plataforma",
+        "B": "A avaliação média histórica do prestador",
+        "C": "Checklist completo no app, fotos antes e depois, e anotações do serviço",
+        "D": "A ausência de reclamações anteriores"
+      },
+      "correta": "C",
+      "justificativa": "Documentação é a proteção concreta. Prestador sem fotos e sem checklist não tem como demonstrar o que foi feito --- e fica vulnerável independente de ter feito tudo certo."
+    },
+    {
+      "id": "Q11",
+      "tema": "Comunicação",
+      "pergunta": "Qual frase é um exemplo correto de comunicação preventiva antes de iniciar o serviço?",
+      "alternativas": {
+        "A": "\"Pode ser que eu cause algum arranhão --- é normal no processo\"",
+        "B": "\"Vou fazer um registro fotográfico do veículo antes de iniciar --- é padrão AutoCare e protege os dois\"",
+        "C": "\"Se tiver algum problema me avisa depois\"",
+        "D": "\"O senhor assina aqui confirmando que o carro estava com esses danos antes?\""
+      },
+      "correta": "B",
+      "justificativa": "A frase correta é informativa, profissional e coloca o protocolo como proteção mútua --- não como desconfiança ou burocracia. As outras opções criam desconforto ou problemas."
+    },
+    {
+      "id": "Q12",
+      "tema": "Checklist",
+      "pergunta": "Qual item do checklist pós-serviço é mais crítico para a segurança do cliente?",
+      "alternativas": {
+        "A": "Verificar se todas as ferramentas foram recolhidas",
+        "B": "Verificar se não há vazamentos novos no veículo antes de liberar",
+        "C": "Fotografar o resultado do serviço",
+        "D": "Confirmar a finalização no app"
+      },
+      "correta": "B",
+      "justificativa": "Vazamento não identificado antes da liberação pode causar dano ao motor ou falha de freio em movimento --- risco de vida. É o item com maior consequência potencial se ignorado."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Você está no meio do serviço e nota que acidentalmente tocou no para-choque com a caixa de ferramentas, mas não há marca visível. Deve reportar?",
+      "alternativas": {
+        "A": "Não --- se não há marca visível, não há dano",
+        "B": "Sim --- qualquer contato físico não intencional deve ser registrado como precaução",
+        "C": "Só se o cliente perguntar diretamente",
+        "D": "Depende do valor do veículo"
+      },
+      "correta": "B",
+      "justificativa": "Registrar mesmo sem marca visível protege o prestador caso o cliente alegue depois que havia uma marca. A transparência imediata sempre pesa positivamente na análise da AutoCare."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "O cliente diz que o carro estava bem antes do serviço e agora está fazendo um barulho novo. Você tem certeza que não causou nada. O que fazer?",
+      "alternativas": {
+        "A": "Defender sua posição verbalmente e ir embora",
+        "B": "Negar qualquer responsabilidade e bloquear o cliente no app",
+        "C": "Apresentar as fotos antes e depois, o checklist completo, e deixar a AutoCare conduzir a análise técnica",
+        "D": "Oferecer um valor para o cliente ficar quieto"
+      },
+      "correta": "C",
+      "justificativa": "A documentação completa fala por você. Deixar a AutoCare conduzir é o protocolo correto --- é exatamente para isso que existe o sistema de resolução."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Após uma troca de filtro de ar, o cliente relata que o capô não fecha direito. O que fazer?",
+      "alternativas": {
+        "A": "Dizer que o capô não tem nada a ver com o filtro de ar",
+        "B": "Verificar imediatamente --- mesmo que improvável, o prestador mexeu na área do capô e deve garantir que está em ordem",
+        "C": "Sugerir que o cliente leve a uma oficina",
+        "D": "Ignorar --- barulho de capô é normal após serviço"
+      },
+      "correta": "B",
+      "justificativa": "O prestador mexeu na área do motor. Mesmo que improvável, deve verificar antes de encerrar. Se encontrar problema: reportar. Se não encontrar: documentar que verificou."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Você encontra uma trinca no bloco do motor enquanto faz a troca de óleo --- é claramente anterior e grave. Qual a ação correta?",
+      "alternativas": {
+        "A": "Não mencionar --- problema do motor é sério e pode assustar o cliente",
+        "B": "Documentar com foto, informar ao cliente com clareza sobre o risco e registrar no app como observação do serviço",
+        "C": "Tentar consertar como cortesia",
+        "D": "Encerrar o serviço sem concluir --- veículo com problema grave não deve ser servido"
+      },
+      "correta": "B",
+      "justificativa": "Informar problema grave encontrado é obrigação ética e profissional. O cliente precisa dessa informação para sua segurança. A documentação no app cria registro formal da comunicação."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "O cliente não está presente no momento do serviço (deixou a chave com o porteiro). Como proceder com a documentação?",
+      "alternativas": {
+        "A": "Pular a foto antes --- não há como mostrar ao cliente de qualquer forma",
+        "B": "Fazer a documentação fotográfica completa normalmente --- o registro no app não depende da presença do cliente",
+        "C": "Fazer o serviço sem documentação e avisar o cliente depois",
+        "D": "Recusar o serviço sem a presença do cliente"
+      },
+      "correta": "B",
+      "justificativa": "A documentação protege o prestador independente da presença do cliente. O upload no app é imediato e datado --- a ausência do cliente não altera a obrigação."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Prestador fez troca de bateria. O veículo não liga ao final. Qual a ação correta?",
+      "alternativas": {
+        "A": "Dizer que deve ser problema elétrico pré-existente e ir embora",
+        "B": "Verificar cabos e conexões da bateria antes de qualquer outra coisa. Se não resolver, acionar suporte AutoCare antes de sair",
+        "C": "Ligar para o cliente e pedir que ele chame um eletricista",
+        "D": "Deixar o cliente tentando ligar e ir atender outro job"
+      },
+      "correta": "B",
+      "justificativa": "O veículo estava funcionando antes e não está mais --- isso é responsabilidade do prestador enquanto ainda está no local. Nunca deixe o cliente com o veículo parado após uma intervenção."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Durante a garantia de 30 dias, o cliente abre reclamação dizendo que o serviço foi feito errado. O prestador tem fotos, checklist e anotações completos. Qual o resultado mais provável?",
+      "alternativas": {
+        "A": "O prestador é automaticamente responsabilizado independente da documentação",
+        "B": "A AutoCare analisa a documentação. Com evidências completas, o prestador tem alta probabilidade de resultado favorável",
+        "C": "A reclamação é descartada automaticamente se houver documentação",
+        "D": "O prestador precisa pagar independente das evidências"
+      },
+      "correta": "B",
+      "justificativa": "A análise da AutoCare é baseada em evidências --- não em quem reclamou primeiro. Documentação completa é a diferença entre um resultado favorável e uma responsabilização injusta."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual destas ações é sempre errada, independente da situação?",
+      "alternativas": {
+        "A": "Fotografar o veículo antes do serviço",
+        "B": "Informar o cliente sobre problema grave encontrado",
+        "C": "Esconder um dano causado e torcer para o cliente não notar",
+        "D": "Reportar dano causado no app antes de ir embora"
+      },
+      "correta": "C",
+      "justificativa": "Esconder dano causado é falta grave que resulta em suspensão. O dano será descoberto --- e a falta de transparência agrava enormemente a situação para o prestador."
+    }
+  ]
+}
+,
+      "5": {
+  "modulo": "5",
+  "nome": "Qualidade e Padrão de Entrega",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "4 Pilares",
+      "pergunta": "Quais são os quatro pilares de um serviço AutoCare excelente?",
+      "alternativas": {
+        "A": "Preço, velocidade, técnica e aparência do prestador",
+        "B": "Pontualidade, excelência técnica, limpeza e experiência do cliente",
+        "C": "Pontualidade, foto antes, checklist e reporte no app",
+        "D": "Atendimento, segurança, descarte e responsabilidade"
+      },
+      "correta": "B",
+      "justificativa": "Os quatro pilares cobrem as dimensões que o cliente percebe e avalia: chegou no horário, fez bem feito, deixou tudo organizado, e o cliente se sentiu cuidado. Todos os quatro são necessários --- não basta ter três."
+    },
+    {
+      "id": "Q02",
+      "tema": "4 Pilares",
+      "pergunta": "Um prestador fez um serviço tecnicamente impecável mas deixou embalagens no chão e não explicou nada ao cliente. Qual pilar está faltando?",
+      "alternativas": {
+        "A": "Pontualidade",
+        "B": "Excelência técnica",
+        "C": "Limpeza e organização + experiência do cliente",
+        "D": "Apenas experiência do cliente"
+      },
+      "correta": "C",
+      "justificativa": "Dois pilares falharam: limpeza (embalagens no chão) e experiência do cliente (sem comunicação). Serviço técnico bom não compensa a ausência dos outros pilares na percepção do cliente."
+    },
+    {
+      "id": "Q03",
+      "tema": "Erros comuns",
+      "pergunta": "Qual é o erro mais frequente que causa avaliação baixa mesmo quando o serviço técnico foi bem feito?",
+      "alternativas": {
+        "A": "Usar ferramentas antigas",
+        "B": "Atraso sem aviso prévio ao cliente",
+        "C": "Não usar uniforme",
+        "D": "Trabalhar muito rápido"
+      },
+      "correta": "B",
+      "justificativa": "Atraso sem comunicação é o erro mais frequente e impactante. O cliente reorganizou a agenda para receber você --- a falta de aviso é percebida como descaso."
+    },
+    {
+      "id": "Q04",
+      "tema": "Erros comuns",
+      "pergunta": "O serviço estimado em 40 minutos está levando 1h10. O que você deve fazer?",
+      "alternativas": {
+        "A": "Terminar rápido e não mencionar o atraso",
+        "B": "Informar o cliente imediatamente: o que causou o atraso e quanto tempo ainda falta",
+        "C": "Finalizar o serviço de qualquer jeito para cumprir o prazo",
+        "D": "Inventar uma justificativa técnica para o atraso"
+      },
+      "correta": "B",
+      "justificativa": "Comunicação imediata sobre qualquer desvio de prazo é obrigatória. O cliente pode ter compromisso --- ele precisa decidir se pode aguardar. A honestidade sobre o porquê aumenta --- não diminui --- a satisfação."
+    },
+    {
+      "id": "Q05",
+      "tema": "Erros comuns",
+      "pergunta": "Qual comportamento pode causar avaliação negativa por excesso de familiaridade?",
+      "alternativas": {
+        "A": "Usar luvas durante o serviço",
+        "B": "Chamar o cliente de \"mano\" e fazer comentários sobre o apartamento",
+        "C": "Levar caixa de ferramentas organizada",
+        "D": "Apresentar o resultado ao finalizar"
+      },
+      "correta": "B",
+      "justificativa": "Cada pessoa tem um limite diferente para informalidade. O prestador não conhece o cliente --- manter tom profissional é a abordagem segura. O cliente sinaliza se prefere algo mais informal."
+    },
+    {
+      "id": "Q06",
+      "tema": "Apresentação final",
+      "pergunta": "Por que apresentar o resultado ao cliente em vez de apenas dizer \"está pronto\"?",
+      "alternativas": {
+        "A": "É uma exigência burocrática da AutoCare",
+        "B": "Gera mais gorjetas",
+        "C": "Cria o momento de maior impacto positivo --- o cliente vê o trabalho, entende o que foi feito e se sente valorizado",
+        "D": "Serve para o prestador comprovar que fez o serviço"
+      },
+      "correta": "C",
+      "justificativa": "A apresentação final de 60 segundos transforma a percepção do serviço inteiro. É quando o cliente consolida a experiência --- e decide mentalmente quantas estrelas vai dar."
+    },
+    {
+      "id": "Q07",
+      "tema": "Apresentação final",
+      "pergunta": "Qual destas apresentações finais está correta?",
+      "alternativas": {
+        "A": "\"Pronto, pode usar.\"",
+        "B": "\"Terminei. Qualquer problema me chama.\"",
+        "C": "\"Vou te mostrar --- troquei o óleo e o filtro, nível na máxima. Notei que o pneu esquerdo está um pouco baixo --- vale calibrar. O local está limpo. Foi um prazer!\"",
+        "D": "\"Assinei no app. Tchau.\""
+      },
+      "correta": "C",
+      "justificativa": "A opção correta inclui: convite para ver, explicação do que foi feito, observação adicional útil e encerramento profissional. As outras são encerramentos abruptos que deixam o cliente sem informação."
+    },
+    {
+      "id": "Q08",
+      "tema": "Limpeza",
+      "pergunta": "O que define o padrão AutoCare de limpeza ao finalizar um serviço?",
+      "alternativas": {
+        "A": "Deixar o local igual a como estava antes",
+        "B": "O local fica mais limpo depois do serviço do que estava antes",
+        "C": "Limpar apenas o que o prestador sujou",
+        "D": "Varrer apenas se o cliente pedir"
+      },
+      "correta": "B",
+      "justificativa": "O padrão AutoCare é deixar o local melhor do que estava. Esse detalhe é o que mais surpreende positivamente os clientes e frequentemente é mencionado em avaliações 5 estrelas."
+    },
+    {
+      "id": "Q09",
+      "tema": "Resultado parcial",
+      "pergunta": "O polimento não removeu completamente um risco profundo. Como comunicar ao cliente?",
+      "alternativas": {
+        "A": "Dizer que ficou ótimo e evitar mostrar o ponto que não saiu",
+        "B": "Ser honesto: mostrar o que ficou bom, explicar por que o ponto específico não saiu totalmente e oferecer alternativas",
+        "C": "Fazer desconto automático sem explicar nada",
+        "D": "Culpar a qualidade da pintura do veículo"
+      },
+      "correta": "B",
+      "justificativa": "Honestidade antes que o cliente descubra por conta própria é sempre melhor. Explicação técnica simples + alternativa = cliente insatisfeito com o resultado mas satisfeito com o prestador."
+    },
+    {
+      "id": "Q10",
+      "tema": "Reputação",
+      "pergunta": "Por que uma avaliação de 1 estrela impacta mais o score do que uma de 5 estrelas eleva?",
+      "alternativas": {
+        "A": "Não impacta da mesma forma --- as avaliações têm peso igual",
+        "B": "O sistema AutoCare penaliza avaliações baixas com peso maior para proteger a qualidade da plataforma",
+        "C": "Por isso consistência é mais valiosa do que excelência esporádica --- evitar avaliações baixas protege mais o score do que ter avaliações altíssimas",
+        "D": "Avaliações de 1 estrela são descartadas automaticamente após revisão"
+      },
+      "correta": "C",
+      "justificativa": "Matematicamente, consistência de 4.5 é mais valiosa do que alternância entre 5.0 e 2.0. Evitar avaliações baixas é a estratégia mais eficaz para manter score alto."
+    },
+    {
+      "id": "Q11",
+      "tema": "Reputação",
+      "pergunta": "Prestador aceita muitos jobs seguidos e começa a apressar as finalizações. O resultado mais provável é:",
+      "alternativas": {
+        "A": "Score aumenta pela quantidade de jobs concluídos",
+        "B": "Score permanece estável --- volume compensa qualidade",
+        "C": "Score cai pelo aumento de avaliações medianas, resultando em menos jobs e menos ganhos a médio prazo",
+        "D": "Score sobe temporariamente e depois estabiliza"
+      },
+      "correta": "C",
+      "justificativa": "O componente \"jobs concluídos\" do score é menos impactante do que a nota média do cliente (40%). Apressar = entregas piores = notas mais baixas = score menor = menos jobs. O ciclo se inverte."
+    },
+    {
+      "id": "Q12",
+      "tema": "Padrão AutoCare",
+      "pergunta": "Qual fase do serviço tem a maior diferença entre o \"mínimo esperado\" e o \"padrão AutoCare 5 estrelas\"?",
+      "alternativas": {
+        "A": "Chegada --- o mínimo é apenas chegar no horário",
+        "B": "Pré-serviço --- a diferença entre foto e foto + proteção + comunicação",
+        "C": "Finalização --- a diferença entre confirmar no app e fazer a apresentação completa de 60s ao cliente",
+        "D": "Durante --- a diferença entre executar e manter o cliente informado"
+      },
+      "correta": "C",
+      "justificativa": "A finalização é onde mais prestadores ficam abaixo do potencial. Confirmar no app é o mínimo. Apresentação completa com resultado + observações + limpeza é o que gera 5 estrelas consistentemente."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Prestador faz serviço técnico excelente mas chega 30 min atrasado sem avisar e vai embora sem explicar nada. Qual avaliação esperada?",
+      "alternativas": {
+        "A": "5 estrelas --- o serviço técnico foi impecável",
+        "B": "3 ou menos --- atraso sem aviso e ausência de comunicação derrubam a experiência independente da técnica",
+        "C": "4 estrelas --- o serviço bom compensa o resto parcialmente",
+        "D": "Depende do humor do cliente no dia"
+      },
+      "correta": "B",
+      "justificativa": "O cliente não avalia apenas a técnica --- avalia a experiência completa. Dois dos quatro pilares falharam: pontualidade e experiência do cliente."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "Você tem 3 jobs no dia e está com o último atrasando. O cliente do último job está esperando. Qual a ação correta?",
+      "alternativas": {
+        "A": "Apressar o job atual para chegar no horário --- mesmo comprometendo a qualidade",
+        "B": "Avisar o próximo cliente pelo app que haverá atraso e qual o novo horário estimado",
+        "C": "Não avisar --- talvez você consiga se recuperar no trânsito",
+        "D": "Cancelar o último job para não atrasar"
+      },
+      "correta": "B",
+      "justificativa": "Avisar com antecedência respeita o cliente e mantém sua reputação. Um cliente avisado com 30 minutos de antecedência raramente dá avaliação baixa por atraso --- cliente pego de surpresa quase sempre dá."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Após uma higienização interna, você nota que a garagem tem areia no chão que estava lá antes de você chegar. O padrão AutoCare é:",
+      "alternativas": {
+        "A": "Ignorar --- não foi você que sujou",
+        "B": "Perguntar ao cliente se quer que você varra",
+        "C": "Varrer junto com a sua limpeza pós-serviço --- o local deve sair melhor do que você encontrou",
+        "D": "Mencionar ao cliente que a garagem estava suja antes"
+      },
+      "correta": "C",
+      "justificativa": "O padrão não é \"limpar o que você sujou\" --- é \"o local sai melhor do que você encontrou\". Varrer 2 minutos de areia cria uma impressão memorável e diferenciadora."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Cliente pergunta antes do serviço se a lavagem premium inclui polimento do painel. Você não tem certeza se consegue o resultado esperado. O que dizer?",
+      "alternativas": {
+        "A": "Sim, com certeza --- você tenta depois",
+        "B": "Depende do estado do painel. Posso verificar e te dizer antes de começar se o resultado vai ser o que você espera",
+        "C": "Não está incluído --- para não criar expectativa",
+        "D": "Sim, está incluído e fica perfeito"
+      },
+      "correta": "B",
+      "justificativa": "Gerenciar expectativa antes é a resposta profissional. Verificar e ser honesto sobre o possível resultado protege ambos os lados."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Ao apresentar o resultado de um polimento, você percebe que o cliente ficou levemente desapontado mas não falou nada. O que fazer?",
+      "alternativas": {
+        "A": "Não mencionar --- se o cliente não reclamou, está bem",
+        "B": "Perguntar diretamente: \"Ficou como você esperava? Se tiver algum ponto que queira que eu reveja, me fala agora.\"",
+        "C": "Oferecer desconto imediatamente para evitar avaliação baixa",
+        "D": "Listar todos os pontos positivos do serviço repetidamente"
+      },
+      "correta": "B",
+      "justificativa": "Perguntar diretamente e dar espaço para o cliente expressar insatisfação no momento é muito melhor do que receber uma avaliação baixa depois. A maioria das insatisfações pode ser resolvida no ato."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Prestador tem score 9.1 e decide aceitar o dobro de jobs por mês para aumentar os ganhos. Score cai para 7.8 em 4 semanas. O que aconteceu?",
+      "alternativas": {
+        "A": "Score cai porque a AutoCare penaliza quem aceita muitos jobs seguidos",
+        "B": "Volume excessivo levou a finalizações apressadas, avaliações medianas e queda do componente de nota média (40% do score)",
+        "C": "É coincidência --- score flutua naturalmente",
+        "D": "Clientes avaliam negativamente prestadores que parecem muito ocupados"
+      },
+      "correta": "B",
+      "justificativa": "A nota média do cliente é o componente de maior peso. Qualidade comprometida pelo volume destrói o que levou semanas para construir."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Um cliente dá 3 estrelas e comenta \"serviço ok mas não explicou nada\". Como usar esse feedback?",
+      "alternativas": {
+        "A": "Ignorar --- 3 estrelas é aceitável",
+        "B": "Reportar o cliente por avaliação injusta",
+        "C": "Incorporar o feedback: a apresentação final precisa ser parte fixa do protocolo a partir de agora",
+        "D": "Argumentar na resposta da avaliação que o serviço foi correto"
+      },
+      "correta": "C",
+      "justificativa": "Feedback de cliente é informação valiosa. \"Não explicou nada\" é solucionável com a apresentação final de 60 segundos. Um prestador que aprende com avaliações evolui consistentemente."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual destas atitudes, praticada consistentemente, tem o maior impacto positivo no score ao longo do tempo?",
+      "alternativas": {
+        "A": "Aceitar todos os jobs disponíveis independente de agenda",
+        "B": "Prometer sempre o melhor resultado para fechar mais jobs",
+        "C": "Tratar cada job como o primeiro --- mesma atenção, mesma comunicação, mesma limpeza --- independente do cansaço ou da quantidade",
+        "D": "Focar apenas na técnica e não se preocupar com a experiência do cliente"
+      },
+      "correta": "C",
+      "justificativa": "Consistência é o fator determinante de score alto sustentado. \"Tratar cada job como o primeiro\" é o princípio que sintetiza todos os módulos de qualidade."
+    }
+  ]
+}
+,
+      "6": {
+  "modulo": "6",
+  "nome": "Uso da Plataforma",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Dashboard",
+      "pergunta": "O que acontece quando o prestador está com status \"Indisponível\" no app?",
+      "alternativas": {
+        "A": "Ele recebe ofertas mas com menor prioridade",
+        "B": "Ele não recebe ofertas de job --- está fora da fila de dispatch",
+        "C": "Seu score é penalizado por inatividade",
+        "D": "O app fecha automaticamente após 30 minutos"
+      },
+      "correta": "B",
+      "justificativa": "Indisponível significa ausência total da fila de dispatch --- sem penalidade no score. É o modo correto de usar quando não se pode atender, em vez de recusar jobs."
+    },
+    {
+      "id": "Q02",
+      "tema": "Dashboard",
+      "pergunta": "Em qual situação o prestador DEVE desativar a disponibilidade?",
+      "alternativas": {
+        "A": "Quando quer receber menos jobs para manter qualidade",
+        "B": "Quando não pode atender novos jobs --- por compromisso, falta de material ou cansaço",
+        "C": "Apenas quando estiver doente",
+        "D": "Nunca --- a disponibilidade deve ficar sempre ativa"
+      },
+      "correta": "B",
+      "justificativa": "Desativar quando não pode atender é o uso correto. Fica disponível sem poder atender = recusas que impactam o score. A chave é honestidade com a própria agenda."
+    },
+    {
+      "id": "Q03",
+      "tema": "Fluxo do job",
+      "pergunta": "Quantos minutos o prestador tem para aceitar ou recusar uma oferta de job?",
+      "alternativas": {
+        "A": "5 minutos",
+        "B": "10 minutos",
+        "C": "15 minutos",
+        "D": "30 minutos"
+      },
+      "correta": "C",
+      "justificativa": "15 minutos é a janela de aceitação. Esse tempo existe para o prestador ler todos os detalhes com calma. Após 15 minutos sem resposta, a oferta vai para o próximo prestador na fila."
+    },
+    {
+      "id": "Q04",
+      "tema": "Fluxo do job",
+      "pergunta": "Quando o endereço completo do cliente é revelado no app?",
+      "alternativas": {
+        "A": "Ao receber a oferta",
+        "B": "Somente após aceitar o job",
+        "C": "Apenas ao chegar no local",
+        "D": "No dia anterior ao serviço"
+      },
+      "correta": "B",
+      "justificativa": "O endereço completo só aparece após o aceite --- antes disso apenas o bairro é mostrado, para proteger a privacidade do cliente."
+    },
+    {
+      "id": "Q05",
+      "tema": "Fluxo do job",
+      "pergunta": "O cliente aprovou o job mas não avaliou. O que acontece após 48 horas?",
+      "alternativas": {
+        "A": "O pagamento não é liberado até a avaliação",
+        "B": "O job é reaberto automaticamente",
+        "C": "O pagamento é liberado automaticamente mesmo sem avaliação",
+        "D": "O suporte AutoCare entra em contato com o cliente"
+      },
+      "correta": "C",
+      "justificativa": "O prazo de 48h garante que o pagamento não fique retido indefinidamente. Se o cliente não avaliar, o pagamento é liberado automaticamente --- o prestador não é penalizado."
+    },
+    {
+      "id": "Q06",
+      "tema": "Score",
+      "pergunta": "Qual componente tem o maior peso no cálculo do score?",
+      "alternativas": {
+        "A": "Taxa de conclusão (25%)",
+        "B": "Pontualidade (20%)",
+        "C": "Nota média do cliente (40%)",
+        "D": "Reclamações (15%)"
+      },
+      "correta": "C",
+      "justificativa": "A nota do cliente com 40% de peso é o componente mais impactante. É o reflexo direto da experiência do cliente --- por isso qualidade de entrega impacta o score mais do que qualquer outro fator."
+    },
+    {
+      "id": "Q07",
+      "tema": "Score e tiers",
+      "pergunta": "Um prestador com score 8.3 está em qual tier?",
+      "alternativas": {
+        "A": "Bronze",
+        "B": "Prata",
+        "C": "Ouro",
+        "D": "Diamante"
+      },
+      "correta": "C",
+      "justificativa": "Score 8.0 ou mais = Ouro. O prestador com 8.3 está no tier Ouro, recebe jobs com segunda prioridade (após Diamante) e tem acesso a jobs premium."
+    },
+    {
+      "id": "Q08",
+      "tema": "Pagamentos",
+      "pergunta": "Onde o prestador verifica os jobs concluídos aguardando aprovação do cliente?",
+      "alternativas": {
+        "A": "Aba \"Histórico\" em Pagamentos",
+        "B": "Aba \"A liberar\" em Pagamentos",
+        "C": "Aba \"Jobs ativos\" no Dashboard",
+        "D": "Aba \"Score\" no app"
+      },
+      "correta": "B",
+      "justificativa": "\"A liberar\" mostra o valor retido dos jobs concluídos e aguardando aprovação do cliente. É importante verificar regularmente para identificar jobs que podem estar com problema."
+    },
+    {
+      "id": "Q09",
+      "tema": "Pagamentos",
+      "pergunta": "O prestador pode aceitar pagamento diretamente do cliente em dinheiro pelo serviço?",
+      "alternativas": {
+        "A": "Sim --- desde que declare depois no app",
+        "B": "Sim --- apenas para jobs de baixo valor",
+        "C": "Não --- todo pagamento pelo serviço deve passar pela plataforma AutoCare",
+        "D": "Sim --- em casos de emergência, desde que reporte em 24h"
+      },
+      "correta": "C",
+      "justificativa": "Pagamento direto fora da plataforma viola os termos e pode resultar em suspensão imediata. O cliente também perde a proteção da garantia AutoCare em transações fora do app."
+    },
+    {
+      "id": "Q10",
+      "tema": "Agenda",
+      "pergunta": "O que o prestador deve fazer ao receber uma oferta de job em especialidade que não domina?",
+      "alternativas": {
+        "A": "Aceitar e tentar fazer --- aprender na prática",
+        "B": "Aceitar e subcontratar outro prestador",
+        "C": "Recusar e selecionar o motivo correto no app",
+        "D": "Ignorar a oferta até expirar"
+      },
+      "correta": "C",
+      "justificativa": "Recusar com motivo correto é o protocolo. Ignorar até expirar é pior --- o sistema interpreta como falta de resposta e pode impactar a disponibilidade. Subcontratar é estritamente proibido."
+    },
+    {
+      "id": "Q11",
+      "tema": "Suporte",
+      "pergunta": "Em qual categoria do suporte o prestador deve abrir chamado quando causa dano ao veículo?",
+      "alternativas": {
+        "A": "Dúvida financeira",
+        "B": "Problema técnico no app",
+        "C": "Ocorrência no job --- acionar imediatamente antes de sair",
+        "D": "Aguardar o cliente abrir reclamação"
+      },
+      "correta": "C",
+      "justificativa": "Dano causado = ocorrência no job, imediatamente. O registro com timestamp e foto no ato do dano é a proteção do prestador. Aguardar o cliente abrir reclamação é a pior estratégia."
+    },
+    {
+      "id": "Q12",
+      "tema": "Suporte",
+      "pergunta": "Qual é o tempo de resposta do suporte para ocorrências urgentes no job?",
+      "alternativas": {
+        "A": "Até 15 minutos",
+        "B": "Até 2 horas em horário comercial",
+        "C": "Até 24 horas",
+        "D": "Até 1 semana"
+      },
+      "correta": "B",
+      "justificativa": "Ocorrências no job têm resposta em até 2 horas. Para situações de risco físico imediato, o protocolo é sair do local e ligar para emergências (190/192) primeiro, depois abrir o chamado no app."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Prestador está disponível mas tem um compromisso pessoal importante no fim do dia. Como proceder?",
+      "alternativas": {
+        "A": "Manter disponível e recusar os jobs que chegarem tarde",
+        "B": "Desativar a disponibilidade no horário que não pode atender",
+        "C": "Aceitar todos os jobs e cancelar se necessário",
+        "D": "Desativar o app completamente"
+      },
+      "correta": "B",
+      "justificativa": "Desativar a disponibilidade no período que não pode atender é o uso correto --- sem impacto no score e sem jobs indesejados."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "Ao tentar finalizar o job, o app apresenta erro e não processa. O que fazer?",
+      "alternativas": {
+        "A": "Fechar o app e tentar no dia seguinte",
+        "B": "Pedir ao cliente para aprovar diretamente --- sem usar o app",
+        "C": "Abrir chamado em Suporte → Problema técnico com o número do job imediatamente",
+        "D": "Tentar reinstalar o app no local do serviço"
+      },
+      "correta": "C",
+      "justificativa": "Suporte técnico imediato com o número do job é o protocolo. O time pode finalizar manualmente. Nunca deixe job em estado suspenso sem comunicar."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Prestador recebeu pagamento menor do que o valor mostrado na oferta. O que fazer?",
+      "alternativas": {
+        "A": "Aceitar --- provavelmente é a comissão da AutoCare",
+        "B": "Verificar o breakdown em Pagamentos → Histórico. Se ainda houver discrepância, Suporte → Dúvida financeira com número do job",
+        "C": "Contatar o cliente pedindo complemento",
+        "D": "Publicar reclamação nas redes sociais"
+      },
+      "correta": "B",
+      "justificativa": "O valor líquido (após comissão) aparece no app antes do aceite --- verifique se a diferença é apenas a comissão. Se houver discrepância real, suporte com o número do job resolve."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Prestador aceita job e percebe que o endereço fica a 45km --- muito além do esperado. O que fazer?",
+      "alternativas": {
+        "A": "Ir mesmo assim --- já aceitou",
+        "B": "Cancelar imediatamente sem justificativa",
+        "C": "Acionar o suporte explicando a situação --- em casos extremos de erro de dispatch, o cancelamento pode ser tratado sem impacto no score",
+        "D": "Subcontratar outro prestador da região"
+      },
+      "correta": "C",
+      "justificativa": "Erros de dispatch existem. Acionar o suporte é o canal correto --- cancelamentos com contexto justificado podem ser tratados de forma diferenciada. Subcontratação é proibida."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "O cliente não aprova o job após 47 horas. O prestador deve:",
+      "alternativas": {
+        "A": "Acionar o cliente diretamente pelo celular pedindo aprovação",
+        "B": "Aguardar --- em 1 hora o pagamento será liberado automaticamente",
+        "C": "Abrir reclamação contra o cliente",
+        "D": "Cancelar o job e reabrir"
+      },
+      "correta": "B",
+      "justificativa": "O prazo automático de 48h protege o prestador. Não há necessidade de intervenção --- o pagamento é liberado automaticamente. Contatar o cliente diretamente fora do app não é recomendado."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Prestador recusa 4 jobs seguidos em um dia porque estava ocupado mas esqueceu de desativar a disponibilidade. Qual o impacto?",
+      "alternativas": {
+        "A": "Nenhum --- recusas não impactam o score",
+        "B": "A taxa de conclusão cai, impactando o componente de 25% do score",
+        "C": "O prestador é automaticamente suspenso após 3 recusas",
+        "D": "Apenas a pontualidade é afetada"
+      },
+      "correta": "B",
+      "justificativa": "Taxa de conclusão = jobs concluídos ÷ jobs aceitos. Recusas não entram nesse cálculo diretamente, mas aceitar e não concluir entra. O impacto maior é em jobs aceitos e cancelados --- não em recusas puras. A solução é desativar a disponibilidade."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Qual destas ações é realizada automaticamente pelo app sem intervenção do prestador?",
+      "alternativas": {
+        "A": "Tirar foto antes do serviço",
+        "B": "Comunicar atraso ao cliente",
+        "C": "Liberar pagamento após 48h se o cliente não aprovar",
+        "D": "Registrar ocorrências no job"
+      },
+      "correta": "C",
+      "justificativa": "Liberação automática após 48h é a única ação totalmente automática nesta lista. As outras exigem ação ativa do prestador no app."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Ao concluir este módulo com aprovação, o que o prestador está habilitado a fazer?",
+      "alternativas": {
+        "A": "Apenas receber jobs de baixa complexidade",
+        "B": "Receber jobs em qualquer especialidade sem restrição de valor",
+        "C": "Receber seu primeiro job como prestador certificado AutoCare na especialidade para a qual se cadastrou",
+        "D": "Receber jobs e treinar outros prestadores"
+      },
+      "correta": "C",
+      "justificativa": "A certificação habilita o prestador a receber jobs na especialidade cadastrada. Especialidades adicionais ou funções de mentoria são estágios posteriores no programa."
+    }
+  ]
+}
+
+    };
+
+    // ─── Visão geral / objetivos / regra geral por módulo (fonte: training/data/module_overviews.json) ──
+    const MODULE_OVERVIEWS = {
+  "1": {
+    "modulo": "1",
+    "nome": "Atendimento e Conduta Profissional",
+    "visao_geral": "Este módulo prepara você para representar a AutoCare com excelência no atendimento ao cliente. Você vai aprender como se apresentar, como se comunicar durante o serviço, e como agir nas situações mais comuns — incluindo as difíceis.",
+    "objetivos": [
+      "Fazer uma primeira impressão profissional e confiável",
+      "Comunicar o que vai fazer — e o que encontrou — de forma clara e honesta",
+      "Lidar com clientes difíceis sem escalar o problema",
+      "Saber o que fazer — e o que absolutamente não fazer — em situações delicadas",
+      "Encerrar o atendimento de forma que gere 5 estrelas"
+    ],
+    "regra_geral": {
+      "emoji": "⚠️",
+      "titulo": "Importante",
+      "texto": "Aprovação com 60% (mínimo 3 de 5 questões sorteadas). O quiz sorteia 5 questões de um banco de 20 — cada tentativa é diferente. Em caso de reprovação, novo acesso liberado após 24 horas."
+    }
+  },
+  "2A": {
+    "modulo": "2A",
+    "nome": "Segurança no Trabalho — Geral",
+    "visao_geral": "Você vai até a casa ou trabalho do cliente — e isso significa trabalhar em ambientes que não foram preparados para um serviço técnico. Piso de garagem, rua movimentada, luz ruim, espaço apertado. A segurança não é obrigação do cliente: é sua responsabilidade.",
+    "objetivos": [
+      "Quais EPIs usar e em qual situação",
+      "Como sinalizar e trabalhar com segurança em via pública",
+      "O que fazer nos primeiros minutos de um acidente: corte, queimadura ou inalação",
+      "Como reconhecer quando a situação exige o SAMU ou Bombeiros",
+      "O que registrar no app em caso de acidente durante o serviço"
+    ],
+    "regra_geral": {
+      "emoji": "🦺",
+      "titulo": "Regra geral",
+      "texto": "Nenhum serviço começa sem o EPI adequado. Se você não tiver o equipamento necessário no momento, você é obrigado a reportar no app e reagendar. Executar serviço sem EPI correto é falta grave."
+    }
+  },
+  "2B": {
+    "modulo": "2B",
+    "nome": "Segurança Elétrica e Química",
+    "visao_geral": "Elétrica, solventes e produtos concentrados têm algo em comum: o dano pode ser instantâneo, invisível até acontecer, e em alguns casos irreversível. Choque elétrico, ácido de bateria, gás refrigerante, vapores de solvente — cada um desses riscos tem um protocolo específico. É isso que este módulo cobre.",
+    "objetivos": [
+      "Quais riscos específicos existem em cada especialidade",
+      "Os EPIs adicionais exigidos para trabalho elétrico e com produtos químicos",
+      "Como trabalhar com segurança em bateria, sistema elétrico e fiação",
+      "Como manusear, diluir e descartar produtos concentrados corretamente",
+      "O que fazer em caso de choque elétrico, contato com ácido e exposição química grave"
+    ],
+    "regra_geral": {
+      "emoji": "⚡",
+      "titulo": "Regra geral",
+      "texto": "Qualquer serviço elétrico em veículo começa com bateria desconectada — exceto quando o diagnóstico exige o contrário, e mesmo assim com EPIs completos e ciência do cliente. Sem exceção."
+    }
+  },
+  "3": {
+    "modulo": "3",
+    "nome": "Descarte Responsável",
+    "visao_geral": "Cada serviço que você faz gera resíduo. Óleo usado, bateria velha, filtros saturados, embalagens de produto químico, pneus, água de lavagem com detergente. O destino errado desses materiais contamina solo, rios e lençóis freáticos — e você responde por isso legalmente.",
+    "objetivos": [
+      "Quais resíduos cada serviço gera e como classificá-los",
+      "Como armazenar temporariamente cada resíduo no local do cliente",
+      "Onde descartar cada tipo de resíduo corretamente em São Paulo",
+      "O que nunca descartar no ralo, lixo comum ou via pública",
+      "Como encontrar pontos de coleta próximos ao serviço",
+      "O que registrar no app em caso de geração de resíduo especial"
+    ],
+    "regra_geral": {
+      "emoji": "♻️",
+      "titulo": "Regra geral",
+      "texto": "Você saiu do local de serviço? Então não sobrou nenhum resíduo lá. Tudo que você gerou vai com você para descarte correto. Sem exceção, sem \"o cliente disse que descarta\"."
+    }
+  },
+  "4": {
+    "modulo": "4",
+    "nome": "Responsabilidade sobre o Veículo",
+    "visao_geral": "Você vai mexer no carro de outra pessoa. Isso cria uma relação de confiança — e de responsabilidade legal. Se algo der errado, seja por acidente, negligência ou erro técnico, você responde. Mas há um lado positivo: os protocolos corretos te protegem tanto quanto protegem o cliente.",
+    "objetivos": [
+      "Por que e como documentar o estado do veículo antes de qualquer serviço",
+      "O que fazer imediatamente quando causar um dano — pequeno ou grande",
+      "Como comunicar problemas encontrados sem gerar conflito",
+      "Onde termina sua responsabilidade e começa a do cliente",
+      "Quais serviços nunca fazer sem autorização explícita",
+      "Como o seguro e a garantia AutoCare funcionam neste contexto"
+    ],
+    "regra_geral": {
+      "emoji": "📸",
+      "titulo": "Regra absoluta",
+      "texto": "A foto \"antes\" no app é obrigatória em 100% dos serviços, sem exceção. Ela existe para proteger você — não para burocratizar o serviço. Um prestador que pula este passo está vulnerável a qualquer acusação de dano pré-existente."
+    }
+  },
+  "5": {
+    "modulo": "5",
+    "nome": "Qualidade e Padrão de Entrega",
+    "visao_geral": "Fazer o serviço tecnicamente certo é o mínimo. O que separa um prestador com score 7 de um prestador com score 9 não é a técnica — é o conjunto de atitudes antes, durante e depois do serviço que fazem o cliente sentir que foi muito bem cuidado.",
+    "objetivos": [
+      "O que define um serviço de qualidade AutoCare do ponto de vista do cliente",
+      "Os erros mais comuns que derrubam avaliações — mesmo quando o serviço técnico está correto",
+      "Como apresentar o resultado do serviço de forma que impacte positivamente o cliente",
+      "O que fazer quando o resultado não ficou como esperado",
+      "Como construir reputação consistente na plataforma"
+    ],
+    "regra_geral": {
+      "emoji": "🏆",
+      "titulo": "O padrão AutoCare",
+      "texto": "Um serviço AutoCare é considerado excelente quando: foi feito no prazo, o cliente entendeu o que foi feito, o local ficou mais limpo do que estava, e o cliente se sentiu respeitado durante todo o processo. Os quatro elementos juntos — não apenas o técnico."
+    }
+  },
+  "6": {
+    "modulo": "6",
+    "nome": "Uso da Plataforma",
+    "visao_geral": "O app AutoCare é sua central de operações. É por ele que você recebe jobs, documenta serviços, reporta ocorrências, acompanha seu score, gerencia sua agenda e acessa o suporte. Dominar o app é tão importante quanto a habilidade técnica.",
+    "objetivos": [
+      "Navegar pelo app com fluência — todas as telas e funções principais",
+      "Entender o fluxo completo de um job: da oferta ao pagamento",
+      "Como seu score é calculado e o que fazer para melhorá-lo",
+      "Como e quando você recebe o pagamento",
+      "O que fazer quando o app apresentar erro ou situação não prevista",
+      "Como acionar o suporte AutoCare de forma eficiente"
+    ],
+    "regra_geral": {
+      "emoji": "📱",
+      "titulo": "Regra simples",
+      "texto": "Tudo que acontece no job passa pelo app. Oferta, aceite, foto antes, checklist, finalização, ocorrências, avaliação, pagamento. Se não está no app, não existe oficialmente."
+    }
+  }
+};
+
+    // ─── Regras de negócio (confirmadas com o usuário) ─────────────────────────
+    const ALL_MODULES = ['1','2A','2B','3','4','5','6'];
+    const SPECIALTIES_REQUIRE_2B = ['Eletricista','Eletricista/Mecânico','Funileiro','Detailer'];
+    const PASS_SCORE = 60;          // score >= 60 (3 de 5) aprova
+    const BLOCK_HOURS = 24;         // reprovação bloqueia por 24h, imediato
+    const QUESTIONS_PER_ATTEMPT = 5;// sorteadas do banco de 20 por módulo
+
+    // Vídeo de introdução por módulo. Os 7 arquivos já estão em training/videos/.
+    const MODULE_VIDEOS = {
+      '1':  'videos/modulo1.mp4',
+      '2A': 'videos/modulo2a.mp4',
+      '2B': 'videos/modulo2b.mp4',
+      '3':  'videos/modulo3.mp4',
+      '4':  'videos/modulo4.mp4',
+      '5':  'videos/modulo5.mp4',
+      '6':  'videos/modulo6.mp4'
+    };
+
+    let _currentProvider = null;    // {id, userId, name, specialties, requiredModules}
+    let _progressMap = {};          // module_id -> row de training_progress
+    let _certification = null;      // row de training_certifications ou null
+    let _quizState = null;          // {moduleId, questions, index, correctCount, selected}
+    let _introModuleId = null;      // módulo atualmente aberto na tela de vídeo
+
+    function requiredModulesFor(specialties){
+      const needs2B = (specialties||[]).some(s => SPECIALTIES_REQUIRE_2B.includes(s));
+      return needs2B ? ALL_MODULES.slice() : ALL_MODULES.filter(m => m !== '2B');
+    }
+
+    function goScreenT(id){
+      document.querySelectorAll('.app > .screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function formatDateTime(iso){
+      if(!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    }
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ─── Autenticação ───────────────────────────────────────────────────────────
+    async function submitLoginT(){
+      const email = document.getElementById('t-email').value.trim();
+      const password = document.getElementById('t-password').value;
+      const errEl = document.getElementById('t-login-error');
+      errEl.textContent = '';
+      if(!email || !password){ errEl.textContent = 'Preencha e-mail e senha.'; return; }
+      const btn = document.getElementById('t-login-btn');
+      btn.textContent = 'Entrando…'; btn.disabled = true;
+      const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+      if(error){
+        errEl.textContent = 'E-mail ou senha incorretos.';
+        btn.textContent = 'Entrar'; btn.disabled = false;
+        return;
+      }
+      await handleSessionT(data.session);
+      btn.textContent = 'Entrar'; btn.disabled = false;
+    }
+
+    async function checkSessionT(){
+      const { data: { session } } = await _supabase.auth.getSession();
+      if(session) await handleSessionT(session);
+    }
+
+    async function handleSessionT(session){
+      const errEl = document.getElementById('t-login-error');
+      const { data: userRow } = await _supabase.from('users').select('role,name').eq('id', session.user.id).single();
+      if(!userRow || userRow.role !== 'provider'){
+        errEl.textContent = 'Esta área é exclusiva para prestadores cadastrados.';
+        await _supabase.auth.signOut();
+        return;
+      }
+      const { data: provRow } = await _supabase.from('providers').select('id,specialties,status').eq('user_id', session.user.id).single();
+      if(!provRow){
+        errEl.textContent = 'Cadastro de prestador não encontrado para esta conta.';
+        await _supabase.auth.signOut();
+        return;
+      }
+      _currentProvider = {
+        id: provRow.id,
+        userId: session.user.id,
+        name: userRow.name,
+        specialties: provRow.specialties || [],
+        requiredModules: requiredModulesFor(provRow.specialties)
+      };
+      await loadDashboardT();
+    }
+
+    async function doLogoutT(){
+      await _supabase.auth.signOut();
+      _currentProvider = null; _progressMap = {}; _certification = null; _quizState = null;
+      document.getElementById('t-email').value = '';
+      document.getElementById('t-password').value = '';
+      document.getElementById('t-login-error').textContent = '';
+      goScreenT('t-login');
+    }
+
+    // ─── Dashboard ──────────────────────────────────────────────────────────────
+    async function loadDashboardT(){
+      const { data: progressRows } = await _supabase
+        .from('training_progress')
+        .select('*')
+        .eq('provider_id', _currentProvider.id);
+      _progressMap = {};
+      (progressRows || []).forEach(r => { _progressMap[r.module_id] = r; });
+
+      const { data: certRow } = await _supabase
+        .from('training_certifications')
+        .select('*')
+        .eq('provider_id', _currentProvider.id)
+        .maybeSingle();
+      _certification = certRow || null;
+
+      // rede de segurança: se por algum motivo todos os módulos já estão 'passed'
+      // mas o certificado não foi emitido (ex: sessão anterior interrompida), emite agora.
+      if(!_certification) await checkAndIssueCertificateT();
+
+      renderDashboardT();
+      goScreenT('t-dashboard');
+    }
+
+    function getModuleStatusT(moduleId){
+      const row = _progressMap[moduleId];
+      if(!row) return { state: 'not_started' };
+      if(row.status === 'passed') return { state: 'passed', score: row.score };
+      if(row.status === 'blocked'){
+        const until = row.blocked_until ? new Date(row.blocked_until) : null;
+        if(until && until > new Date()) return { state: 'blocked', until, score: row.score, attempts: row.attempts };
+        return { state: 'retry', score: row.score, attempts: row.attempts };
+      }
+      return { state: 'not_started' };
+    }
+
+    function renderCertBannerT(){
+      const el = document.getElementById('t-cert-banner');
+      if(_certification){
+        el.innerHTML = `<div class="card" style="background:var(--green-light);border-color:var(--green)">
+          <div class="row" style="margin-bottom:0">
+            <div>
+              <div style="font-weight:500">🎓 Certificado AutoCare</div>
+              <div style="font-size:11px;color:var(--muted)">Emitido em ${formatDateTime(_certification.issued_at)}</div>
+            </div>
+            <span class="badge badge-green">${_certification.cert_id}</span>
+          </div>
+        </div>`;
+      } else {
+        el.innerHTML = `<div class="info-box info-blue">Complete os ${_currentProvider.requiredModules.length} módulos abaixo (mínimo 60% cada) para receber sua certificação AutoCare.</div>`;
+      }
+    }
+
+    function renderDashboardT(){
+      renderCertBannerT();
+      const list = document.getElementById('t-module-list');
+      list.innerHTML = '';
+      _currentProvider.requiredModules.forEach(id => {
+        const info = QUESTION_BANK[id];
+        const st = getModuleStatusT(id);
+        const card = document.createElement('div');
+        card.className = 'card';
+        let badge = '', extra = '';
+        if(st.state === 'passed'){
+          badge = `<span class="badge badge-green">Aprovado · ${st.score}%</span>`;
+        } else if(st.state === 'blocked'){
+          badge = `<span class="badge badge-red">Bloqueado</span>`;
+          extra = `<div class="info-box info-red" style="margin-top:8px;margin-bottom:0">Novo teste liberado em ${formatDateTime(st.until)}</div>`;
+        } else if(st.state === 'retry'){
+          badge = `<span class="badge badge-orange">Não aprovado · ${st.score}%</span>`;
+          extra = `<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="openModuleIntroT('${id}')">Tentar novamente</button>`;
+        } else {
+          badge = `<span class="badge badge-gray">Não iniciado</span>`;
+          extra = `<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="openModuleIntroT('${id}')">Iniciar módulo</button>`;
+        }
+        card.innerHTML = `
+          <div class="row" style="margin-bottom:2px;align-items:flex-start">
+            <div>
+              <div class="module-card-title">Módulo ${id} — ${info.nome}</div>
+              <div class="module-card-sub">${info.total_questoes} perguntas no banco · ${QUESTIONS_PER_ATTEMPT} sorteadas por tentativa</div>
+            </div>
+            ${badge}
+          </div>
+          ${extra}
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function goDashboardT(){
+      renderDashboardT();
+      goScreenT('t-dashboard');
+    }
+
+    // Visão geral + objetivos + quadro de regra geral (training/data/module_overviews.json),
+    // renderizados no topo da tela do módulo, antes do vídeo/placeholder. Vale para os 7 módulos.
+    function renderModuleOverviewT(moduleId){
+      const el = document.getElementById('t-module-overview');
+      const ov = MODULE_OVERVIEWS[moduleId];
+      if(!ov){ el.innerHTML = ''; return; }
+
+      const objetivosHtml = (ov.objetivos || []).map(o => `<li>${o}</li>`).join('');
+
+      el.innerHTML = `
+        <div class="card">
+          <div style="font-size:13px;line-height:1.55">${ov.visao_geral}</div>
+        </div>
+        <div class="card">
+          <div style="font-weight:500;font-size:13px;margin-bottom:8px">Ao concluir este módulo você saberá:</div>
+          <ul class="module-objectives">${objetivosHtml}</ul>
+        </div>
+        <div class="info-box info-yellow module-rule-box">
+          <span class="mrb-emoji">${ov.regra_geral.emoji}</span>
+          <div>
+            <div class="mrb-titulo">${ov.regra_geral.titulo}</div>
+            <div>${ov.regra_geral.texto}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ─── Tela do módulo (vídeo) ─────────────────────────────────────────────────
+    // Fica entre o dashboard e o quiz. Se o módulo tem vídeo (MODULE_VIDEOS[id]),
+    // o botão de iniciar o quiz começa oculto e só aparece quando o vídeo dispara
+    // 'ended'. Sem vídeo cadastrado -> placeholder "em produção" e botão já visível
+    // (não dá pra bloquear em cima de um vídeo que não existe).
+    function openModuleIntroT(moduleId){
+      const st = getModuleStatusT(moduleId);
+      if(st.state === 'blocked'){
+        alert('Este módulo está bloqueado até ' + formatDateTime(st.until) + '.');
+        return;
+      }
+      _introModuleId = moduleId;
+      const info = QUESTION_BANK[moduleId];
+      document.getElementById('t-module-intro-title').textContent = `Módulo ${moduleId} — ${info.nome}`;
+
+      renderModuleOverviewT(moduleId);
+
+      const wrap = document.getElementById('t-module-video-wrap');
+      const btn  = document.getElementById('t-module-start-quiz-btn');
+      const videoSrc = MODULE_VIDEOS[moduleId];
+
+      if(videoSrc){
+        btn.hidden = true;
+        wrap.innerHTML = `
+          <video id="t-module-video" style="width:100%;border-radius:10px;background:#000;display:block"
+            controls controlsList="nodownload" playsinline preload="metadata">
+            <source src="${videoSrc}" type="video/mp4">
+            Seu navegador não suporta reprodução de vídeo.
+          </video>
+          <div class="info-box info-blue" style="margin-top:10px">Assista o vídeo até o fim para liberar o quiz. Você pode voltar e rever trechos já assistidos, mas não pode avançar sem assistir.</div>
+        `;
+        setupVideoGuardT(document.getElementById('t-module-video'));
+      } else {
+        btn.hidden = false;
+        wrap.innerHTML = `
+          <div class="card" style="text-align:center;padding:32px 16px">
+            <div style="font-size:40px;margin-bottom:10px">🎬</div>
+            <div style="font-weight:500;margin-bottom:4px">Vídeo em produção</div>
+            <div style="font-size:12px;color:var(--muted)">O vídeo deste módulo ainda não está disponível. Você já pode seguir direto para o quiz.</div>
+          </div>
+        `;
+      }
+
+      goScreenT('t-module-intro');
+    }
+
+    // Impede pular pra frente: guarda o ponto mais adiantado já assistido
+    // (avança só via reprodução normal) e, se o usuário arrastar a barra pra
+    // frente disso, volta o currentTime pro ponto máximo já visto. Rebobinar
+    // e rever qualquer trecho já assistido continua liberado.
+    function setupVideoGuardT(videoEl){
+      let maxWatched = 0;
+      const TOLERANCE = 0.75; // segundos, evita brigar com a granularidade do timeupdate
+      videoEl.addEventListener('timeupdate', () => {
+        if(videoEl.currentTime > maxWatched) maxWatched = videoEl.currentTime;
+      });
+      videoEl.addEventListener('seeking', () => {
+        if(videoEl.currentTime > maxWatched + TOLERANCE){
+          videoEl.currentTime = maxWatched;
+        }
+      });
+      videoEl.addEventListener('ended', () => {
+        maxWatched = videoEl.duration || maxWatched;
+        document.getElementById('t-module-start-quiz-btn').hidden = false;
+      });
+    }
+
+    function startQuizFromIntroT(){
+      if(!_introModuleId) return;
+      startQuizT(_introModuleId);
+    }
+
+    // ─── Quiz ───────────────────────────────────────────────────────────────────
+    function startQuizT(moduleId){
+      const st = getModuleStatusT(moduleId);
+      if(st.state === 'blocked'){
+        alert('Este módulo está bloqueado até ' + formatDateTime(st.until) + '.');
+        return;
+      }
+      const bank = QUESTION_BANK[moduleId].banco_questoes;
+      const selected = shuffle(bank.slice()).slice(0, QUESTIONS_PER_ATTEMPT);
+      _quizState = { moduleId, questions: selected, index: 0, correctCount: 0, selected: null };
+      document.getElementById('t-quiz-title').textContent = `Módulo ${moduleId} — ${QUESTION_BANK[moduleId].nome}`;
+      renderQuestionT();
+      goScreenT('t-quiz');
+    }
+
+    function renderQuestionT(){
+      const q = _quizState.questions[_quizState.index];
+      const total = _quizState.questions.length;
+      document.getElementById('t-quiz-progress').textContent = `Pergunta ${_quizState.index + 1} de ${total}`;
+      document.getElementById('t-quiz-progress-fill').style.width = Math.round((_quizState.index / total) * 100) + '%';
+
+      const container = document.getElementById('t-quiz-question');
+      container.innerHTML = `
+        <div class="card">
+          <div style="font-size:11px;color:var(--blue);font-weight:500;margin-bottom:6px">${q.tema}</div>
+          <div style="font-size:14px;margin-bottom:14px;line-height:1.5">${q.pergunta}</div>
+          <div id="t-quiz-options"></div>
+        </div>
+      `;
+      const optsEl = document.getElementById('t-quiz-options');
+      ['A','B','C','D'].forEach(letter => {
+        if(!q.alternativas[letter]) return;
+        const optEl = document.createElement('div');
+        optEl.className = 'quiz-option';
+        optEl.dataset.letter = letter;
+        optEl.innerHTML = `<span class="quiz-option-letter">${letter}</span><span>${q.alternativas[letter]}</span>`;
+        optEl.onclick = () => selectAnswerT(letter);
+        optsEl.appendChild(optEl);
+      });
+      _quizState.selected = null;
+      updateNextButtonT();
+    }
+
+    function selectAnswerT(letter){
+      _quizState.selected = letter;
+      document.querySelectorAll('.quiz-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.letter === letter);
+      });
+      updateNextButtonT();
+    }
+
+    function updateNextButtonT(){
+      const btn = document.getElementById('t-quiz-next');
+      btn.disabled = !_quizState.selected;
+      btn.textContent = (_quizState.index === _quizState.questions.length - 1) ? 'Finalizar' : 'Próxima';
+    }
+
+    async function quizNext(){
+      if(!_quizState.selected) return;
+      const q = _quizState.questions[_quizState.index];
+      if(_quizState.selected === q.correta) _quizState.correctCount++;
+      _quizState.index++;
+      if(_quizState.index < _quizState.questions.length){
+        renderQuestionT();
+      } else {
+        await finishQuizT();
+      }
+    }
+
+    function confirmExitQuiz(){
+      if(confirm('Sair do quiz? Suas respostas desta tentativa serão perdidas.')){
+        _quizState = null;
+        goDashboardT();
+      }
+    }
+
+    // ─── Salvar progresso + emitir certificado ────────────────────────────────
+    async function finishQuizT(){
+      const total = _quizState.questions.length;
+      const correct = _quizState.correctCount;
+      const scorePct = Math.round((correct / total) * 100);
+      const passed = scorePct >= PASS_SCORE;
+      const moduleId = _quizState.moduleId;
+
+      const nextBtn = document.getElementById('t-quiz-next');
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Salvando…';
+
+      const existing = _progressMap[moduleId];
+      const attempts = (existing?.attempts || 0) + 1;
+      const nowIso = new Date().toISOString();
+
+      const payload = {
+        provider_id: _currentProvider.id,
+        module_id: moduleId,
+        status: passed ? 'passed' : 'blocked',
+        score: scorePct,
+        attempts: attempts,
+        blocked_until: passed ? null : new Date(Date.now() + BLOCK_HOURS * 3600 * 1000).toISOString(),
+        completed_at: passed ? nowIso : (existing?.completed_at || null),
+        updated_at: nowIso
+      };
+
+      const { data: savedRow, error } = await _supabase
+        .from('training_progress')
+        .upsert(payload, { onConflict: 'provider_id,module_id' })
+        .select()
+        .single();
+
+      if(error){
+        alert('Erro ao salvar o progresso: ' + error.message);
+        goDashboardT();
+        return;
+      }
+      _progressMap[moduleId] = savedRow;
+
+      let certJustIssued = false;
+      if(passed) certJustIssued = await checkAndIssueCertificateT();
+
+      renderResultT({ correct, total, scorePct, passed, moduleId, certJustIssued });
+      goScreenT('t-result');
+    }
+
+    async function checkAndIssueCertificateT(){
+      if(_certification) return false; // já certificado
+      const allPassed = _currentProvider.requiredModules.every(id => _progressMap[id]?.status === 'passed');
+      if(!allPassed) return false;
+
+      const certId = 'AC-' + _currentProvider.id.slice(0, 8).toUpperCase() + '-' + Date.now();
+      const modulesJson = _currentProvider.requiredModules.map(id => ({
+        module_id: id,
+        nome: QUESTION_BANK[id].nome,
+        score: _progressMap[id].score,
+        completed_at: _progressMap[id].completed_at
+      }));
+
+      const { data: certRow, error: certErr } = await _supabase
+        .from('training_certifications')
+        .insert({ provider_id: _currentProvider.id, cert_id: certId, modules_json: modulesJson })
+        .select()
+        .single();
+
+      if(certErr){
+        console.error('Erro ao emitir certificado:', certErr);
+        return false;
+      }
+      _certification = certRow;
+
+      const { error: updErr } = await _supabase
+        .from('providers')
+        .update({
+          training_certified: true,
+          training_certified_at: certRow.issued_at,
+          training_cert_id: certId
+        })
+        .eq('id', _currentProvider.id);
+
+      if(updErr) console.error('Erro ao atualizar providers.training_certified:', updErr);
+
+      return true;
+    }
+
+    function renderResultT({ correct, total, scorePct, passed, moduleId, certJustIssued }){
+      const el = document.getElementById('t-result-content');
+      let html = '';
+      if(passed){
+        html += `
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:52px;margin-bottom:12px">✅</div>
+            <div style="font-size:18px;font-weight:500;margin-bottom:4px">Módulo concluído!</div>
+            <div style="font-size:13px;color:var(--muted)">Você acertou ${correct} de ${total} (${scorePct}%)</div>
+          </div>`;
+      } else {
+        const until = _progressMap[moduleId].blocked_until;
+        html += `
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:52px;margin-bottom:12px">❌</div>
+            <div style="font-size:18px;font-weight:500;margin-bottom:4px">Não foi dessa vez</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Você acertou ${correct} de ${total} (${scorePct}%). É necessário pelo menos ${PASS_SCORE}% para passar.</div>
+            <div class="info-box info-red">Novo teste liberado em ${formatDateTime(until)}</div>
+          </div>`;
+      }
+      if(certJustIssued){
+        html += `
+          <div class="card" style="background:var(--green-light);border-color:var(--green);text-align:center;margin-top:4px">
+            <div style="font-size:32px;margin-bottom:8px">🎓</div>
+            <div style="font-weight:500;margin-bottom:4px">Certificação AutoCare emitida!</div>
+            <div style="font-size:12px;color:var(--muted)">Código: ${_certification.cert_id}</div>
+          </div>`;
+      }
+      el.innerHTML = html;
+    }
+
+    // ─── Init ───────────────────────────────────────────────────────────────────
+    checkSessionT();
+  </script>
+</body>
+</html>

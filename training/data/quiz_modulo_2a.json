@@ -1,0 +1,267 @@
+{
+  "modulo": "2A",
+  "nome": "Segurança no Trabalho — Geral",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "EPIs",
+      "pergunta": "Qual EPI é obrigatório em QUALQUER serviço AutoCare, sem exceção?",
+      "alternativas": {
+        "A": "Máscara PFF1",
+        "B": "Colete refletivo",
+        "C": "Luvas nitrílicas e calçado fechado antiderrapante",
+        "D": "Joelheira"
+      },
+      "correta": "C",
+      "justificativa": "Luvas e calçado fechado são a base de proteção em todos os serviços --- contato com fluidos e risco de queda estão presentes em qualquer job."
+    },
+    {
+      "id": "Q02",
+      "tema": "EPIs",
+      "pergunta": "Um cliente pede que você tire as luvas para não \"marcar o couro do banco\". O que você faz?",
+      "alternativas": {
+        "A": "Tira as luvas --- o cliente tem razão em se preocupar com o acabamento",
+        "B": "Explica que não pode trabalhar sem luvas e oferece alternativa como luvas de algodão por cima",
+        "C": "Ignora o pedido sem explicar nada",
+        "D": "Desiste do serviço imediatamente"
+      },
+      "correta": "B",
+      "justificativa": "EPIs não são negociáveis a pedido do cliente. A explicação educada com oferta de alternativa é o protocolo correto."
+    },
+    {
+      "id": "Q03",
+      "tema": "EPIs",
+      "pergunta": "Para qual situação a máscara PFF1 é obrigatória?",
+      "alternativas": {
+        "A": "Apenas para funilaria e lixamento",
+        "B": "Qualquer serviço em espaço fechado ou com produto concentrado sem ventilação adequada",
+        "C": "Somente quando há odor forte",
+        "D": "Apenas para eletricistas"
+      },
+      "correta": "B",
+      "justificativa": "Vapores de produtos de limpeza concentrados em espaço fechado acumulam independente de odor. A máscara cirúrgica comum não protege contra vapores."
+    },
+    {
+      "id": "Q04",
+      "tema": "Via pública",
+      "pergunta": "Quantos cones são necessários para trabalho em via pública?",
+      "alternativas": {
+        "A": "1 cone atrás do veículo é suficiente",
+        "B": "2 cones --- um na frente e um atrás",
+        "C": "Mínimo 4 cones --- 2 na frente e 2 atrás, a pelo menos 5 metros",
+        "D": "Cones são recomendados mas não obrigatórios"
+      },
+      "correta": "C",
+      "justificativa": "A sinalização mínima são 4 cones posicionados a pelo menos 5 metros do veículo. Em vias com maior velocidade, a distância deve ser maior."
+    },
+    {
+      "id": "Q05",
+      "tema": "Via pública",
+      "pergunta": "Você chega ao local e o veículo está numa rua sem espaço seguro para trabalhar. O que fazer?",
+      "alternativas": {
+        "A": "Começa o serviço --- vai com cuidado",
+        "B": "Usa só um cone e trabalha rápido para terminar logo",
+        "C": "Avalia o local, e se não houver condições seguras, recusa e reporta no app",
+        "D": "Espera o movimento de carros diminuir"
+      },
+      "correta": "C",
+      "justificativa": "Recusar serviço em local sem condições de segurança é um direito e uma obrigação. Não afeta o score do prestador."
+    },
+    {
+      "id": "Q06",
+      "tema": "Via pública",
+      "pergunta": "Onde o prestador deve se posicionar ao trabalhar em via pública?",
+      "alternativas": {
+        "A": "Do lado da pista, de frente para o trânsito",
+        "B": "Entre o veículo e a calçada, nunca de costas para o trânsito",
+        "C": "Pode ser qualquer lado desde que use o colete",
+        "D": "Atrás do veículo, perto dos cones"
+      },
+      "correta": "B",
+      "justificativa": "A posição entre veículo e calçada é a mais segura --- você está protegido pelo veículo em caso de carro desatento. Nunca de costas para o trânsito."
+    },
+    {
+      "id": "Q07",
+      "tema": "Ergonomia",
+      "pergunta": "Como levantar corretamente uma bateria de carro (aprox. 15 kg)?",
+      "alternativas": {
+        "A": "Curvar a coluna e puxar para cima com os braços",
+        "B": "Dobrar os joelhos, manter coluna reta e usar a força das pernas",
+        "C": "Levantar rapidamente para evitar esforço prolongado",
+        "D": "Pedir para o cliente ajudar sempre"
+      },
+      "correta": "B",
+      "justificativa": "A técnica correta de levantamento protege a coluna lombar, que é a região mais vulnerável. Hérnia de disco é uma das lesões ocupacionais mais comuns."
+    },
+    {
+      "id": "Q08",
+      "tema": "Ergonomia / hidratação",
+      "pergunta": "Você está fazendo um polimento de 3 horas no sol e começa a sentir tontura. O que fazer?",
+      "alternativas": {
+        "A": "Toma um café e continua --- cafeína dá energia",
+        "B": "Ignora --- é normal sentir um pouco de calor",
+        "C": "Para imediatamente, vai para a sombra, senta e bebe água. Se persistir, reporta no app e aciona o SAMU",
+        "D": "Termina o serviço rapidamente e descansa depois"
+      },
+      "correta": "C",
+      "justificativa": "Tontura durante trabalho ao sol é sinal de desidratação ou insolação. Continuar trabalhando aumenta o risco de desmaio com queda sobre o veículo ou ferramentas."
+    },
+    {
+      "id": "Q09",
+      "tema": "Corte",
+      "pergunta": "Você se corta numa borda metálica e começa a sangrar. Qual o primeiro passo?",
+      "alternativas": {
+        "A": "Limpar com álcool diretamente no ferimento",
+        "B": "Pressionar o local com pano limpo por no mínimo 3 minutos contínuos",
+        "C": "Ver o quanto está sangrando antes de decidir o que fazer",
+        "D": "Continuar o serviço e cuidar depois"
+      },
+      "correta": "B",
+      "justificativa": "Pressão contínua é o que interrompe o sangramento. Soltar para \"ver se parou\" desfaz o coágulo que estava se formando."
+    },
+    {
+      "id": "Q10",
+      "tema": "Corte",
+      "pergunta": "O que você NUNCA deve usar num corte aberto?",
+      "alternativas": {
+        "A": "Gaze estéril",
+        "B": "Água limpa corrente",
+        "C": "Álcool diretamente no ferimento aberto",
+        "D": "Esparadrapo"
+      },
+      "correta": "C",
+      "justificativa": "Álcool em ferimento aberto causa dano tecidual e não é mais eficaz que água limpa para limpeza inicial. Aumenta a dor sem benefício adicional."
+    },
+    {
+      "id": "Q11",
+      "tema": "Queimadura",
+      "pergunta": "Respingo de fluido de radiador quente atingiu seu antebraço. O que fazer primeiro?",
+      "alternativas": {
+        "A": "Passar pasta de dente para refrescar",
+        "B": "Água fria corrente por no mínimo 10 minutos",
+        "C": "Gelo diretamente no local para resfriar rápido",
+        "D": "Ignorar se a dor for leve --- fluido de radiador não queima tanto"
+      },
+      "correta": "B",
+      "justificativa": "Água fria corrente por 10 minutos é o único tratamento eficaz no local. Gelo causa queimadura pelo frio. Pasta de dente retém calor e contamina."
+    },
+    {
+      "id": "Q12",
+      "tema": "Queimadura",
+      "pergunta": "Quando ligar para o SAMU (192) após uma queimadura?",
+      "alternativas": {
+        "A": "Sempre --- qualquer queimadura exige socorro",
+        "B": "Nunca --- queimaduras leves passam sozinhas",
+        "C": "Quando a queimadura for maior que a palma da mão, tiver bolhas extensas, ou atingir rosto, mãos ou articulações",
+        "D": "Somente se a pele estiver chamuscada"
+      },
+      "correta": "C",
+      "justificativa": "A regra da palma da mão é um referencial prático: área maior que isso já merece avaliação médica profissional urgente."
+    },
+    {
+      "id": "Q13",
+      "tema": "Inalação",
+      "pergunta": "Ao usar produto concentrado numa garagem fechada você sente tontura e tosse. O que fazer?",
+      "alternativas": {
+        "A": "Abrir uma janela e continuar o serviço",
+        "B": "Sair imediatamente para o ar livre, sentar e respirar fundo",
+        "C": "Tomar água e aguardar passar",
+        "D": "Usar a máscara cirúrgica e continuar"
+      },
+      "correta": "B",
+      "justificativa": "A ação imediata é sair do ambiente --- a máscara cirúrgica não protege contra vapores. Sentar é importante para evitar queda por tontura."
+    },
+    {
+      "id": "Q14",
+      "tema": "Inalação",
+      "pergunta": "Qual máscara protege corretamente contra vapores de produtos de limpeza?",
+      "alternativas": {
+        "A": "Máscara cirúrgica descartável comum",
+        "B": "Máscara de tecido lavável",
+        "C": "Máscara PFF1 ou superior",
+        "D": "Qualquer máscara funciona se cobrir nariz e boca"
+      },
+      "correta": "C",
+      "justificativa": "Máscaras cirúrgicas e de tecido filtram partículas sólidas mas não vapores químicos. PFF1 tem filtração adequada para vapores de produtos de limpeza automotiva."
+    },
+    {
+      "id": "Q15",
+      "tema": "Registro no app",
+      "pergunta": "Você se machuca levemente durante o serviço mas se recupera rapidamente. Deve registrar no app?",
+      "alternativas": {
+        "A": "Não --- acidentes pequenos não precisam de registro",
+        "B": "Somente se precisar de atendimento médico",
+        "C": "Sim --- todo acidente com ferimento deve ser registrado no app, mesmo os pequenos",
+        "D": "Apenas se o cliente presenciou"
+      },
+      "correta": "C",
+      "justificativa": "O registro protege o prestador legalmente se houver qualquer complicação posterior. Acidentes sem registro não têm cobertura de suporte da AutoCare."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "O cliente tem um carro esportivo e diz que a garagem é muito pequena para cones. O que fazer?",
+      "alternativas": {
+        "A": "Trabalha sem cones --- a garagem é fechada de qualquer jeito",
+        "B": "Usa apenas 2 cones dentro da garagem para sinalizar",
+        "C": "Avalia se há circulação de veículos. Se for garagem privada completamente fechada e sem circulação, adapta a sinalização. Se houver qualquer trânsito, exige cones ou recusa",
+        "D": "Decide com base no humor do cliente"
+      },
+      "correta": "C",
+      "justificativa": "Garagem privada completamente fechada sem circulação tem risco menor. Mas qualquer área com circulação de veículos exige sinalização --- não há exceção."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Durante o serviço você inalou produto e passou mal. O cliente sugere que você \"respire um pouco e continue\". O que fazer?",
+      "alternativas": {
+        "A": "Segue o conselho do cliente --- ele está tentando ajudar",
+        "B": "Respira um pouco e tenta voltar ao serviço se a tontura diminuir",
+        "C": "Recusa continuar até estar completamente recuperado, reporta no app e avalia se precisa de atendimento médico",
+        "D": "Vai embora sem avisar o cliente"
+      },
+      "correta": "C",
+      "justificativa": "Sintomas de inalação podem voltar ou piorar. Você não deve voltar ao serviço no mesmo dia em ambiente com vapores. O app AutoCare gerencia a situação com o cliente."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Você não tem todos os EPIs no dia do serviço --- esqueceu as luvas. O que fazer?",
+      "alternativas": {
+        "A": "Faz o serviço sem luvas --- é rápido",
+        "B": "Usa sacolas plásticas improvisadas como proteção",
+        "C": "Reporta no app antes de começar e combina a entrega dos EPIs ou o reagendamento",
+        "D": "Compra luvas descartáveis no caminho sem avisar"
+      },
+      "correta": "C",
+      "justificativa": "Executar serviço sem EPI obrigatório é falta grave. Reportar antes e resolver é o protocolo correto. Comprar as luvas no caminho pode funcionar na prática, mas o registro deve ser feito."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Qual o número correto para acionar o SAMU em caso de acidente grave?",
+      "alternativas": {
+        "A": "190",
+        "B": "193",
+        "C": "192",
+        "D": "197"
+      },
+      "correta": "C",
+      "justificativa": "192 é o SAMU --- Serviço de Atendimento Móvel de Urgência. 190 é a Polícia. 193 são os Bombeiros. Ambos SAMU e Bombeiros atendem emergências médicas."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Ao finalizar um serviço onde houve um pequeno incidente de segurança (que você resolveu sozinho), o que é obrigatório?",
+      "alternativas": {
+        "A": "Nada --- se resolveu sozinho não precisa informar ninguém",
+        "B": "Avisar o cliente verbalmente e ir embora",
+        "C": "Registrar o ocorrido no app AutoCare antes de finalizar o serviço",
+        "D": "Só registrar se o cliente reclamou"
+      },
+      "correta": "C",
+      "justificativa": "Todo incidente de segurança, mesmo resolvido, deve ser registrado no app. Isso cria um histórico que protege o prestador e permite que a AutoCare melhore os processos."
+    }
+  ]
+}

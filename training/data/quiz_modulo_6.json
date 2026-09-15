@@ -1,0 +1,267 @@
+{
+  "modulo": "6",
+  "nome": "Uso da Plataforma",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Dashboard",
+      "pergunta": "O que acontece quando o prestador está com status \"Indisponível\" no app?",
+      "alternativas": {
+        "A": "Ele recebe ofertas mas com menor prioridade",
+        "B": "Ele não recebe ofertas de job --- está fora da fila de dispatch",
+        "C": "Seu score é penalizado por inatividade",
+        "D": "O app fecha automaticamente após 30 minutos"
+      },
+      "correta": "B",
+      "justificativa": "Indisponível significa ausência total da fila de dispatch --- sem penalidade no score. É o modo correto de usar quando não se pode atender, em vez de recusar jobs."
+    },
+    {
+      "id": "Q02",
+      "tema": "Dashboard",
+      "pergunta": "Em qual situação o prestador DEVE desativar a disponibilidade?",
+      "alternativas": {
+        "A": "Quando quer receber menos jobs para manter qualidade",
+        "B": "Quando não pode atender novos jobs --- por compromisso, falta de material ou cansaço",
+        "C": "Apenas quando estiver doente",
+        "D": "Nunca --- a disponibilidade deve ficar sempre ativa"
+      },
+      "correta": "B",
+      "justificativa": "Desativar quando não pode atender é o uso correto. Fica disponível sem poder atender = recusas que impactam o score. A chave é honestidade com a própria agenda."
+    },
+    {
+      "id": "Q03",
+      "tema": "Fluxo do job",
+      "pergunta": "Quantos minutos o prestador tem para aceitar ou recusar uma oferta de job?",
+      "alternativas": {
+        "A": "5 minutos",
+        "B": "10 minutos",
+        "C": "15 minutos",
+        "D": "30 minutos"
+      },
+      "correta": "C",
+      "justificativa": "15 minutos é a janela de aceitação. Esse tempo existe para o prestador ler todos os detalhes com calma. Após 15 minutos sem resposta, a oferta vai para o próximo prestador na fila."
+    },
+    {
+      "id": "Q04",
+      "tema": "Fluxo do job",
+      "pergunta": "Quando o endereço completo do cliente é revelado no app?",
+      "alternativas": {
+        "A": "Ao receber a oferta",
+        "B": "Somente após aceitar o job",
+        "C": "Apenas ao chegar no local",
+        "D": "No dia anterior ao serviço"
+      },
+      "correta": "B",
+      "justificativa": "O endereço completo só aparece após o aceite --- antes disso apenas o bairro é mostrado, para proteger a privacidade do cliente."
+    },
+    {
+      "id": "Q05",
+      "tema": "Fluxo do job",
+      "pergunta": "O cliente aprovou o job mas não avaliou. O que acontece após 48 horas?",
+      "alternativas": {
+        "A": "O pagamento não é liberado até a avaliação",
+        "B": "O job é reaberto automaticamente",
+        "C": "O pagamento é liberado automaticamente mesmo sem avaliação",
+        "D": "O suporte AutoCare entra em contato com o cliente"
+      },
+      "correta": "C",
+      "justificativa": "O prazo de 48h garante que o pagamento não fique retido indefinidamente. Se o cliente não avaliar, o pagamento é liberado automaticamente --- o prestador não é penalizado."
+    },
+    {
+      "id": "Q06",
+      "tema": "Score",
+      "pergunta": "Qual componente tem o maior peso no cálculo do score?",
+      "alternativas": {
+        "A": "Taxa de conclusão (25%)",
+        "B": "Pontualidade (20%)",
+        "C": "Nota média do cliente (40%)",
+        "D": "Reclamações (15%)"
+      },
+      "correta": "C",
+      "justificativa": "A nota do cliente com 40% de peso é o componente mais impactante. É o reflexo direto da experiência do cliente --- por isso qualidade de entrega impacta o score mais do que qualquer outro fator."
+    },
+    {
+      "id": "Q07",
+      "tema": "Score e tiers",
+      "pergunta": "Um prestador com score 8.3 está em qual tier?",
+      "alternativas": {
+        "A": "Bronze",
+        "B": "Prata",
+        "C": "Ouro",
+        "D": "Diamante"
+      },
+      "correta": "C",
+      "justificativa": "Score 8.0 ou mais = Ouro. O prestador com 8.3 está no tier Ouro, recebe jobs com segunda prioridade (após Diamante) e tem acesso a jobs premium."
+    },
+    {
+      "id": "Q08",
+      "tema": "Pagamentos",
+      "pergunta": "Onde o prestador verifica os jobs concluídos aguardando aprovação do cliente?",
+      "alternativas": {
+        "A": "Aba \"Histórico\" em Pagamentos",
+        "B": "Aba \"A liberar\" em Pagamentos",
+        "C": "Aba \"Jobs ativos\" no Dashboard",
+        "D": "Aba \"Score\" no app"
+      },
+      "correta": "B",
+      "justificativa": "\"A liberar\" mostra o valor retido dos jobs concluídos e aguardando aprovação do cliente. É importante verificar regularmente para identificar jobs que podem estar com problema."
+    },
+    {
+      "id": "Q09",
+      "tema": "Pagamentos",
+      "pergunta": "O prestador pode aceitar pagamento diretamente do cliente em dinheiro pelo serviço?",
+      "alternativas": {
+        "A": "Sim --- desde que declare depois no app",
+        "B": "Sim --- apenas para jobs de baixo valor",
+        "C": "Não --- todo pagamento pelo serviço deve passar pela plataforma AutoCare",
+        "D": "Sim --- em casos de emergência, desde que reporte em 24h"
+      },
+      "correta": "C",
+      "justificativa": "Pagamento direto fora da plataforma viola os termos e pode resultar em suspensão imediata. O cliente também perde a proteção da garantia AutoCare em transações fora do app."
+    },
+    {
+      "id": "Q10",
+      "tema": "Agenda",
+      "pergunta": "O que o prestador deve fazer ao receber uma oferta de job em especialidade que não domina?",
+      "alternativas": {
+        "A": "Aceitar e tentar fazer --- aprender na prática",
+        "B": "Aceitar e subcontratar outro prestador",
+        "C": "Recusar e selecionar o motivo correto no app",
+        "D": "Ignorar a oferta até expirar"
+      },
+      "correta": "C",
+      "justificativa": "Recusar com motivo correto é o protocolo. Ignorar até expirar é pior --- o sistema interpreta como falta de resposta e pode impactar a disponibilidade. Subcontratar é estritamente proibido."
+    },
+    {
+      "id": "Q11",
+      "tema": "Suporte",
+      "pergunta": "Em qual categoria do suporte o prestador deve abrir chamado quando causa dano ao veículo?",
+      "alternativas": {
+        "A": "Dúvida financeira",
+        "B": "Problema técnico no app",
+        "C": "Ocorrência no job --- acionar imediatamente antes de sair",
+        "D": "Aguardar o cliente abrir reclamação"
+      },
+      "correta": "C",
+      "justificativa": "Dano causado = ocorrência no job, imediatamente. O registro com timestamp e foto no ato do dano é a proteção do prestador. Aguardar o cliente abrir reclamação é a pior estratégia."
+    },
+    {
+      "id": "Q12",
+      "tema": "Suporte",
+      "pergunta": "Qual é o tempo de resposta do suporte para ocorrências urgentes no job?",
+      "alternativas": {
+        "A": "Até 15 minutos",
+        "B": "Até 2 horas em horário comercial",
+        "C": "Até 24 horas",
+        "D": "Até 1 semana"
+      },
+      "correta": "B",
+      "justificativa": "Ocorrências no job têm resposta em até 2 horas. Para situações de risco físico imediato, o protocolo é sair do local e ligar para emergências (190/192) primeiro, depois abrir o chamado no app."
+    },
+    {
+      "id": "Q13",
+      "tema": "Casos reais",
+      "pergunta": "Prestador está disponível mas tem um compromisso pessoal importante no fim do dia. Como proceder?",
+      "alternativas": {
+        "A": "Manter disponível e recusar os jobs que chegarem tarde",
+        "B": "Desativar a disponibilidade no horário que não pode atender",
+        "C": "Aceitar todos os jobs e cancelar se necessário",
+        "D": "Desativar o app completamente"
+      },
+      "correta": "B",
+      "justificativa": "Desativar a disponibilidade no período que não pode atender é o uso correto --- sem impacto no score e sem jobs indesejados."
+    },
+    {
+      "id": "Q14",
+      "tema": "Casos reais",
+      "pergunta": "Ao tentar finalizar o job, o app apresenta erro e não processa. O que fazer?",
+      "alternativas": {
+        "A": "Fechar o app e tentar no dia seguinte",
+        "B": "Pedir ao cliente para aprovar diretamente --- sem usar o app",
+        "C": "Abrir chamado em Suporte → Problema técnico com o número do job imediatamente",
+        "D": "Tentar reinstalar o app no local do serviço"
+      },
+      "correta": "C",
+      "justificativa": "Suporte técnico imediato com o número do job é o protocolo. O time pode finalizar manualmente. Nunca deixe job em estado suspenso sem comunicar."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Prestador recebeu pagamento menor do que o valor mostrado na oferta. O que fazer?",
+      "alternativas": {
+        "A": "Aceitar --- provavelmente é a comissão da AutoCare",
+        "B": "Verificar o breakdown em Pagamentos → Histórico. Se ainda houver discrepância, Suporte → Dúvida financeira com número do job",
+        "C": "Contatar o cliente pedindo complemento",
+        "D": "Publicar reclamação nas redes sociais"
+      },
+      "correta": "B",
+      "justificativa": "O valor líquido (após comissão) aparece no app antes do aceite --- verifique se a diferença é apenas a comissão. Se houver discrepância real, suporte com o número do job resolve."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Prestador aceita job e percebe que o endereço fica a 45km --- muito além do esperado. O que fazer?",
+      "alternativas": {
+        "A": "Ir mesmo assim --- já aceitou",
+        "B": "Cancelar imediatamente sem justificativa",
+        "C": "Acionar o suporte explicando a situação --- em casos extremos de erro de dispatch, o cancelamento pode ser tratado sem impacto no score",
+        "D": "Subcontratar outro prestador da região"
+      },
+      "correta": "C",
+      "justificativa": "Erros de dispatch existem. Acionar o suporte é o canal correto --- cancelamentos com contexto justificado podem ser tratados de forma diferenciada. Subcontratação é proibida."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "O cliente não aprova o job após 47 horas. O prestador deve:",
+      "alternativas": {
+        "A": "Acionar o cliente diretamente pelo celular pedindo aprovação",
+        "B": "Aguardar --- em 1 hora o pagamento será liberado automaticamente",
+        "C": "Abrir reclamação contra o cliente",
+        "D": "Cancelar o job e reabrir"
+      },
+      "correta": "B",
+      "justificativa": "O prazo automático de 48h protege o prestador. Não há necessidade de intervenção --- o pagamento é liberado automaticamente. Contatar o cliente diretamente fora do app não é recomendado."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Prestador recusa 4 jobs seguidos em um dia porque estava ocupado mas esqueceu de desativar a disponibilidade. Qual o impacto?",
+      "alternativas": {
+        "A": "Nenhum --- recusas não impactam o score",
+        "B": "A taxa de conclusão cai, impactando o componente de 25% do score",
+        "C": "O prestador é automaticamente suspenso após 3 recusas",
+        "D": "Apenas a pontualidade é afetada"
+      },
+      "correta": "B",
+      "justificativa": "Taxa de conclusão = jobs concluídos ÷ jobs aceitos. Recusas não entram nesse cálculo diretamente, mas aceitar e não concluir entra. O impacto maior é em jobs aceitos e cancelados --- não em recusas puras. A solução é desativar a disponibilidade."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Qual destas ações é realizada automaticamente pelo app sem intervenção do prestador?",
+      "alternativas": {
+        "A": "Tirar foto antes do serviço",
+        "B": "Comunicar atraso ao cliente",
+        "C": "Liberar pagamento após 48h se o cliente não aprovar",
+        "D": "Registrar ocorrências no job"
+      },
+      "correta": "C",
+      "justificativa": "Liberação automática após 48h é a única ação totalmente automática nesta lista. As outras exigem ação ativa do prestador no app."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Ao concluir este módulo com aprovação, o que o prestador está habilitado a fazer?",
+      "alternativas": {
+        "A": "Apenas receber jobs de baixa complexidade",
+        "B": "Receber jobs em qualquer especialidade sem restrição de valor",
+        "C": "Receber seu primeiro job como prestador certificado AutoCare na especialidade para a qual se cadastrou",
+        "D": "Receber jobs e treinar outros prestadores"
+      },
+      "correta": "C",
+      "justificativa": "A certificação habilita o prestador a receber jobs na especialidade cadastrada. Especialidades adicionais ou funções de mentoria são estágios posteriores no programa."
+    }
+  ]
+}

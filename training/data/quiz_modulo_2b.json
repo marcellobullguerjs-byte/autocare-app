@@ -1,0 +1,267 @@
+{
+  "modulo": "2B",
+  "nome": "Segurança Elétrica e Química",
+  "total_questoes": 20,
+  "banco_questoes": [
+    {
+      "id": "Q01",
+      "tema": "Risco elétrico",
+      "pergunta": "Qual é o primeiro passo antes de qualquer trabalho no sistema elétrico de um veículo?",
+      "alternativas": {
+        "A": "Ligar o multímetro para testar a tensão",
+        "B": "Desconectar o polo negativo da bateria",
+        "C": "Verificar se o motor está frio",
+        "D": "Avisar o cliente para ficar longe"
+      },
+      "correta": "B",
+      "justificativa": "Desconectar o polo negativo antes de qualquer intervenção elétrica é a regra fundamental. Elimina o risco de curto-circuito e choque durante o serviço."
+    },
+    {
+      "id": "Q02",
+      "tema": "Risco elétrico",
+      "pergunta": "Ao reconectar a bateria, qual polo deve ser conectado primeiro?",
+      "alternativas": {
+        "A": "Negativo --- mesma ordem da desconexão",
+        "B": "Positivo --- sempre positivo primeiro ao reconectar",
+        "C": "Tanto faz --- o que estiver mais acessível",
+        "D": "Negativo se o motor estiver frio, positivo se estiver quente"
+      },
+      "correta": "B",
+      "justificativa": "A regra é: desconectar = negativo primeiro. Reconectar = positivo primeiro. Essa sequência evita faíscas ao fechar o circuito."
+    },
+    {
+      "id": "Q03",
+      "tema": "Risco elétrico",
+      "pergunta": "Um cliente tem um carro elétrico (EV) e pede um serviço no sistema de carga. O que você faz?",
+      "alternativas": {
+        "A": "Trata como veículo convencional --- é só elétrica",
+        "B": "Usa luvas duplas e prossegue normalmente",
+        "C": "Não inicia o serviço e consulta o suporte AutoCare antes de qualquer intervenção",
+        "D": "Verifica a tensão com multímetro e decide na hora"
+      },
+      "correta": "C",
+      "justificativa": "Veículos elétricos e híbridos podem ter tensão de 400V ou mais --- risco de morte real. Nunca iniciar sem orientação específica. Esta regra não tem exceção."
+    },
+    {
+      "id": "Q04",
+      "tema": "Bateria",
+      "pergunta": "Por que uma bateria pode explodir?",
+      "alternativas": {
+        "A": "Excesso de carga elétrica acumulada nos terminais",
+        "B": "Liberação de gás hidrogênio que se acumula e ignita com faísca",
+        "C": "Temperatura muito alta do ambiente",
+        "D": "Bateria velha perde a estrutura interna e implode"
+      },
+      "correta": "B",
+      "justificativa": "Baterias em carga ou com baixa carga liberam gás hidrogênio --- inodoro, incolor e altamente inflamável. Uma faísca ao conectar os cabos é suficiente para causar explosão com projeção de ácido."
+    },
+    {
+      "id": "Q05",
+      "tema": "Bateria",
+      "pergunta": "Você nota pó branco (sulfatação) nos terminais da bateria. Qual o procedimento correto antes de tocá-los?",
+      "alternativas": {
+        "A": "Soprar o pó para limpar antes de tocar",
+        "B": "Usar luvas e óculos. Limpar com solução de bicarbonato de sódio e água antes de qualquer toque",
+        "C": "Tocar normalmente --- sulfatação é só sujeira",
+        "D": "Molhar com água da torneira para amolecer"
+      },
+      "correta": "B",
+      "justificativa": "Sulfato de chumbo é tóxico e irritante. EPI obrigatório antes de tocar. A solução de bicarbonato neutraliza a acidez residual com segurança."
+    },
+    {
+      "id": "Q06",
+      "tema": "Risco químico",
+      "pergunta": "Qual é a principal diferença entre usar produto de limpeza automotiva diluído vs. concentrado?",
+      "alternativas": {
+        "A": "Nenhuma --- o produto é o mesmo em qualquer concentração",
+        "B": "Produto concentrado exige EPI mais robusto (luvas grossas, máscara com filtro para vapores) e nunca deve ser usado em espaço fechado sem ventilação",
+        "C": "Produto concentrado só é perigoso se ingerido",
+        "D": "Produto diluído é mais perigoso porque mancha a pintura"
+      },
+      "correta": "B",
+      "justificativa": "Concentração altera drasticamente o risco de dano químico à pele, olhos e vias respiratórias. Os EPIs do Módulo 2A (luvas nitrílicas finas) podem não ser suficientes para produtos concentrados."
+    },
+    {
+      "id": "Q07",
+      "tema": "Risco químico",
+      "pergunta": "Ao diluir um produto concentrado, qual é a ordem correta?",
+      "alternativas": {
+        "A": "Colocar o produto na água",
+        "B": "Colocar a água no produto",
+        "C": "Pode ser qualquer ordem",
+        "D": "Agitar o produto primeiro e depois adicionar água"
+      },
+      "correta": "A",
+      "justificativa": "A regra química universal: sempre adicione o produto concentrado na água, nunca o contrário. Adicionar água a ácido concentrado causa reação exotérmica violenta (calor e respingo)."
+    },
+    {
+      "id": "Q08",
+      "tema": "Choque --- socorro",
+      "pergunta": "Seu assistente recebe um choque e está em contato com o cabo energizado. Qual é a primeira ação?",
+      "alternativas": {
+        "A": "Agarrá-lo pelos ombros e afastá-lo do cabo",
+        "B": "Desligar a fonte de energia ou usar objeto não-condutor para afastá-lo",
+        "C": "Ligar imediatamente para o 192 antes de qualquer coisa",
+        "D": "Chamar o cliente para ajudar a segurar"
+      },
+      "correta": "B",
+      "justificativa": "Tocar a vítima em contato com fonte elétrica transmite o choque para você. Primeiro desligue a fonte --- polo negativo ou ignição. Só então toque a vítima."
+    },
+    {
+      "id": "Q09",
+      "tema": "Choque --- socorro",
+      "pergunta": "Após desconectar a fonte elétrica, a vítima de choque está consciente e diz que está bem. O que fazer?",
+      "alternativas": {
+        "A": "Deixar ela voltar ao trabalho se se sentir bem",
+        "B": "Dar água e aguardar 10 minutos para ver se passa",
+        "C": "Acionar 192 de qualquer forma --- dano cardíaco por choque pode ser silencioso e surgir horas depois",
+        "D": "Verificar se há queimaduras visíveis e, se não houver, encerrar o atendimento"
+      },
+      "correta": "C",
+      "justificativa": "Choque elétrico pode causar arritmia cardíaca sem sintomas imediatos. A vítima deve ser avaliada por médico independente de como se sentir no momento."
+    },
+    {
+      "id": "Q10",
+      "tema": "Ácido --- socorro",
+      "pergunta": "Respingo de ácido de bateria na pele. Por quanto tempo lavar com água?",
+      "alternativas": {
+        "A": "2 minutos é suficiente",
+        "B": "5 minutos",
+        "C": "No mínimo 20 minutos de água fria corrente",
+        "D": "Até a ardência parar"
+      },
+      "correta": "C",
+      "justificativa": "20 minutos é o tempo mínimo para lavagem de contato com ácido na pele. Parar antes aumenta o risco de dano profundo ao tecido."
+    },
+    {
+      "id": "Q11",
+      "tema": "Ácido --- socorro",
+      "pergunta": "Respingo de ácido de bateria no olho. Você deve:",
+      "alternativas": {
+        "A": "Iniciar lavagem com água por 15--20 min e ligar 192 durante a lavagem",
+        "B": "Colocar colírio para neutralizar e aguardar",
+        "C": "Esfregar levemente para remover o líquido",
+        "D": "Tampar o olho e ir ao pronto-socorro sem lavar"
+      },
+      "correta": "A",
+      "justificativa": "Lavagem imediata e prolongada é a única intervenção eficaz no local. Colírio antes de avaliação médica pode interferir no diagnóstico. Esfregar aumenta o dano."
+    },
+    {
+      "id": "Q12",
+      "tema": "Inalação grave",
+      "pergunta": "Qual é o número do CIATox para orientação sobre intoxicação química?",
+      "alternativas": {
+        "A": "192",
+        "B": "193",
+        "C": "0800 722 6001",
+        "D": "0800 591 1234"
+      },
+      "correta": "C",
+      "justificativa": "CIATox --- Centro de Informação e Assistência Toxicológica --- é gratuito, funciona 24 horas e conta com toxicologistas para orientar sobre qualquer produto específico. É diferente do SAMU, que cuida do socorro físico."
+    },
+    {
+      "id": "Q13",
+      "tema": "Descarte",
+      "pergunta": "Onde descartar óleo de motor usado corretamente?",
+      "alternativas": {
+        "A": "No ralo com bastante água para diluir",
+        "B": "No lixo comum em saco plástico fechado",
+        "C": "Em posto de combustível (obrigado a receber) ou ecoponto municipal",
+        "D": "No esgoto --- vai para tratamento de qualquer forma"
+      },
+      "correta": "C",
+      "justificativa": "1 litro de óleo usado contamina até 1 milhão de litros de água. Postos de combustível são legalmente obrigados a receber óleo usado sem custo."
+    },
+    {
+      "id": "Q14",
+      "tema": "Descarte",
+      "pergunta": "Como descartar corretamente uma embalagem de produto químico vazia?",
+      "alternativas": {
+        "A": "Lixo comum direto",
+        "B": "Tríplice lavagem (3x com água), depois lixo comum",
+        "C": "Queimar junto com outros resíduos de trabalho",
+        "D": "Devolver ao fornecedor em qualquer situação"
+      },
+      "correta": "B",
+      "justificativa": "A tríplice lavagem remove os resíduos do produto e torna a embalagem apta para lixo comum. Sem a lavagem, a embalagem tem resíduo perigoso e não pode ir ao lixo comum."
+    },
+    {
+      "id": "Q15",
+      "tema": "Casos reais",
+      "pergunta": "Por que desconectar o polo negativo antes de trabalhar no sistema elétrico, mesmo em serviços \"simples\" como trocar uma lâmpada?",
+      "alternativas": {
+        "A": "Faz parte do protocolo mas na prática não muda nada",
+        "B": "Evita curto-circuito que pode danificar módulos eletrônicos, causar incêndio e queimaduras --- independente do tamanho do serviço",
+        "C": "Só é necessário em carros mais antigos",
+        "D": "Apenas para proteger o voltímetro do prestador"
+      },
+      "correta": "B",
+      "justificativa": "Sistemas elétricos modernos têm módulos sensíveis e correntes altas. Curto em qualquer ponto pode causar dano irreversível --- ao veículo e ao prestador."
+    },
+    {
+      "id": "Q16",
+      "tema": "Casos reais",
+      "pergunta": "Você vai fazer troca de bateria e esqueceu as luvas. O que fazer?",
+      "alternativas": {
+        "A": "Trabalha sem luvas --- é só uma bateria",
+        "B": "Usa sacolas plásticas como improviso",
+        "C": "Reporta no app, explica ao cliente e só prossegue se conseguir luvas adequadas antes de começar",
+        "D": "Usa apenas uma luva --- pelo menos uma mão fica protegida"
+      },
+      "correta": "C",
+      "justificativa": "Bateria sem luvas = exposição a ácido e sulfatação. Não há improviso aceitável para EPI em trabalho com bateria. Reportar e resolver é o protocolo correto."
+    },
+    {
+      "id": "Q17",
+      "tema": "Casos reais",
+      "pergunta": "Um Detailer está aplicando produto em garagem fechada e sente dor de cabeça após 15 minutos. O que fazer?",
+      "alternativas": {
+        "A": "Termina rápido --- já está quase no final",
+        "B": "Abre uma fresta na porta e continua",
+        "C": "Para imediatamente, vai ao ar livre, senta e avalia. Se não melhorar em 5 min, aciona 192",
+        "D": "Toma um analgésico e continua"
+      },
+      "correta": "C",
+      "justificativa": "Dor de cabeça durante aplicação de solventes é sintoma de inalação em curso. A concentração continua aumentando no ambiente fechado --- o risco piora se você continuar."
+    },
+    {
+      "id": "Q18",
+      "tema": "Casos reais",
+      "pergunta": "Após troca de óleo, o cliente pede para você descartar o óleo velho no ralo da garagem. O que fazer?",
+      "alternativas": {
+        "A": "Atende o pedido --- a decisão é do cliente no imóvel dele",
+        "B": "Explica que descarte no ralo é infração ambiental e que levará o óleo para descarte correto",
+        "C": "Despeja metade e leva o resto",
+        "D": "Coloca o óleo num saco plástico e joga no lixo comum"
+      },
+      "correta": "B",
+      "justificativa": "O prestador é responsável pelo descarte correto dos resíduos que gerou, independente do que o cliente solicitar. Descarte no ralo é infração ambiental --- não importa quem pediu."
+    },
+    {
+      "id": "Q19",
+      "tema": "Casos reais",
+      "pergunta": "Funileiro percebe que o produto de primer que vai usar é corrosivo mas não tem óculos de proteção. O que fazer?",
+      "alternativas": {
+        "A": "Usa óculos de sol --- protege parcialmente",
+        "B": "Aplica com cuidado evitando respingos",
+        "C": "Não inicia o serviço com produto corrosivo sem EPI ocular adequado. Reporta no app e resolve antes de começar",
+        "D": "Pede ao cliente um óculos emprestado"
+      },
+      "correta": "C",
+      "justificativa": "Primer corrosivo sem óculos de proteção = risco de dano ocular permanente. Não há workaround aceitável para este EPI em serviço com produto corrosivo."
+    },
+    {
+      "id": "Q20",
+      "tema": "Casos reais",
+      "pergunta": "Qual informação você deve passar ao CIATox ao ligar?",
+      "alternativas": {
+        "A": "Apenas seu nome e CPF",
+        "B": "O nome comercial ou composição do produto envolvido, a rota de exposição (pele, olho, inalação) e os sintomas",
+        "C": "Só os sintomas --- o produto não importa para eles",
+        "D": "O número do job no app AutoCare"
+      },
+      "correta": "B",
+      "justificativa": "O CIATox precisa saber o produto específico para dar orientação precisa --- cada substância tem tratamento diferente. Nome comercial ou composição química + rota de exposição + sintomas são as informações essenciais."
+    }
+  ]
+}
