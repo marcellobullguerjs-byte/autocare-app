@@ -1431,6 +1431,7 @@ let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},d
 let calMonth=new Date().getMonth(),calYear=new Date().getFullYear();
 let currentView='admin',navHistory=[],currentScreen='a-dashboard';
 let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',claimsFilter='Pendente',currentSupply='q';
+let selectedReallocId=null;
 let currentStar=0,chkState={1:false,2:false,3:false,4:false};
 let selectedVehicle=2,countdownInterval=null,countdownSecs=900;
 
@@ -1786,14 +1787,47 @@ async function acceptOffer(){
     if(!providerRow){ alert('Prestador não encontrado.'); return; }
     const providerId = providerRow.id;
     const now = new Date().toISOString();
+
+    // Guarda atômica contra corrida: o UPDATE só afeta a linha do job se ela
+    // ainda estiver pending/offered. Se outro prestador já venceu a corrida
+    // (ou a oferta foi cancelada/realocada) entre a oferta chegar e este
+    // clique, a condição não bate mais e voltam 0 linhas -- mesmo com dois
+    // cliques simultâneos, o Postgres serializa o UPDATE na linha e só um dos
+    // dois pode realmente fazer a transição pending/offered -> accepted.
+    const { data: claimed, error: claimErr } = await _supabase
+      .from('jobs')
+      .update({ status: 'accepted' })
+      .eq('id', jobId)
+      .in('status', ['pending','offered'])
+      .select('id');
+
+    if(claimErr){
+      console.error('Erro ao aceitar job:', claimErr);
+      alert('Erro ao aceitar. Tente novamente.');
+      return;
+    }
+    if(!claimed || claimed.length === 0){
+      // Perdemos a corrida: outro prestador já aceitou este job antes de nós.
+      // Expira só a NOSSA própria oferta (RLS não deixa tocar na de outro
+      // prestador, e não precisa -- quem ganhou cuida da própria linha).
+      await _supabase.from('job_dispatch')
+        .update({ status: 'expired' })
+        .eq('job_id', jobId)
+        .eq('provider_id', providerId)
+        .in('status', ['pending','offered']);
+      const banner = document.getElementById('offerNotif');
+      if(banner) banner.style.display = 'none';
+      window._currentOfferJobId = null;
+      alert('Este job já foi aceito por outro prestador.');
+      goScreen('p-dashboard');
+      return;
+    }
+
     await _supabase.from('job_dispatch')
       .update({ accepted_at: now, status: 'accepted' })
       .eq('job_id', jobId)
       .eq('provider_id', providerId);
-    await _supabase
-      .from('jobs')
-      .update({ status: 'accepted' })
-      .eq('id', jobId);
+
     const banner = document.getElementById('offerNotif');
     if(banner) banner.style.display = 'none';
     window._currentOfferJobId = null;
@@ -2418,12 +2452,90 @@ async function buildDispatchList(){
   if(filtered.length===0){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum job encontrado.</div>';return;}
   filtered.forEach(job=>{const cfg=DISPATCH_STATUS[job.status]||{label:job.status,badge:'badge-gray',icon:'?',cardClass:''};const accepted=(job.job_dispatch||[]).find(d=>d.status==='accepted');const provName=accepted?.providers?.users?.name||null;const clientName=job.customers?.users?.name||'Cliente';const bairro=job.addresses?.neighborhood||'-';const dt=job.scheduled_date?new Date(job.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';const hora=job.scheduled_time?job.scheduled_time.slice(0,5):'';let provInfo='';if(provName)provInfo=`<div style="font-size:11px;color:var(--green);margin-top:4px">✓ ${provName}</div>`;else if(job.status==='no_provider')provInfo=`<div style="font-size:11px;color:var(--red);margin-top:4px">🚨 Intervencao manual</div>`;else if(job.status==='pending')provInfo=`<div style="font-size:11px;color:var(--yellow);margin-top:4px">⏳ Aguardando prestador</div>`;const d=document.createElement('div');d.className=`job-card ${cfg.cardClass}`;d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#${job.id} · ${job.services?.name||'-'}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${clientName} · 📍 ${bairro} · ${dt} ${hora} · R$ ${Number(job.total_price||0).toFixed(0)}</div>${provInfo}<div class="action-row"><button class="action-btn ab-view" onclick="viewDispatchReal(${job.id})">Ver detalhes</button>${['pending','no_provider'].includes(job.status)?`<button class="action-btn ab-suspend" onclick="openReallocModal(${job.id})">Realocar</button>`:''}</div>`;list.appendChild(d);});
 }
+// Abre o modal de realocação manual: busca prestadores aprovados, ordena por score
+// (maior primeiro — Diamante/Ouro/Prata/Bronze são só o rótulo desses mesmos cortes de
+// score) e exclui quem já recebeu oferta para este job (confirmRealloc rejeitaria de
+// qualquer forma). Não filtra por região/especialidade: essa tela existe justamente para
+// os casos em que o dispatch automático (que já filtra por isso) falhou ou travou em
+// no_provider — filtrar de novo pelo mesmo critério tenderia a mostrar a lista vazia.
+// Região/especialidade aparecem como informação para o admin julgar, não como exclusão.
+async function openReallocModal(jobId){
+  selectedReallocId = null;
+  const {data:job,error:jobErr} = await _supabase
+    .from('jobs')
+    .select('id, services(name, provider_type), addresses(neighborhood)')
+    .eq('id', jobId)
+    .single();
+  if(jobErr || !job){ showToast('Erro ao carregar job.'); return; }
+
+  const {data:already} = await _supabase
+    .from('job_dispatch')
+    .select('provider_id')
+    .eq('job_id', jobId);
+  const alreadyIds = new Set((already||[]).map(d=>d.provider_id));
+
+  const {data:providers, error:provErr} = await _supabase
+    .from('providers')
+    .select('id, score, specialties, regions, users(name)')
+    .eq('status','approved');
+  if(provErr){ showToast('Erro ao carregar prestadores.'); return; }
+
+  const candidates = (providers||[])
+    .filter(p => !alreadyIds.has(p.id))
+    .sort((a,b) => Number(b.score) - Number(a.score));
+
+  document.getElementById('modalTitle').textContent = `Realocar · #${job.id} ${job.services?.name||''}`;
+
+  const opts = candidates.map(p => {
+    const tier = getTier(Number(p.score)||0);
+    const nome = p.users?.name || 'Prestador';
+    const specs = (p.specialties||[]).join(', ') || '—';
+    const regs = (p.regions||[]).join(', ') || '—';
+    return `
+      <div class="realloc-opt" data-id="${p.id}" style="display:flex;align-items:center;gap:10px;padding:10px;
+           border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer"
+           onclick="selectRealloc(this,'${p.id}')">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${tier.icon} ${nome} <span style="color:var(--muted);font-weight:400">· ${tier.label}</span></div>
+          <div style="font-size:11px;color:var(--muted)">⭐ ${Number(p.score||0).toFixed(1)} · ${specs} · 📍 ${regs}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('modalContent').innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">📍 ${job.addresses?.neighborhood||'-'} · ${job.services?.provider_type||'-'}</div>
+    ${opts || '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Nenhum prestador aprovado disponível para realocar.</p>'}
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="confirmRealloc(${jobId})">Enviar oferta</button>
+    </div>`;
+
+  document.getElementById('modalBg').style.display = 'flex';
+}
+
+// Marca visualmente a opção clicada no modal de realocação e guarda o provider_id escolhido.
+function selectRealloc(el, providerId){
+  selectedReallocId = providerId;
+  document.querySelectorAll('.realloc-opt').forEach(o => {
+    o.style.border = (o === el) ? '2px solid var(--blue)' : '1.5px solid var(--border)';
+    o.style.background = (o === el) ? 'var(--blue-light)' : '';
+  });
+}
+
 async function confirmRealloc(jobId){
   if(!selectedReallocId){showToast('Selecione um prestador');return;}
   const {data:existing}=await _supabase.from('job_dispatch').select('id').eq('job_id',jobId).eq('provider_id',selectedReallocId);
   if(existing&&existing.length>0){showToast('Este prestador já recebeu oferta para este job.');return;}
   const {error:insErr}=await _supabase.from('job_dispatch').insert({job_id:jobId,provider_id:selectedReallocId,status:'pending',offered_at:new Date().toISOString()});
   if(insErr){showToast('❌ Erro ao realocar: '+insErr.message);return;}
+  // Retira (expira) qualquer oferta anterior que ainda estivesse pending/offered
+  // para este job -- só a oferta recém-criada fica "viva". Sem isso, o prestador
+  // da oferta antiga ainda conseguiria aceitar um job que o admin já substituiu.
+  await _supabase.from('job_dispatch')
+    .update({ status: 'expired' })
+    .eq('job_id', jobId)
+    .neq('provider_id', selectedReallocId)
+    .in('status', ['pending','offered']);
   const {error:updErr}=await _supabase.from('jobs').update({status:'pending'}).eq('id',jobId);
   if(updErr){showToast('❌ Erro ao atualizar job.');return;}
   const {data:provName}=await _supabase.from('providers').select('users(name)').eq('id',selectedReallocId).single();
