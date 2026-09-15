@@ -3384,7 +3384,15 @@ function switchView(v){
 }
 document.getElementById('backBtn').addEventListener('click',goBack);
 function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');if(n==='vehicles'){loadVehicles().then(()=>buildVehicleListScreen());}}
-function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');showScreen({dash:'p-dashboard',exec:'p-job-exec',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');if(n==='dash'&&window._currentUser&&!window._realtimeStarted){window._realtimeStarted=true;startRealtimeProvider();}if(n==='dash')loadProviderDashboard();}
+function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');
+  // 'exec' apontava direto pra p-job-exec sem nenhum job selecionado (bug: tela em
+  // branco ou com dados de um job antigo). A view principal de jobs já é p-dashboard
+  // (lista "JOBS DE HOJE" com status por job) -- as duas abas levam pra lá até decidir
+  // se vale consolidar a nav.
+  showScreen({dash:'p-dashboard',exec:'p-dashboard',ranking:'p-ranking',agenda:'p-agenda',profile:'p-profile'}[n]||'p-dashboard');
+  if((n==='dash'||n==='exec')&&window._currentUser&&!window._realtimeStarted){window._realtimeStarted=true;startRealtimeProvider();}
+  if(n==='dash'||n==='exec')loadProviderDashboard();
+}
 function selectPay(t){document.getElementById('payCard').style.border=t==='card'?'2px solid var(--blue)':'0.5px solid var(--border)';document.getElementById('payPix').style.border=t==='pix'?'2px solid var(--blue)':'0.5px solid var(--border)';}
 function closeModal(e){if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').style.display='none';}
 function mockUpload(btn){btn.textContent='✓ Enviado';btn.style.background='var(--green-light)';btn.style.color='var(--green)';btn.disabled=true;}
