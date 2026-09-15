@@ -543,6 +543,13 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       </div>
       <div class="status-pipeline"><div class="sp-step done"><div class="sp-dot">✓</div><div class="sp-label">Confirmado</div></div><div class="sp-step active"><div class="sp-dot">▶</div><div class="sp-label">Em andamento</div></div><div class="sp-step"><div class="sp-dot">⏳</div><div class="sp-label">Aprovação</div></div><div class="sp-step"><div class="sp-dot">✓</div><div class="sp-label">Concluído</div></div></div>
       <div class="card" id="jobExecDetails"><div style="font-size:12px;color:var(--muted)">Carregando...</div></div>
+      <div id="jobExecEnRouteBox" style="margin-bottom:10px"></div>
+      <div id="jobExecDelayBox" style="margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-outline btn-sm" style="flex:1" id="btnEnRoute" onclick="markEnRoute()">🚗 Estou a caminho</button>
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="openDelayModal()">⏰ Avisar atraso</button>
+      </div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-bottom:14px" onclick="openOccurrenceModal()">📋 Registrar ocorrência</button>
       <div style="font-size:13px;font-weight:500;margin-bottom:10px">Checklist obrigatório</div>
       <div class="card" style="padding:0 14px">
         <div class="chk-item"><div class="chk-box" id="chk1" onclick="doChk(1)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">📷 Foto ANTES</div><div class="photo-box" style="margin-top:8px" id="photoBefore" onclick="uploadExecPhoto('before')"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:11px;color:var(--muted)">Toque para fotografar</div></div></div></div>
@@ -615,7 +622,14 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       </div>
     </div>
 
-    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
+    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('p-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
+
+    <div class="screen" id="p-support">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte AutoCare</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas, problemas ou situações de risco — fale com o admin</div>
+      <button class="btn btn-primary" style="margin-bottom:14px" onclick="openSupportModal()">+ Novo chamado</button>
+      <div id="pSupportList"></div>
+    </div>
 
     <!-- ===== ADMIN ===== -->
     <div class="screen active" id="a-dashboard">
@@ -629,6 +643,8 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="menu-item" onclick="goScreen('a-supply')"><div class="menu-icon">📦</div><div class="menu-text"><div class="t">Supply Chain</div><div class="s">Fornecedores · Peças · Cotações</div></div></div>
       <div class="menu-item" onclick="goScreen('a-ranking')"><div class="menu-icon">⭐</div><div class="menu-text"><div class="t">Ranking de prestadores</div><div class="s">Score · Tiers · Dispatch priority</div></div></div>
       <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s" id="menu-claims-pendentes">0 pendentes</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-occurrences')"><div class="menu-icon">📋</div><div class="menu-text"><div class="t">Ocorrências dos prestadores</div><div class="s" id="menu-occurrences-pendentes">0 pendentes</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-support')"><div class="menu-icon">💬</div><div class="menu-text"><div class="t">Suporte aos prestadores</div><div class="s" id="menu-support-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-jobs')"><div class="menu-icon">📄</div><div class="menu-text"><div class="t">Jobs</div><div class="s" id="dash-jobs-subtitulo">0 hoje</div></div></div>
       <!-- FIX 3: Pagamentos funciona agora -->
       <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s" id="dash-payments-subtitulo">R$ 0 hoje</div></div></div>
@@ -684,6 +700,12 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <!-- ADMIN RECLAMAÇÕES -->
     <div class="screen" id="a-claims"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Reclamações e garantias</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Análise manual · Impacta ranking</div><div class="filter-row" id="claimsFilter"></div><div id="claimsList"></div></div>
     <div class="screen" id="a-claim-detail"><div id="claimDetailContent"></div></div>
+
+    <div class="screen" id="a-occurrences"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Ocorrências dos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Danos, problemas técnicos e outras situações reportadas pelo prestador · Não afeta score</div><div class="filter-row" id="occurrencesFilter"></div><div id="occurrencesList"></div></div>
+    <div class="screen" id="a-occurrence-detail"><div id="occurrenceDetailContent"></div></div>
+
+    <div class="screen" id="a-support"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte aos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas, problemas e situações de risco reportadas pelo prestador</div><div class="filter-row" id="supportFilter"></div><div id="supportList"></div></div>
+    <div class="screen" id="a-support-detail"><div id="supportDetailContent"></div></div>
 
     <!-- ADMIN JOBS -->
     <div class="screen" id="a-jobs">
@@ -1187,6 +1209,7 @@ async function loadJobStatus() {
   const { data: j, error } = await _supabase
     .from('jobs')
     .select(`id, status, scheduled_date, scheduled_time, total_price,
+             en_route_at, delay_reported_at, delay_reason, delay_new_eta,
              services(name),
              vehicles(brand, model, year),
              addresses(neighborhood),
@@ -1257,9 +1280,18 @@ async function loadJobStatus() {
   const showApprove = ['awaiting_approval','in_progress'].includes(j.status);
   const showCancel  = ['pending','offered','accepted','confirmed'].includes(j.status);
 
+  const enRouteBanner = j.en_route_at
+    ? `<div class="info-box info-blue">🚗 Prestador a caminho (avisado às ${new Date(j.en_route_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})})</div>`
+    : '';
+  const delayBanner = j.delay_reported_at
+    ? `<div class="info-box info-orange">⏰ Atraso avisado: ${j.delay_reason||'-'} · nova previsão ${j.delay_new_eta?j.delay_new_eta.slice(0,5):'-'}</div>`
+    : '';
+
   el.innerHTML = `
     <div class="status-pipeline">${pipelineHTML}</div>
     ${providerCard}
+    ${enRouteBanner}
+    ${delayBanner}
     <div class="map-mock">
       <span style="width:10px;height:10px;background:var(--blue);border-radius:50%;display:inline-block;margin-right:6px"></span>
       ${j.addresses?.neighborhood || '-'} · ${j.status === 'in_progress' || j.status === 'awaiting_approval' ? 'Prestador no local' : 'Aguardando deslocamento'}
@@ -1889,7 +1921,8 @@ async function loadJobExec() {
   chkState={1:false,2:false,3:false,4:false};
   [1,2,3,4].forEach(n=>{const b=document.getElementById('chk'+n);if(b){b.classList.remove('checked');b.textContent='';}});
   if(!window._activeJobId) return;
-  const { data: j } = await _supabase.from('jobs').select('scheduled_date,scheduled_time,total_price,customer_id,services(name),vehicles(brand,model),addresses(neighborhood)').eq('id', window._activeJobId).single();
+  const { data: j } = await _supabase.from('jobs').select('scheduled_date,scheduled_time,total_price,customer_id,en_route_at,delay_reported_at,delay_reason,delay_new_eta,services(name),vehicles(brand,model),addresses(neighborhood)').eq('id', window._activeJobId).single();
+  renderJobExecStatusBoxes(j);
   let clienteName='-';
   if(j?.customer_id){const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',j.customer_id).single();if(cu){const {data:uu}=await _supabase.from('users').select('name').eq('id',cu.user_id).single();if(uu)clienteName=uu.name;}}
   if(j){const hdr=document.getElementById('jobExecHeader');if(hdr){hdr.innerHTML='<div style="font-size:15px;font-weight:500;margin-bottom:4px">'+( j.services?.name||'Servico')+'</div><div style="font-size:12px;color:var(--blue);font-weight:500;margin-bottom:4px">Cliente: '+clienteName+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+(j.vehicles?.brand||'')+' '+(j.vehicles?.model||'')+' &middot; '+(j.addresses?.neighborhood||'')+' &middot; '+(j.scheduled_time?.slice(0,5)||'')+'</div>';}const det=document.getElementById('jobExecDetails');if(det){det.innerHTML=`<div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>${j.scheduled_date||'-'}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Horario</span><span>${j.scheduled_time?.slice(0,5)||'-'}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Valor</span><span style="color:var(--blue);font-weight:500">R$ ${Number(j.total_price||0).toFixed(0)}</span></div>`;}}
@@ -1900,6 +1933,178 @@ async function loadJobExec() {
     const p=document.getElementById('chk4Parts');if(p)p.textContent='Sem peças neste job';
   }
 }
+
+// ============ ESTOU A CAMINHO / AVISAR ATRASO / OCORRÊNCIA ============
+function renderJobExecStatusBoxes(j){
+  const btn=document.getElementById('btnEnRoute');
+  const erBox=document.getElementById('jobExecEnRouteBox');
+  if(j?.en_route_at){
+    const hora=new Date(j.en_route_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if(erBox) erBox.innerHTML=`<div class="info-box info-blue" style="margin-bottom:0">🚗 Você avisou que estava a caminho às ${hora}</div>`;
+    if(btn){btn.disabled=true;btn.textContent='🚗 A caminho desde '+hora;}
+  } else {
+    if(erBox) erBox.innerHTML='';
+    if(btn){btn.disabled=false;btn.textContent='🚗 Estou a caminho';}
+  }
+  const dBox=document.getElementById('jobExecDelayBox');
+  if(dBox){
+    if(j?.delay_reported_at){
+      const hora=new Date(j.delay_reported_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const eta=j.delay_new_eta?j.delay_new_eta.slice(0,5):'-';
+      dBox.innerHTML=`<div class="info-box info-orange" style="margin-bottom:0">⏰ Atraso avisado às ${hora} · ${j.delay_reason||'-'} · nova previsão ${eta}</div>`;
+    } else {
+      dBox.innerHTML='';
+    }
+  }
+}
+
+async function markEnRoute(){
+  if(!window._activeJobId) return;
+  const nowIso=new Date().toISOString();
+  const {error}=await _supabase.from('jobs').update({en_route_at:nowIso}).eq('id',window._activeJobId);
+  if(error){showToast('Erro ao avisar. Tente novamente.');return;}
+  renderJobExecStatusBoxes({en_route_at:nowIso});
+  showToast('✓ Cliente será avisado que você está a caminho');
+}
+
+function openDelayModal(){
+  document.getElementById('modalTitle').textContent='Avisar atraso';
+  document.getElementById('modalContent').innerHTML=`
+    <div class="info-box info-yellow">O cliente vai ver o motivo e a nova previsão direto no app.</div>
+    <div class="label">Motivo</div>
+    <select class="input" id="delayReasonSel">
+      <option>Trânsito</option>
+      <option>Job anterior atrasou</option>
+      <option>Falta de material/peça</option>
+      <option>Imprevisto pessoal</option>
+      <option>Outro</option>
+    </select>
+    <div class="label">Nova previsão de chegada</div>
+    <input class="input" type="time" id="delayEtaInput">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="submitDelayNotice()">Enviar aviso</button>
+    </div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+async function submitDelayNotice(){
+  if(!window._activeJobId) return;
+  const reason=document.getElementById('delayReasonSel')?.value||'';
+  const eta=document.getElementById('delayEtaInput')?.value||null;
+  if(!eta){showToast('Informe a nova previsão de chegada.');return;}
+  const {error}=await _supabase.from('jobs').update({
+    delay_reported_at:new Date().toISOString(),
+    delay_reason:reason,
+    delay_new_eta:eta
+  }).eq('id',window._activeJobId);
+  if(error){showToast('Erro ao enviar aviso. Tente novamente.');return;}
+  closeModal();
+  showToast('✓ Cliente avisado do atraso');
+  loadJobExec();
+}
+
+function openOccurrenceModal(){
+  document.getElementById('modalTitle').textContent='Registrar ocorrência';
+  document.getElementById('modalContent').innerHTML=`
+    <div class="info-box info-blue">Documente danos encontrados, problemas técnicos ou qualquer situação relevante. Não afeta seu score.</div>
+    <div class="label">Tipo</div>
+    <select class="input" id="occTypeSel">
+      <option>Dano pré-existente encontrado</option>
+      <option>Dano causado durante o serviço</option>
+      <option>Problema técnico/segurança</option>
+      <option>Cliente ausente ou indisponível</option>
+      <option>Outro</option>
+    </select>
+    <div class="label">Descrição</div>
+    <textarea class="input" rows="3" id="occDescTxt" placeholder="Descreva o que aconteceu..."></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="submitOccurrence()">Registrar</button>
+    </div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+async function submitOccurrence(){
+  const tipo=document.getElementById('occTypeSel')?.value||'';
+  const desc=document.getElementById('occDescTxt')?.value?.trim()||'';
+  if(!desc){showToast('Descreva a ocorrência.');return;}
+  const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!providerRow){showToast('Erro ao identificar prestador.');return;}
+  const {error}=await _supabase.from('occurrences').insert({
+    job_id:window._activeJobId||null,
+    provider_id:providerRow.id,
+    type:tipo,
+    description:desc,
+    status:'pending'
+  });
+  if(error){showToast('Erro ao registrar. Tente novamente.');return;}
+  closeModal();
+  showToast('✓ Ocorrência registrada');
+}
+
+// ============ SUPORTE (PRESTADOR) ============
+function openSupportModal(){
+  document.getElementById('modalTitle').textContent='Novo chamado de suporte';
+  document.getElementById('modalContent').innerHTML=`
+    <div class="label">Categoria</div>
+    <select class="input" id="suppCategorySel">
+      <option>Dúvida operacional</option>
+      <option>Problema técnico no app</option>
+      <option>Situação de risco físico</option>
+      <option>Outro</option>
+    </select>
+    <div class="label">Prioridade</div>
+    <select class="input" id="suppPrioritySel">
+      <option value="normal">Normal</option>
+      <option value="urgente">Urgente</option>
+    </select>
+    <div class="label">Descrição</div>
+    <textarea class="input" rows="3" id="suppDescTxt" placeholder="Descreva sua dúvida ou situação..."></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="submitSupportTicket()">Enviar</button>
+    </div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+async function submitSupportTicket(){
+  const cat=document.getElementById('suppCategorySel')?.value||'';
+  const pri=document.getElementById('suppPrioritySel')?.value||'normal';
+  const desc=document.getElementById('suppDescTxt')?.value?.trim()||'';
+  if(!desc){showToast('Descreva o que está acontecendo.');return;}
+  const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!providerRow){showToast('Erro ao identificar prestador.');return;}
+  const {error}=await _supabase.from('support_tickets').insert({
+    provider_id:providerRow.id,
+    category:cat,
+    priority:pri,
+    description:desc,
+    status:'pending'
+  });
+  if(error){showToast('Erro ao enviar. Tente novamente.');return;}
+  closeModal();
+  showToast('✓ Chamado enviado ao suporte');
+  buildSupportProvider();
+}
+async function buildSupportProvider(){
+  const list=document.getElementById('pSupportList');if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!providerRow){list.innerHTML='';return;}
+  const {data:tickets}=await _supabase.from('support_tickets').select('id,category,priority,description,status,resolution,created_at').eq('provider_id',providerRow.id).order('created_at',{ascending:false});
+  if(!tickets||tickets.length===0){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum chamado ainda.</div>';return;}
+  const statusCfg={pending:{label:'Pendente',badge:'badge-yellow'},in_progress:{label:'Em andamento',badge:'badge-orange'},resolved:{label:'Resolvido',badge:'badge-green'}};
+  list.innerHTML=tickets.map(t=>{
+    const cfg=statusCfg[t.status]||{label:t.status,badge:'badge-gray'};
+    const dt=t.created_at?new Date(t.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    const urgTag=t.priority==='urgente'?'<span class="badge badge-red" style="margin-left:4px">🚨 Urgente</span>':'';
+    return `<div class="card">
+      <div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${t.category||'-'}${urgTag}</span><span class="badge ${cfg.badge}">${cfg.label}</span></div>
+      <div style="font-size:12px;color:var(--muted)">${dt}</div>
+      <div style="font-size:13px;margin-top:6px">${t.description||''}</div>
+      ${t.resolution?`<div class="info-box info-green" style="margin-top:8px;margin-bottom:0">${t.resolution}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
 // ============ EXECUÇÃO ============
 function doChk(n){
   if(n===3&&!chkState[2]){showToast('⚠️ Inicie a execução primeiro (item 2)');return;}
@@ -2772,8 +2977,122 @@ async function resolveClaim(id,action){
   showToast(action==='dismiss'?'Reclamacao encerrada.':'Reclamacao em acompanhamento.');goScreen('a-claims');
 }
 
+// ============ OCORRÊNCIAS (ADMIN) — não afeta score, só documentação ============
+let occurrencesFilter='Todos';
+async function buildOccurrences(){
+  const fr=document.getElementById('occurrencesFilter'),list=document.getElementById('occurrencesList');if(!fr||!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:all}=await _supabase.from('occurrences').select('id,job_id,provider_id,type,description,status,resolution,created_at').order('created_at',{ascending:false});
+  const data=all||[];
+  const filtered=occurrencesFilter==='Todos'?data:data.filter(o=>occurrencesFilter==='Pendente'?['pending','in_progress'].includes(o.status):o.status==='resolved');
+  const cnt={Todos:data.length,Pendente:data.filter(o=>['pending','in_progress'].includes(o.status)).length,Resolvido:data.filter(o=>o.status==='resolved').length};
+  fr.innerHTML='';
+  ['Todos','Pendente','Resolvido'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===occurrencesFilter?' active':'');d.textContent=f+' ('+(cnt[f]||0)+')';d.onclick=()=>{occurrencesFilter=f;buildOccurrences();};fr.appendChild(d);});
+  list.innerHTML='';
+  if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma ocorrência encontrada.</div>';return;}
+  for(const occ of filtered){
+    let providerName='-';
+    if(occ.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',occ.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}
+    const dt=occ.created_at?new Date(occ.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    const cfg=occ.status==='resolved'?{label:'Resolvido',badge:'badge-green'}:occ.status==='in_progress'?{label:'Em andamento',badge:'badge-orange'}:{label:'Pendente',badge:'badge-yellow'};
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${occ.job_id?'#'+occ.job_id:'Sem job'}</span><span class="badge ${cfg.badge}">${cfg.label}</span></div>
+      <div style="font-size:12px;color:var(--muted)">${providerName} · ${dt}</div>
+      <div style="font-size:12px;margin-top:6px;font-weight:500">${occ.type||'-'}</div>
+      ${occ.status!=='resolved'?`<div class="action-row"><button class="action-btn ab-view" onclick="viewOccurrence('${occ.id}')">Analisar</button></div>`:`<div class="info-box info-green" style="margin-top:6px;margin-bottom:0">${occ.resolution||''}</div>`}`;
+    list.appendChild(d);
+  }
+}
+async function viewOccurrence(id){
+  const el=document.getElementById('occurrenceDetailContent');if(!el)return;
+  el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">Carregando...</div>';
+  navHistory.push(currentScreen);showScreen('a-occurrence-detail');
+  const {data:occ}=await _supabase.from('occurrences').select('id,job_id,provider_id,type,description,status').eq('id',id).single();
+  if(!occ){el.innerHTML='<div style="padding:16px">Erro ao carregar.</div>';return;}
+  let providerName='-';
+  if(occ.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',occ.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}
+  el.innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">${occ.job_id?'Ocorrência #'+occ.job_id:'Ocorrência sem job'}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${occ.type||'-'}</div></div>
+    <div class="card"><div class="row" style="margin-bottom:0"><span style="font-size:13px;color:var(--muted)">Prestador</span><span>${providerName}</span></div></div>
+    <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px">DESCRIÇÃO</div><div style="font-size:13px">${occ.description||''}</div></div>
+    <div class="label">Resposta / resolução</div>
+    <textarea class="input" rows="3" id="occResolutionTxt" placeholder="Ex: dano registrado, sem ação necessária..."></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="resolveOccurrence('${id}','in_progress')">Marcar em andamento</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="resolveOccurrence('${id}','resolved')">Marcar resolvido</button>
+    </div>`;
+}
+async function resolveOccurrence(id,newStatus){
+  const resolution=document.getElementById('occResolutionTxt')?.value?.trim()||'';
+  const payload={status:newStatus};
+  if(newStatus==='resolved'){payload.resolution=resolution;payload.resolved_at=new Date().toISOString();}
+  else if(resolution){payload.resolution=resolution;}
+  const {error}=await _supabase.from('occurrences').update(payload).eq('id',id);
+  if(error){showToast('Erro ao salvar. Tente novamente.');return;}
+  showToast(newStatus==='resolved'?'Ocorrência marcada como resolvida.':'Ocorrência em andamento.');
+  goScreen('a-occurrences');
+}
+
+// ============ SUPORTE (ADMIN) — chamado único, sem thread ============
+let supportFilter='Todos';
+async function buildSupportAdmin(){
+  const fr=document.getElementById('supportFilter'),list=document.getElementById('supportList');if(!fr||!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:all}=await _supabase.from('support_tickets').select('id,provider_id,category,priority,description,status,resolution,created_at').order('created_at',{ascending:false});
+  const data=all||[];
+  const filtered=supportFilter==='Todos'?data:supportFilter==='Urgente'?data.filter(t=>t.priority==='urgente'&&t.status!=='resolved'):supportFilter==='Pendente'?data.filter(t=>['pending','in_progress'].includes(t.status)):data.filter(t=>t.status==='resolved');
+  const cnt={Todos:data.length,Urgente:data.filter(t=>t.priority==='urgente'&&t.status!=='resolved').length,Pendente:data.filter(t=>['pending','in_progress'].includes(t.status)).length,Resolvido:data.filter(t=>t.status==='resolved').length};
+  fr.innerHTML='';
+  ['Todos','Urgente','Pendente','Resolvido'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===supportFilter?' active':'');d.textContent=f+' ('+(cnt[f]||0)+')';d.onclick=()=>{supportFilter=f;buildSupportAdmin();};fr.appendChild(d);});
+  // urgentes primeiro, depois mais recente
+  filtered.sort((a,b)=>(b.priority==='urgente')-(a.priority==='urgente'));
+  list.innerHTML='';
+  if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum chamado encontrado.</div>';return;}
+  for(const t of filtered){
+    let providerName='-';
+    if(t.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}
+    const dt=t.created_at?new Date(t.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    const cfg=t.status==='resolved'?{label:'Resolvido',badge:'badge-green'}:t.status==='in_progress'?{label:'Em andamento',badge:'badge-orange'}:{label:'Pendente',badge:'badge-yellow'};
+    const urgTag=t.priority==='urgente'?'<span class="badge badge-red" style="margin-left:4px">🚨 Urgente</span>':'';
+    const d=document.createElement('div');d.className='card'+(t.priority==='urgente'&&t.status!=='resolved'?' urgent':'');
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${t.category||'-'}${urgTag}</span><span class="badge ${cfg.badge}">${cfg.label}</span></div>
+      <div style="font-size:12px;color:var(--muted)">${providerName} · ${dt}</div>
+      <div style="font-size:12px;margin-top:6px">${t.description||''}</div>
+      ${t.status!=='resolved'?`<div class="action-row"><button class="action-btn ab-view" onclick="viewSupportTicket('${t.id}')">Responder</button></div>`:`<div class="info-box info-green" style="margin-top:6px;margin-bottom:0">${t.resolution||''}</div>`}`;
+    list.appendChild(d);
+  }
+}
+async function viewSupportTicket(id){
+  const el=document.getElementById('supportDetailContent');if(!el)return;
+  el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">Carregando...</div>';
+  navHistory.push(currentScreen);showScreen('a-support-detail');
+  const {data:t}=await _supabase.from('support_tickets').select('id,provider_id,category,priority,description,status').eq('id',id).single();
+  if(!t){el.innerHTML='<div style="padding:16px">Erro ao carregar.</div>';return;}
+  let providerName='-';
+  if(t.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}
+  const urgTag=t.priority==='urgente'?' · <span style="color:#fff">🚨 Urgente</span>':'';
+  el.innerHTML=`<div style="background:${t.priority==='urgente'?'var(--red)':'var(--blue)'};margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">${t.category||'Chamado de suporte'}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${providerName}${urgTag}</div></div>
+    <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px">MENSAGEM</div><div style="font-size:13px">${t.description||''}</div></div>
+    <div class="label">Resposta</div>
+    <textarea class="input" rows="3" id="suppResolutionTxt" placeholder="Escreva a resposta para o prestador..."></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="resolveSupportTicket('${id}','in_progress')">Marcar em andamento</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="resolveSupportTicket('${id}','resolved')">Responder e resolver</button>
+    </div>`;
+}
+async function resolveSupportTicket(id,newStatus){
+  const resolution=document.getElementById('suppResolutionTxt')?.value?.trim()||'';
+  if(newStatus==='resolved'&&!resolution){showToast('Escreva uma resposta antes de resolver.');return;}
+  const payload={status:newStatus};
+  if(newStatus==='resolved'){payload.resolution=resolution;payload.resolved_at=new Date().toISOString();}
+  else if(resolution){payload.resolution=resolution;}
+  const {error}=await _supabase.from('support_tickets').update(payload).eq('id',id);
+  if(error){showToast('Erro ao salvar. Tente novamente.');return;}
+  showToast(newStatus==='resolved'?'Chamado respondido e resolvido.':'Chamado em andamento.');
+  goScreen('a-support');
+}
+
 // ============ NAV ============
-const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos'};
+const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte'};
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -2803,6 +3122,9 @@ function showScreen(id){
   if(id==='a-ranking')buildRanking();
   if(id==='a-claims')buildClaims();
   if(id==='a-payments'){switchPayTab('today');}
+  if(id==='a-occurrences')buildOccurrences();
+  if(id==='a-support')buildSupportAdmin();
+  if(id==='p-support')buildSupportProvider();
 }
 async function loadAdminDashboard(){
   try {
@@ -2819,6 +3141,11 @@ async function loadAdminDashboard(){
     const semPrestador = (jobs||[]).filter(j=>j.status==='pending').length;
     const {data:recl} = await _supabase.from('claims').select('id').eq('status','pending');
     const totalRecl = (recl||[]).length;
+    const {data:ocor} = await _supabase.from('occurrences').select('id').eq('status','pending');
+    const totalOcor = (ocor||[]).length;
+    const {data:tick} = await _supabase.from('support_tickets').select('id,priority').eq('status','pending');
+    const totalTick = (tick||[]).length;
+    const urgTick = (tick||[]).filter(t=>t.priority==='urgente').length;
     document.getElementById('dash-jobs-hoje').textContent = jobsHoje;
     document.getElementById('dash-jobs-subtitulo').textContent = jobsHoje+' hoje';
     const totalPago=(jobs||[]).filter(j=>j.status==='completed').reduce((s,j)=>s+parseFloat(j.total_price||0),0);
@@ -2828,6 +3155,8 @@ async function loadAdminDashboard(){
     document.getElementById('dash-cotacoes-pendentes').textContent = (cot||[]).length;
     if(semPrestador>0){document.getElementById('dash-banner-semprestador').style.display='block';document.getElementById('dash-banner-semprestador-txt').textContent='🚨 '+semPrestador+' job'+(semPrestador>1?'s':'')+' sem prestador · Intervenção necessária';}
     const menuClaims=document.getElementById('menu-claims-pendentes');if(menuClaims)menuClaims.textContent=totalRecl+' pendente'+(totalRecl!==1?'s':'');if(totalRecl>0){document.getElementById('dash-banner-reclamacoes').style.display='block';document.getElementById('dash-banner-reclamacoes-txt').textContent='⚠️ '+totalRecl+' reclamacao'+(totalRecl>1?'oes':'')+' aguardando analise';}
+    const menuOcor=document.getElementById('menu-occurrences-pendentes');if(menuOcor)menuOcor.textContent=totalOcor+' pendente'+(totalOcor!==1?'s':'');
+    const menuTick=document.getElementById('menu-support-pendentes');if(menuTick)menuTick.textContent=totalTick+' pendente'+(totalTick!==1?'s':'')+(urgTick>0?' · 🚨 '+urgTick+' urgente'+(urgTick>1?'s':''):'');
   } catch(e){ console.log('dash erro',e); }
 }
 
