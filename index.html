@@ -1019,29 +1019,31 @@ function changeAgendaDay(dir){agendaViewOffset+=dir;buildAgendaDayView();}
 async function buildAgendaDayView(){
   const now=new Date();
   now.setDate(now.getDate()+agendaViewOffset);
-  const dk=DAY_KEYS[now.getDay()];
-  const ag=providerAgenda[dk];
+  const dateStr=now.toISOString().slice(0,10);
   const dateLabel=document.getElementById('agendaViewDate');
   if(dateLabel)dateLabel.textContent=`${agendaViewOffset===0?'Hoje · ':''}${WEEKDAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()].substring(0,3)}`;
   const el=document.getElementById('agendaDaySlots');if(!el)return;
-  if(!ag||!ag.on){el.innerHTML='<div class="info-box info-yellow" style="text-align:center">Dia não configurado como dia de trabalho.</div>';document.getElementById('agFreeCount').textContent='0';document.getElementById('agOccCount').textContent='0';document.getElementById('agEarnCount').textContent='R$ 0';return;}
+  // ITEM 5: getDayWindows ja soma o turno de hoje com o que vazou de ontem (madrugada) --
+  // "nao configurado" agora so aparece se as 2 fontes derem vazio.
+  const windows=getDayWindows(providerAgenda,dateStr);
+  if(windows.length===0){el.innerHTML='<div class="info-box info-yellow" style="text-align:center">Dia não configurado como dia de trabalho.</div>';document.getElementById('agFreeCount').textContent='0';document.getElementById('agOccCount').textContent='0';document.getElementById('agEarnCount').textContent='R$ 0';return;}
   el.innerHTML='<div style="text-align:center;color:var(--muted);padding:16px">Carregando...</div>';
-  const dateStr=now.toISOString().slice(0,10);
   const {data:provRow}=await _supabase.from('providers').select('id').eq('user_id',_currentUser.id).single();
   const provId=provRow?provRow.id:_currentUser.id;
   const {data:bookedJobs}=await _supabase.from('job_dispatch').select('jobs(scheduled_time,total_price,status)').eq('provider_id',provId).eq('jobs.scheduled_date',dateStr);
   const bookedTimes=(bookedJobs||[]).filter(b=>b.jobs&&b.jobs.scheduled_time&&['accepted','in_progress','awaiting_approval','completed'].includes(b.jobs.status)).map(b=>b.jobs.scheduled_time.slice(0,5));
   el.innerHTML='';
-  const startM=t2m(ag.start),endM=t2m(ag.end);
   let freeCount=0,occCount=0,earn=0;
-  for(let m=startM;m<endM;m+=SLOT_MIN){
-    const time=m2t(m),endT=m2t(m+SLOT_MIN);
-    const isOcc=bookedTimes.includes(time);
-    if(isOcc){occCount++;earn+=220;}else{freeCount++;}
-    const row=document.createElement('div');row.className=`day-slot-row ${isOcc?'occupied':'free'}`;
-    row.innerHTML=`<div class="day-slot-dot ${isOcc?'dot-occ':'dot-free'}"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div>${isOcc?`<span class="badge badge-orange" style="font-size:10px">Job confirmado</span>`:`<span class="badge badge-green" style="font-size:10px">Livre</span>`}`;
-    el.appendChild(row);
-  }
+  windows.forEach(({startM,endM})=>{
+    for(let m=startM;m<endM;m+=SLOT_MIN){
+      const time=m2t(m),endT=m2t(m+SLOT_MIN);
+      const isOcc=bookedTimes.includes(time);
+      if(isOcc){occCount++;earn+=220;}else{freeCount++;}
+      const row=document.createElement('div');row.className=`day-slot-row ${isOcc?'occupied':'free'}`;
+      row.innerHTML=`<div class="day-slot-dot ${isOcc?'dot-occ':'dot-free'}"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div>${isOcc?`<span class="badge badge-orange" style="font-size:10px">Job confirmado</span>`:`<span class="badge badge-green" style="font-size:10px">Livre</span>`}`;
+      el.appendChild(row);
+    }
+  });
   document.getElementById('agFreeCount').textContent=freeCount;
   document.getElementById('agOccCount').textContent=occCount;
   document.getElementById('agEarnCount').textContent=`R$ ${earn}`;
@@ -1654,7 +1656,49 @@ function getTier(score){
 
 // ============ HELPERS ============
 function t2m(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
-function m2t(m){return`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;}
+// Endurecido pra nunca devolver string invalida (ex: "24:30") mesmo se m vier >=1440 ou negativo.
+function m2t(m){m=((m%1440)+1440)%1440;return`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;}
+
+// ITEM 5 (Agenda 24h): dado o availability{} de 1 prestador e uma data de calendario
+// (YYYY-MM-DD), devolve os intervalos de disponibilidade QUE PERTENCEM A ESSE DIA --
+// podendo vir de 2 fontes: o turno configurado pro dia da semana de dateStr (a parte
+// que cabe dentro do proprio dia) e o turno configurado pro dia anterior, SE ele
+// atravessa a meia-noite (a parte que "vaza" pra hoje de madrugada). Decisao aprovada:
+// scheduled_date sempre grava a data REAL de calendario (opcao B) -- um agendamento
+// as 01:00 de terca e sempre terca, nunca "segunda que vazou".
+//
+// startM/endM: minutos 0-1439 relativos a ESTE dia, prontos pra usar direto nos loops
+// de slot existentes. trueStartM: so difere de startM quando sourceDay==='yesterday'
+// -- e o horario real de inicio do turno relativo a meia-noite de HOJE (fica negativo,
+// ex: turno comecou ontem 22h = -120), usado so pro calculo de lead-time de pecas.
+function getDayWindows(availability, dateStr) {
+  const dow = new Date(dateStr + 'T12:00:00').getDay();
+  const dk = DAY_KEYS[dow];
+  const dkPrev = DAY_KEYS[(dow + 6) % 7];
+  const windows = [];
+
+  const today = availability ? availability[dk] : null;
+  if (today && today.on) {
+    const startM = t2m(today.start), endM = t2m(today.end);
+    if (endM > startM) {
+      windows.push({ startM, endM, trueStartM: startM, sourceDay: 'today' });
+    } else {
+      // atravessa meia-noite: so [start, 24:00) pertence a dateStr, o resto vaza pro dia seguinte
+      windows.push({ startM, endM: 1440, trueStartM: startM, sourceDay: 'today' });
+    }
+  }
+
+  const yest = availability ? availability[dkPrev] : null;
+  if (yest && yest.on) {
+    const startM = t2m(yest.start), endM = t2m(yest.end);
+    if (endM <= startM && endM > 0) {
+      // turno de ontem atravessa meia-noite: [00:00, end) vaza pra dateStr
+      windows.push({ startM: 0, endM, trueStartM: startM - 1440, sourceDay: 'yesterday' });
+    }
+  }
+
+  return windows;
+}
 
 // ============ FIX 6: SLOT ENGINE COM AGENDA FLEXÍVEL E BLOQUEIO POR PEÇA ============
 function isPartsConfirmed(svcId){
@@ -1668,22 +1712,24 @@ function getAvailableSlots(bairro,svcId,dateStr){
   const svc=catalog.find(s=>s.id===svcId);if(!svc)return[];
   const slotsNeeded=svc.slots,leadTimeH=svc.parts?svc.leadTimeH:0;
   const partsOk=isPartsConfirmed(svcId);
-  const dow=new Date(dateStr+'T12:00:00').getDay(),dk=DAY_KEYS[dow];
-  const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&p.specialty.some(s=>svc.provider.includes(s))&&p.avail[dk]&&p.avail[dk].on);
+  // ITEM 5: getDayWindows ja resolve turnos que atravessam meia-noite (hoje + o que
+  // vazou de ontem), entao o match de prestador nao pode mais olhar so avail[dk].on.
+  const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&p.specialty.some(s=>svc.provider.includes(s))&&getDayWindows(p.avail,dateStr).length>0);
   const slotMap={};
   matched.forEach(p=>{
-    const av=p.avail[dk];if(!av||!av.on)return;
-    const startM=t2m(av.start),endM=t2m(av.end),earliestM=startM+(leadTimeH*60);
     const booked=p.booked[dateStr]||[];
-    for(let m=startM;m<endM;m+=SLOT_MIN){
-      const time=m2t(m);
-      if(!slotMap[time])slotMap[time]={available:false,booked:false,partsWait:false,partsLocked:false};
-      if(!partsOk){slotMap[time].partsLocked=true;continue;}
-      if(svc.parts&&m<earliestM){slotMap[time].partsWait=true;continue;}
-      let ok=true;
-      for(let s=0;s<slotsNeeded;s++){const sm=m+s*SLOT_MIN;if(sm>=endM){ok=false;break;}if(booked.includes(m2t(sm))){ok=false;break;}}
-      if(ok)slotMap[time].available=true;else if(!slotMap[time].available)slotMap[time].booked=true;
-    }
+    getDayWindows(p.avail,dateStr).forEach(({startM,endM,trueStartM})=>{
+      const earliestM=trueStartM+(leadTimeH*60);
+      for(let m=startM;m<endM;m+=SLOT_MIN){
+        const time=m2t(m);
+        if(!slotMap[time])slotMap[time]={available:false,booked:false,partsWait:false,partsLocked:false};
+        if(!partsOk){slotMap[time].partsLocked=true;continue;}
+        if(svc.parts&&m<earliestM){slotMap[time].partsWait=true;continue;}
+        let ok=true;
+        for(let s=0;s<slotsNeeded;s++){const sm=m+s*SLOT_MIN;if(sm>=endM){ok=false;break;}if(booked.includes(m2t(sm))){ok=false;break;}}
+        if(ok)slotMap[time].available=true;else if(!slotMap[time].available)slotMap[time].booked=true;
+      }
+    });
   });
   return Object.entries(slotMap).sort((a,b)=>a[0].localeCompare(b[0]));
 }
@@ -1791,7 +1837,9 @@ function showSlots(ds,svcId,gridId,isResched){
   const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';
   const svc=catalog.find(s=>s.id===svcId)||catalog[0];
   getAvailableSlots(jobState.bairro,svcId,ds).forEach(([time,data])=>{
-    const d=document.createElement('div'),endTime=m2t(t2m(time)+svc.slots*SLOT_MIN);
+    // ITEM 5: %1440 evita string de horario invalida (ex "24:30") quando o servico
+    // termina depois da meia-noite; "dia seguinte" deixa isso visivel pro cliente.
+    const d=document.createElement('div'),totalEndM=t2m(time)+svc.slots*SLOT_MIN,crossesDay=totalEndM>=1440,endTime=m2t(totalEndM)+(crossesDay?' (dia seguinte)':'');
     if(data.available){
       d.className='slot'+(jobState.selectedSlot===time?' selected':'');
       d.innerHTML=`<div class="sh">${time}</div><div class="sd">até ${endTime}</div>`;
@@ -1880,9 +1928,6 @@ async function createJob(){
 
 async function assignProvider(jobId, scheduledDate, scheduledTime) {
   try {
-    const DAY_MAP = {0:'dom',1:'seg',2:'ter',3:'qua',4:'qui',5:'sex',6:'sab'};
-    const dow = new Date(scheduledDate + 'T12:00:00').getDay();
-    const dayKey = DAY_MAP[dow];
     const slotH = parseInt(scheduledTime.slice(0,2));
     const slotM = parseInt(scheduledTime.slice(3,5));
     const slotMins = slotH * 60 + slotM;
@@ -1907,13 +1952,12 @@ async function assignProvider(jobId, scheduledDate, scheduledTime) {
       : providers; // serviço sem provider_type definido: não bloqueia, mas não deveria acontecer
     if (compatible.length === 0) return; // ninguém com a especialidade certa -> job fica sem prestador, não despacha errado
 
-    const available = compatible.filter(p => {
-      const ag = p.availability ? p.availability[dayKey] : null;
-      if (!ag || !ag.on) return false;
-      const startM = parseInt(ag.start.slice(0,2))*60 + parseInt(ag.start.slice(3,5));
-      const endM   = parseInt(ag.end.slice(0,2))*60   + parseInt(ag.end.slice(3,5));
-      return slotMins >= startM && slotMins < endM;
-    });
+    // ITEM 5: getDayWindows cobre turno de hoje + o que vazou da madrugada de ontem --
+    // scheduledDate ja e a data real de calendario (opcao B), entao basta checar se
+    // slotMins cai em alguma das janelas devolvidas pra essa data.
+    const available = compatible.filter(p =>
+      getDayWindows(p.availability, scheduledDate).some(w => slotMins >= w.startM && slotMins < w.endM)
+    );
     if (available.length === 0) return;
 
     const { data: busyDispatches } = await _supabase
