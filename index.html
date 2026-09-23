@@ -135,6 +135,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
 .cal-day{font-size:12px;padding:6px 3px;border-radius:8px;cursor:pointer}
 .cal-day.other{color:#ccc;cursor:default}
+.cal-day.past{color:#ccc;cursor:default}
 .cal-day.has-slots{background:var(--blue-light);color:var(--blue);font-weight:500}
 .cal-day.selected{background:var(--blue);color:#fff;font-weight:500}
 .cal-day.no-slots{color:#bbb}
@@ -1632,14 +1633,16 @@ function buildCalendar(calId,daysId,svcId){
   const grid=document.getElementById(daysId);if(!grid)return;grid.innerHTML='';
   const dws=getDaysWithSlots(jobState.bairro,svcId,calMonth,calYear);
   const firstDay=new Date(calYear,calMonth,1).getDay(),daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayStr=new Date().toISOString().slice(0,10); // dias antes de hoje ficam indisponiveis, independente do padrao semanal
   for(let i=0;i<firstDay;i++){const d=document.createElement('div');d.className='cal-day other';grid.appendChild(d);}
   for(let d=1;d<=daysInMonth;d++){
     const el=document.createElement('div');
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isPast=ds<todayStr;
     const cnt=dws[d]||0,isSel=jobState.selectedDate===ds;
-    el.className='cal-day'+(isSel?' selected':cnt>0?' has-slots':' no-slots');
+    el.className='cal-day'+(isPast?' past':isSel?' selected':cnt>0?' has-slots':' no-slots');
     el.textContent=d;
-    if(cnt>0)el.onclick=()=>{jobState.selectedDate=ds;jobState.selectedSlot=null;buildCalendar(calId,daysId,svcId);showSlots(ds,svcId,daysId==='reschedDays'?'reschedSlotsGrid':'slotsGrid',daysId==='reschedDays');};
+    if(cnt>0&&!isPast)el.onclick=()=>{jobState.selectedDate=ds;jobState.selectedSlot=null;buildCalendar(calId,daysId,svcId);showSlots(ds,svcId,daysId==='reschedDays'?'reschedSlotsGrid':'slotsGrid',daysId==='reschedDays');};
     grid.appendChild(el);
   }
   const si=document.getElementById('schedInfo');if(si){const s=jobState.service;si.textContent=`📍 ${jobState.bairro}${s&&s.parts?` · peça ${s.leadTimeH}h antes`:''}${s&&s.parts&&!isPartsConfirmed(s.id)?' · 🔒 aguardando confirmação admin':''}`;}
