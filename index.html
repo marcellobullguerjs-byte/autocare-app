@@ -452,6 +452,10 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="label">Apelido (opcional)</div>
         <input class="input" id="vehApelido" placeholder="Ex: Meu Gol, Corolla do trabalho">
       </div>
+      <div class="veh-form-section">
+        <div class="label">Foto do documento do veículo — CRLV (opcional)</div>
+        <div class="photo-upload" id="vehDocPhotoBox" onclick="uploadVehicleDocPhoto()"><div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para fotografar o CRLV</div></div>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-outline" onclick="goBack()">← Voltar</button>
         <button class="btn btn-primary" onclick="saveVehicle()">✓ Adicionar veículo</button>
@@ -852,10 +856,14 @@ async function saveVehicle(){
   const {data,error}=await _supabase.from('vehicles').insert({
     customer_id:(await _supabase.from('customers').select('id').eq('user_id',window._currentUser.id).single()).data.id,
     brand:marca,model:modelo,year:parseInt(ano),
-    fuel:comb,plate:placa,color:cor,alias:apelido
+    fuel:comb,plate:placa,color:cor,alias:apelido,
+    document_photo:vehDocPhotoUrl
   }).select().single();
   if(error){showToast('❌ Erro ao salvar veículo');console.error(error);return;}
   showToast(`✓ ${marca} ${modelo} adicionado!`);
+  vehDocPhotoUrl=null;
+  const docBox=document.getElementById('vehDocPhotoBox');
+  if(docBox){docBox.classList.remove('uploaded');docBox.innerHTML='<div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para fotografar o CRLV</div>';}
   await loadVehicles();
   buildVehicleListScreen();buildVehOptions();
   goBack();
@@ -2342,6 +2350,28 @@ function uploadClientPhoto(){
     box.classList.add('uploaded');
     box.innerHTML=`<img src="${urlData.publicUrl}" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"><div style="font-size:11px;color:var(--green);font-weight:500;margin-top:4px">✓ Foto adicionada</div>`;
     showToast('✓ Foto adicionada!');
+  };
+  input.click();
+}
+// Documento do veículo (CRLV) -- mesmo padrão de uploadClientPhoto(): o veículo ainda
+// não existe no banco neste ponto (INSERT só acontece em saveVehicle()), então o upload
+// acontece na hora e a URL fica guardada aqui até o salvamento. Opcional: se o usuário
+// não tirar a foto, document_photo salva null, sem nenhum "fake success" no Storage.
+let vehDocPhotoUrl = null;
+function uploadVehicleDocPhoto(){
+  const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';
+  input.onchange=async function(){
+    const file=input.files[0];if(!file)return;
+    const box=document.getElementById('vehDocPhotoBox');
+    box.innerHTML=`<div style="font-size:11px;color:var(--muted)">Enviando...</div>`;
+    const path=`vehicle-docs/${window._currentUser.id}_${Date.now()}.jpg`;
+    const {error}=await _supabase.storage.from('job-photos').upload(path,file,{upsert:true});
+    if(error){showToast('❌ Erro ao enviar foto');console.error(error);return;}
+    const {data:urlData}=_supabase.storage.from('job-photos').getPublicUrl(path);
+    vehDocPhotoUrl=urlData.publicUrl;
+    box.classList.add('uploaded');
+    box.innerHTML=`<img src="${urlData.publicUrl}" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"><div style="font-size:11px;color:var(--green);font-weight:500;margin-top:4px">✓ Foto adicionada</div>`;
+    showToast('✓ Foto do documento adicionada!');
   };
   input.click();
 }
