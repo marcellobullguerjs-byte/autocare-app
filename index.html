@@ -1737,13 +1737,27 @@ async function assignProvider(jobId, scheduledDate, scheduledTime) {
     const slotM = parseInt(scheduledTime.slice(3,5));
     const slotMins = slotH * 60 + slotM;
 
+    // Especialidade exigida pelo serviço deste job -- filtro de compatibilidade
+    // vem ANTES de qualquer critério de score/ranking (item 1 do briefing V28).
+    const { data: jobRow } = await _supabase
+      .from('jobs')
+      .select('services(provider_type)')
+      .eq('id', jobId)
+      .single();
+    const requiredType = jobRow?.services?.provider_type || null;
+
     const { data: providers } = await _supabase
       .from('providers')
-      .select('id, score, availability')
+      .select('id, score, availability, specialties')
       .eq('status', 'approved');
     if (!providers || providers.length === 0) return;
 
-    const available = providers.filter(p => {
+    const compatible = requiredType
+      ? providers.filter(p => Array.isArray(p.specialties) && p.specialties.includes(requiredType))
+      : providers; // serviço sem provider_type definido: não bloqueia, mas não deveria acontecer
+    if (compatible.length === 0) return; // ninguém com a especialidade certa -> job fica sem prestador, não despacha errado
+
+    const available = compatible.filter(p => {
       const ag = p.availability ? p.availability[dayKey] : null;
       if (!ag || !ag.on) return false;
       const startM = parseInt(ag.start.slice(0,2))*60 + parseInt(ag.start.slice(3,5));
