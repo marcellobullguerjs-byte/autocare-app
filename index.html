@@ -673,7 +673,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="a-services"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:15px;font-weight:500">Catálogo</div><button class="btn btn-primary btn-sm" onclick="openSvcForm(null)">+ Novo</button></div><div class="filter-row" id="filterRow"></div><div id="adminSvcList"></div></div>
 
     <!-- ADMIN PRESTADORES -->
-    <div class="screen" id="a-providers"><div style="font-size:15px;font-weight:500;margin-bottom:12px">Prestadores</div><div class="filter-row" id="provFilterRow"></div><div id="providerList"></div></div>
+    <div class="screen" id="a-providers"><div style="font-size:15px;font-weight:500;margin-bottom:12px">Prestadores</div><input type="text" class="input" id="provSearchInput" placeholder="Buscar por nome..." style="margin-bottom:10px" oninput="renderProviderList()"><div class="filter-row" id="provFilterRow"></div><div id="providerList"></div></div>
     <div class="screen" id="a-provider-detail"><div id="provDetailContent"></div></div>
 
     <!-- ADMIN DISPATCH -->
@@ -710,6 +710,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Score define prioridade no dispatch</div>
       <div class="card" style="background:#f9f9f9"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">FÓRMULA</div><div style="font-size:12px;line-height:1.8"><span style="color:var(--green)">Nota × 40%</span> + <span style="color:var(--blue)">Conclusão × 25%</span> + <span style="color:var(--orange)">Pontualidade × 20%</span> + <span style="color:var(--muted)">Reclamações × 15%</span></div></div>
       <div class="filter-row" id="rankFilter"></div>
+      <div class="filter-row" id="rankSpecFilterRow"></div>
       <div id="rankingList"></div>
     </div>
     <div class="screen" id="a-provider-rank"><div id="provRankContent"></div></div>
@@ -733,6 +734,9 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <span style="font-size:12px;color:var(--muted)">ate</span>
         <input type="date" class="input" id="jobsDateTo" style="flex:1;font-size:12px" onchange="loadAdminJobs()">
       </div>
+      <select class="input" id="jobsProviderSelect" style="font-size:12px;width:100%;padding:8px;margin-bottom:12px" onchange="loadAdminJobs()">
+        <option value="">Todos os prestadores</option>
+      </select>
       <div id="a-jobs-list"><div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div></div>
     </div>
 
@@ -752,6 +756,9 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <select class="input" id="payMonthSelect" style="font-size:12px;width:100%;padding:8px" onchange="buildPayments()">
         </select>
       </div>
+      <select class="input" id="paymentsProviderSelect" style="font-size:12px;width:100%;padding:8px;margin-bottom:12px" onchange="buildPayments()">
+        <option value="">Todos os prestadores</option>
+      </select>
       <div id="paymentsList"></div>
     </div>
 
@@ -1069,6 +1076,8 @@ async function buildPayments(){
   el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
   if(document.getElementById('pay-total-recebido'))document.getElementById('pay-total-recebido').textContent='R$ 0';
   if(document.getElementById('pay-total-aguardando'))document.getElementById('pay-total-aguardando').textContent='R$ 0';
+  await ensureProviderFilterOptions('paymentsProviderSelect');
+  const providerId=document.getElementById('paymentsProviderSelect')?.value;
   let query=_supabase.from('payments').select('id,job_id,amount,method,status,released_at,jobs(scheduled_date,scheduled_time,total_price,payment_method,services(name))').order('id',{ascending:false}).limit(50);
   if(payTab==='pending')query=query.in('status',['waiting','pending']);
   if(payTab==='today'){const hoje=new Date().toISOString().slice(0,10);query=query.gte('released_at',hoje+'T00:00:00').lte('released_at',hoje+'T23:59:59');}
@@ -1076,6 +1085,10 @@ async function buildPayments(){
     const sel=document.getElementById('payMonthSelect');
     const mes=sel?.value;
     if(mes){const ultimo=new Date(mes.slice(0,4),parseInt(mes.slice(5,7)),0).getDate();query=query.gte('released_at',mes+'-01').lte('released_at',mes+'-'+String(ultimo).padStart(2,'0'));}
+  }
+  if(providerId){
+    const jobIds=await jobIdsForProvider(providerId);
+    query=query.in('job_id', jobIds.length?jobIds:[-1]);
   }
   const {data:pags}=await query;
   el.innerHTML='';
@@ -1621,7 +1634,7 @@ const vehicleHistory={
 let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},description:'',bairro:'Vila Madalena',addrLabel:'Rua Harmonia, 120',selectedDate:null,selectedSlot:null,price:0};
 let calMonth=new Date().getMonth(),calYear=new Date().getFullYear();
 let currentView='admin',navHistory=[],currentScreen='a-dashboard';
-let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',claimsFilter='Pendente',currentSupply='q';
+let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',rankSpecFilter='Todos',claimsFilter='Pendente',currentSupply='q';
 let selectedReallocId=null;
 let currentStar=0,chkState={1:false,2:false,3:false,4:false};
 let selectedVehicle=2,countdownInterval=null,countdownSecs=900;
@@ -2751,7 +2764,9 @@ function renderProviderList(){
   const list=document.getElementById('providerList');
   if(!list)return;
   const sm={Todos:null,Pendente:'pending',Aprovado:'approved',Suspenso:'suspended'};
-  const filtered = provFilter==='Todos' ? _adminProviders : _adminProviders.filter(p=>p.status===sm[provFilter]);
+  let filtered = provFilter==='Todos' ? _adminProviders : _adminProviders.filter(p=>p.status===sm[provFilter]);
+  const search=(document.getElementById('provSearchInput')?.value||'').trim().toLowerCase();
+  if(search) filtered = filtered.filter(p=>(p.users?.name||'').toLowerCase().includes(search));
 
   list.innerHTML='';
   if(filtered.length===0){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Nenhum prestador encontrado.</div>';return;}
@@ -3133,12 +3148,16 @@ async function saveSupplierModal(id){
 }
 // ============ ADMIN RANKING ============
 async function buildRanking(){
-  const fr=document.getElementById('rankFilter'),list=document.getElementById('rankingList');if(!fr||!list)return;
+  const fr=document.getElementById('rankFilter'),frSpec=document.getElementById('rankSpecFilterRow'),list=document.getElementById('rankingList');if(!fr||!frSpec||!list)return;
   fr.innerHTML='';['Todos','Vila Madalena','Pinheiros','Moema'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===rankFilter?' active':'');d.textContent=f;d.onclick=()=>{rankFilter=f;buildRanking();};fr.appendChild(d);});
+  frSpec.innerHTML='';['Todos',...PROV_TYPES].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===rankSpecFilter?' active':'');d.textContent=f;d.onclick=()=>{rankSpecFilter=f;buildRanking();};frSpec.appendChild(d);});
   list.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
   const {data:provs} = await _supabase.from('providers').select('id,score,status,specialties,regions,stats,users!providers_user_id_fkey(name)').eq('status','approved').order('score',{ascending:false});
   if(!provs||provs.length===0){list.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum prestador aprovado</div>';return;}
-  const filtered = provs.filter(p=>rankFilter==='Todos'||(p.regions&&p.regions.includes(rankFilter)));
+  const filtered = provs.filter(p=>
+    (rankFilter==='Todos'||(p.regions&&p.regions.includes(rankFilter))) &&
+    (rankSpecFilter==='Todos'||(p.specialties&&p.specialties.includes(rankSpecFilter)))
+  );
   list.innerHTML='';
   filtered.forEach((p,i)=>{
     const score=parseFloat(p.score||0).toFixed(1);
@@ -3393,13 +3412,32 @@ async function loadAdminDashboard(){
 }
 
 let jobsStatusFilter='Todos';
+// ITEM 9: dropdown de prestador reaproveitado por a-jobs e a-payments -- jobs/payments
+// nao tem provider_id direto, entao o filtro passa por job_dispatch (status='accepted').
+let _adminApprovedProviders=null;
+async function ensureProviderFilterOptions(selectId){
+  const sel=document.getElementById(selectId);
+  if(!sel||sel.options.length>1)return;
+  if(!_adminApprovedProviders){
+    const {data}=await _supabase.from('providers').select('id,users(name)').eq('status','approved');
+    _adminApprovedProviders=(data||[]).map(p=>({id:p.id,name:p.users?.name||'Prestador'})).sort((a,b)=>a.name.localeCompare(b.name));
+  }
+  sel.innerHTML='<option value="">Todos os prestadores</option>'+_adminApprovedProviders.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+}
+async function jobIdsForProvider(providerId){
+  const {data}=await _supabase.from('job_dispatch').select('job_id').eq('provider_id',providerId).eq('status','accepted');
+  return (data||[]).map(d=>d.job_id);
+}
+
 async function loadAdminJobs(){
   const el=document.getElementById('a-jobs-list');if(!el)return;
   el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
   const fr=document.getElementById('jobsFilterChips');
   if(fr){fr.innerHTML='';['Todos','Aguardando','Em andamento','Concluido','Cancelado'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===jobsStatusFilter?' active':'');d.textContent=f;d.onclick=()=>{jobsStatusFilter=f;loadAdminJobs();};fr.appendChild(d);});}
+  await ensureProviderFilterOptions('jobsProviderSelect');
   const dateFrom=document.getElementById('jobsDateFrom')?.value;
   const dateTo=document.getElementById('jobsDateTo')?.value;
+  const providerId=document.getElementById('jobsProviderSelect')?.value;
   let query=_supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,total_price,services(name),addresses(neighborhood)').order('scheduled_date',{ascending:false}).limit(100);
   if(jobsStatusFilter==='Aguardando')query=query.eq('status','pending');
   else if(jobsStatusFilter==='Em andamento')query=query.in('status',['accepted','in_progress','awaiting_approval']);
@@ -3407,6 +3445,10 @@ async function loadAdminJobs(){
   else if(jobsStatusFilter==='Cancelado')query=query.eq('status','cancelled');
   if(dateFrom)query=query.gte('scheduled_date',dateFrom);
   if(dateTo)query=query.lte('scheduled_date',dateTo);
+  if(providerId){
+    const jobIds=await jobIdsForProvider(providerId);
+    query=query.in('id', jobIds.length?jobIds:[-1]);
+  }
   const {data:jobs}=await query;
   if(!jobs||jobs.length===0){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum job encontrado</div>';return;}
   const statusMap={pending:{cls:'waiting',badge:'badge-yellow',txt:'Aguardando'},accepted:{cls:'confirmed',badge:'badge-blue',txt:'Aceito'},in_progress:{cls:'confirmed',badge:'badge-orange',txt:'Em andamento'},awaiting_approval:{cls:'confirmed',badge:'badge-orange',txt:'Aguard. aprovacao'},completed:{cls:'',badge:'badge-green',txt:'Concluido'},cancelled:{cls:'urgent',badge:'badge-red',txt:'Cancelado'}};
