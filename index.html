@@ -1872,7 +1872,7 @@ async function assignProvider(jobId, scheduledDate, scheduledTime) {
 
     const { data: providers } = await _supabase
       .from('providers')
-      .select('id, score, availability, specialties')
+      .select('id, score, availability, specialties, last_job_completed_at, stats')
       .eq('status', 'approved');
     if (!providers || providers.length === 0) return;
 
@@ -1904,8 +1904,42 @@ async function assignProvider(jobId, scheduledDate, scheduledTime) {
     const free = available.filter(p => !busyIds.has(p.id));
     if (free.length === 0) return;
 
-    free.sort((a, b) => Number(b.score) - Number(a.score));
-    const chosen = free[0];
+    // Ranking ponderado (Variante A, item 2 do briefing V28) -- não escolhe direto quem
+    // tem maior pontuação: pontua por score + tempo ocioso + bônus-novato, pega os top 5
+    // e sorteia entre eles (ponderado pela própria pontuação). Dá chance a novatos e evita
+    // concentrar demanda sempre nos mesmos prestadores de maior score. getTier() continua
+    // sendo só rótulo visual -- nunca entra nesse cálculo.
+    const nowMs = Date.now();
+    const idleValues = free.map(p => p.last_job_completed_at ? (nowMs - new Date(p.last_job_completed_at).getTime()) : null);
+    const maxIdle = Math.max(0, ...idleValues.filter(v => v !== null));
+
+    const scored = free.map((p, i) => {
+      const scoreNorm = Number(p.score || 0) / 10;
+      // sem last_job_completed_at (nunca completou job) = ociosidade máxima, não entra na conta do maxIdle
+      const idleNorm = idleValues[i] === null ? 1 : (maxIdle > 0 ? idleValues[i] / maxIdle : 1);
+      const jobsConcluidos = p.stats?.jobsConcluidos || 0;
+      const bonusNovato = Math.max(0, 0.20 * (1 - jobsConcluidos / 15)); // zera no 15º job
+      const pontuacaoFinal = (scoreNorm * 0.45) + (idleNorm * 0.35) + bonusNovato;
+      return { provider: p, pontuacaoFinal };
+    });
+
+    scored.sort((a, b) => b.pontuacaoFinal - a.pontuacaoFinal);
+    const pool = scored.slice(0, 5);
+
+    // Sorteio ponderado dentro do top 5: probabilidade proporcional à pontuação_final.
+    const totalWeight = pool.reduce((s, x) => s + x.pontuacaoFinal, 0);
+    let chosen;
+    if (totalWeight > 0) {
+      let r = Math.random() * totalWeight;
+      chosen = pool[pool.length - 1].provider; // fallback por arredondamento de ponto flutuante
+      for (const x of pool) {
+        if (r < x.pontuacaoFinal) { chosen = x.provider; break; }
+        r -= x.pontuacaoFinal;
+      }
+    } else {
+      chosen = pool[Math.floor(Math.random() * pool.length)].provider;
+    }
+
     const now = new Date().toISOString();
 
     await _supabase.from('job_dispatch').insert({
