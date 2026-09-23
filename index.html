@@ -1335,20 +1335,31 @@ async function loadProviderDashboard() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: jobs } = await _supabase
+  // Jobs deste prestador especificamente (job_dispatch.status='accepted' pra ele) --
+  // sem isso a query de baixo trazia os jobs confirmados de QUALQUER prestador
+  // agendados pra hoje, nao so os do usuario logado.
+  const { data: myDispatches } = await _supabase
+    .from('job_dispatch')
+    .select('job_id')
+    .eq('provider_id', provRow.id)
+    .eq('status', 'accepted');
+  const myJobIds = (myDispatches || []).map(d => d.job_id);
+
+  const { data: jobs } = myJobIds.length > 0 ? await _supabase
     .from('jobs')
     .select(`id, status, scheduled_date, scheduled_time, total_price,
              en_route_at, delay_reported_at, delay_reason, delay_new_eta,
              services(name), vehicles(brand, model), addresses(neighborhood)`)
+    .in('id', myJobIds)
     .eq('scheduled_date', today)
     .in('status', ['accepted','confirmed','in_progress','awaiting_approval','completed'])
-    .order('id', { ascending: false });
+    .order('id', { ascending: false }) : { data: [] };
 
   const list = document.getElementById('provJobsList');
   const countEl = document.getElementById('provJobsHoje');
   const earnEl = document.getElementById('provGanhosHoje');
 
-  const { data: reschedJobs } = await _supabase.from('job_dispatch').select('job_id').eq('provider_id', provRow.id);const reschedJobIds = (reschedJobs || []).map(d => d.job_id);const { data: pendingResched } = reschedJobIds.length > 0 ? await _supabase.from('jobs').select(`id, status, scheduled_date, scheduled_time, total_price, en_route_at, delay_reported_at, delay_reason, delay_new_eta, services(name), vehicles(brand, model), addresses(neighborhood)`).in('id', reschedJobIds).eq('status', 'rescheduled') : { data: [] };const allJobs = [...(jobs || []), ...(pendingResched || [])];if (!allJobs || allJobs.length === 0) {
+  const reschedJobIds = myJobIds;const { data: pendingResched } = reschedJobIds.length > 0 ? await _supabase.from('jobs').select(`id, status, scheduled_date, scheduled_time, total_price, en_route_at, delay_reported_at, delay_reason, delay_new_eta, services(name), vehicles(brand, model), addresses(neighborhood)`).in('id', reschedJobIds).eq('status', 'rescheduled') : { data: [] };const allJobs = [...(jobs || []), ...(pendingResched || [])];if (!allJobs || allJobs.length === 0) {
     if (list) list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum job hoje.</div>';
     if (countEl) countEl.textContent = '0';
     if (earnEl) earnEl.textContent = 'R$ 0';
