@@ -520,6 +520,11 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 </div>
 <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">JOBS DE HOJE</div>
 <div id="provJobsList"><div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div></div>
+<div id="provNextJobsSection" style="display:none">
+  <hr class="divider">
+  <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">PRÓXIMOS JOBS (7 DIAS)</div>
+  <div id="provNextJobsList"></div>
+</div>
     </div>
 
     <!-- OFERTA PRESTADOR -->
@@ -591,6 +596,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="supply-nav" style="margin-bottom:14px">
         <div class="snav-item active" id="atab-config" onclick="switchAgendaTab('config')">Configurar</div>
         <div class="snav-item" id="atab-view" onclick="switchAgendaTab('view')">Ver hoje</div>
+        <div class="snav-item" id="atab-myjobs" onclick="switchAgendaTab('myjobs')">Meus Jobs</div>
       </div>
 
       <!-- Tab: configurar horários flexíveis -->
@@ -616,6 +622,11 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
           <div class="stat" style="flex:1;padding:10px"><div class="n" id="agEarnCount" style="color:var(--blue)">R$ 660</div><div class="l">Ganhos</div></div>
         </div>
         <div id="agendaDaySlots"></div>
+      </div>
+
+      <!-- Tab: todos os jobs aceitos futuros, agrupados por dia -->
+      <div id="agenda-myjobs" style="display:none">
+        <div id="agendaMyJobsList"></div>
       </div>
     </div>
 
@@ -950,8 +961,36 @@ async function saveAgenda(){
 function switchAgendaTab(tab){
   document.getElementById('agenda-config').style.display=tab==='config'?'block':'none';
   document.getElementById('agenda-view').style.display=tab==='view'?'block':'none';
-  ['config','view'].forEach(t=>{const el=document.getElementById('atab-'+t);if(el)el.classList.toggle('active',t===tab);});
+  document.getElementById('agenda-myjobs').style.display=tab==='myjobs'?'block':'none';
+  ['config','view','myjobs'].forEach(t=>{const el=document.getElementById('atab-'+t);if(el)el.classList.toggle('active',t===tab);});
   if(tab==='view')buildAgendaDayView();
+  if(tab==='myjobs')buildAgendaMyJobs();
+}
+
+// Aba "Meus Jobs": TODOS os jobs aceitos futuros (hoje incluso, sem limite superior),
+// agrupados por data com cabeçalho de dia. Mesma fonte de dados de "Jobs de hoje" e
+// "Próximos jobs" -- só muda o intervalo (hoje em diante, sem toDate).
+async function buildAgendaMyJobs(){
+  const el = document.getElementById('agendaMyJobsList');
+  if(!el) return;
+  el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:16px">Carregando...</div>';
+  const { data: provRow } = await _supabase.from('providers').select('id').eq('user_id', _currentUser.id).single();
+  if(!provRow){ el.innerHTML=''; return; }
+  const todayStr = new Date().toISOString().slice(0,10);
+  const jobs = await fetchProviderAcceptedJobs(provRow.id, todayStr, null);
+  if(jobs.length === 0){
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">Nenhum job futuro.</div>';
+    return;
+  }
+  const groups = {};
+  jobs.forEach(j => { (groups[j.scheduled_date] = groups[j.scheduled_date] || []).push(j); });
+  const dates = Object.keys(groups).sort();
+  el.innerHTML = dates.map(ds => {
+    const dt = new Date(ds+'T12:00:00');
+    const label = `${WEEKDAYS[dt.getDay()]} · ${dt.getDate()} ${MONTHS[dt.getMonth()].substring(0,3)}`;
+    const cards = groups[ds].map(j => renderJobCardReadOnly(j, true)).join('');
+    return `<div style="font-size:12px;font-weight:500;color:var(--muted);margin:14px 0 8px">${label}</div>${cards}`;
+  }).join('');
 }
 
 // ============ FIX 2: VISÃO SLOTS DO DIA ============
@@ -1409,9 +1448,80 @@ async function loadProviderDashboard() {
         ${preExecBlock}
       </div>`;
   }).join('');
+
+  // "Próximos jobs" (7 dias, sem hoje) -- mesma fonte de dados de "Jobs de hoje",
+  // só muda o intervalo de datas. Seção some inteira se não houver nada no período.
+  const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+  const amanhaStr = amanha.toISOString().slice(0,10);
+  const em7dias = new Date(); em7dias.setDate(em7dias.getDate()+7);
+  const em7diasStr = em7dias.toISOString().slice(0,10);
+  const nextJobs = await fetchProviderAcceptedJobs(provRow.id, amanhaStr, em7diasStr);
+  const nextSection = document.getElementById('provNextJobsSection');
+  const nextList = document.getElementById('provNextJobsList');
+  if(nextSection && nextList){
+    if(nextJobs.length === 0){
+      nextSection.style.display = 'none';
+    } else {
+      nextSection.style.display = 'block';
+      nextList.innerHTML = nextJobs.map(j => renderJobCardReadOnly(j, false)).join('');
+    }
+  }
 }
 
+// Busca compartilhada: jobs aceitos (job_dispatch.status='accepted') deste prestador
+// num intervalo de datas. toDate=null significa sem limite superior. Usada por
+// "Jobs de hoje", "Próximos jobs" (home) e a aba "Meus Jobs" (agenda) -- só muda
+// o intervalo passado, sem duplicar a lógica de busca em cada tela.
+async function fetchProviderAcceptedJobs(providerId, fromDate, toDate){
+  const { data: myDispatches } = await _supabase
+    .from('job_dispatch')
+    .select('job_id')
+    .eq('provider_id', providerId)
+    .eq('status', 'accepted');
+  const jobIds = (myDispatches || []).map(d => d.job_id);
+  if(jobIds.length === 0) return [];
 
+  let q = _supabase
+    .from('jobs')
+    .select(`id, status, scheduled_date, scheduled_time, total_price,
+             en_route_at, delay_reported_at, delay_reason, delay_new_eta,
+             services(name), vehicles(brand, model), addresses(neighborhood)`)
+    .in('id', jobIds)
+    .in('status', ['accepted','confirmed','in_progress','awaiting_approval','completed'])
+    .order('scheduled_date', { ascending: true })
+    .order('scheduled_time', { ascending: true });
+  if(fromDate) q = q.gte('scheduled_date', fromDate);
+  if(toDate)   q = q.lte('scheduled_date', toDate);
+
+  const { data: jobs } = await q;
+  return jobs || [];
+}
+
+// Card só-leitura (sem "estou a caminho"/"avisar atraso"/reagendamento -- não fazem
+// sentido pra um job que ainda não chegou o dia). clickable=true leva pra execução,
+// igual o card de hoje; clickable=false é puramente informativo (home).
+function renderJobCardReadOnly(j, clickable){
+  const statusLabel = {
+    accepted:          { text: 'Confirmado',        cls: 'badge-blue'   },
+    confirmed:         { text: 'Confirmado',        cls: 'badge-blue'   },
+    in_progress:       { text: 'Em andamento',      cls: 'badge-orange' },
+    awaiting_approval: { text: 'Aguard. aprovação', cls: 'badge-orange' },
+  };
+  const s = statusLabel[j.status] || { text: j.status, cls: 'badge-yellow' };
+  const veh = j.vehicles ? `${j.vehicles.brand} ${j.vehicles.model}` : '';
+  const dt = j.scheduled_date ? new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
+  const clickAttr = clickable ? `style="cursor:pointer" onclick="window._activeJobId='${j.id}';goScreen('p-job-exec');loadJobExec()"` : '';
+  return `
+    <div class="job-card confirmed" ${clickAttr}>
+      <div class="row">
+        <span style="font-size:13px;font-weight:500">${j.services?.name || '-'}</span>
+        <span class="badge ${s.cls}">${s.text}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">
+        ${dt} · ${j.scheduled_time?.slice(0,5) || ''} · ${j.addresses?.neighborhood || ''} · ${veh} · R$ ${Number(j.total_price||0).toFixed(0)}
+      </div>
+    </div>`;
+}
 
 // ============ SUPPLY DATA ============
 let suppliers=[];
