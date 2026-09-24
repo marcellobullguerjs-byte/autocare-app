@@ -523,6 +523,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="p-dashboard">
       <div style="margin-bottom:14px"><div style="font-size:13px;color:var(--muted)">Olá, <span id="providerGreetName">Prestador</span> 👋</div><div style="font-size:16px;font-weight:500">Dashboard · Prestador</div><div style="margin-top:4px"><span class="badge badge-green" style="font-size:10px">✓ Aprovado</span> <span style="font-size:11px;color:var(--muted)">📍 Vila Madalena, Pinheiros</span></div></div>
       <div class="notif-banner" onclick="goScreen('p-offer');loadOfferScreen()" id="offerNotif" style="display:none"><div class="nb-icon">🔔</div><div class="nb-text"><div class="t">Nova oferta de job!</div><div class="s" id="offerNotifText">Aguardando ofertas...</div></div><div class="nb-badge" id="offerNotifTime"></div></div>
+      <div class="notif-banner" onclick="goScreen('p-dashboard');loadProviderDashboard();" id="enRouteNotif" style="display:none;background:var(--orange)"><div class="nb-icon">⏰</div><div class="nb-text"><div class="t" id="enRouteNotifText">Job começa em breve</div><div class="s">Confirme que está a caminho</div></div></div>
       <div class="grid2" style="margin-bottom:14px">
   <div class="stat"><div class="n" id="provJobsHoje">-</div><div class="l">Jobs hoje</div></div>
   <div class="stat"><div class="n" id="provGanhosHoje">-</div><div class="l">Ganhos hoje</div></div>
@@ -657,6 +658,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="menu-item" onclick="goScreen('a-services')"><div class="menu-icon">🔧</div><div class="menu-text"><div class="t">Catálogo de serviços</div><div class="s" id="adminSvcCount">25 serviços ativos</div></div></div>
       <div class="menu-item" onclick="goScreen('a-providers')"><div class="menu-icon">👨‍🔧</div><div class="menu-text"><div class="t">Gestão de prestadores</div><div class="s">Aprovar · Suspender · Rejeitar</div></div></div>
       <div class="menu-item" onclick="goScreen('a-dispatch')"><div class="menu-icon">📡</div><div class="menu-text"><div class="t">Dispatch · Jobs</div><div class="s">Alocação · Aceite · Realocação</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-pending-confirmations')"><div class="menu-icon">⏰</div><div class="menu-text"><div class="t">Confirmações pendentes</div><div class="s" id="menu-pendingconf-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-supply')"><div class="menu-icon">📦</div><div class="menu-text"><div class="t">Supply Chain</div><div class="s">Fornecedores · Peças · Cotações</div></div></div>
       <div class="menu-item" onclick="goScreen('a-ranking')"><div class="menu-icon">⭐</div><div class="menu-text"><div class="t">Ranking de prestadores</div><div class="s">Score · Tiers · Dispatch priority</div></div></div>
       <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s" id="menu-claims-pendentes">0 pendentes</div></div></div>
@@ -691,6 +693,13 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div id="dispatchList"></div>
     </div>
     <div class="screen" id="a-dispatch-detail"><div id="dispatchDetailContent"></div></div>
+
+    <!-- FEATURE: confirmacao "estou a caminho" obrigatoria -->
+    <div class="screen" id="a-pending-confirmations">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Confirmações pendentes</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Jobs aceitos a menos de 30 min do horário, sem "estou a caminho" confirmado</div>
+      <div id="pendingConfList"></div>
+    </div>
 
     <!-- ADMIN SUPPLY -->
     <div class="screen" id="a-supply">
@@ -2963,6 +2972,37 @@ async function buildDispatchList(){
   if(filtered.length===0){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum job encontrado.</div>';return;}
   filtered.forEach(job=>{const cfg=DISPATCH_STATUS[job.status]||{label:job.status,badge:'badge-gray',icon:'?',cardClass:''};const accepted=(job.job_dispatch||[]).find(d=>d.status==='accepted');const provName=accepted?.providers?.users?.name||null;const clientName=job.customers?.users?.name||'Cliente';const bairro=job.addresses?.neighborhood||'-';const dt=job.scheduled_date?new Date(job.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';const hora=job.scheduled_time?job.scheduled_time.slice(0,5):'';let provInfo='';if(provName)provInfo=`<div style="font-size:11px;color:var(--green);margin-top:4px">✓ ${provName}</div>`;else if(job.status==='no_provider')provInfo=`<div style="font-size:11px;color:var(--red);margin-top:4px">🚨 Intervencao manual</div>`;else if(job.status==='pending')provInfo=`<div style="font-size:11px;color:var(--yellow);margin-top:4px">⏳ Aguardando prestador</div>`;const d=document.createElement('div');d.className=`job-card ${cfg.cardClass}`;d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#${job.id} · ${job.services?.name||'-'}</span><span class="badge ${cfg.badge}">${cfg.icon} ${cfg.label}</span></div><div style="font-size:12px;color:var(--muted)">${clientName} · 📍 ${bairro} · ${dt} ${hora} · R$ ${Number(job.total_price||0).toFixed(0)}</div>${provInfo}<div class="action-row"><button class="action-btn ab-view" onclick="viewDispatchReal(${job.id})">Ver detalhes</button>${['pending','no_provider'].includes(job.status)?`<button class="action-btn ab-suspend" onclick="openReallocModal(${job.id})">Realocar</button>`:''}</div>`;list.appendChild(d);});
 }
+
+// FEATURE "Confirmações pendentes": jobs aceitos a <=30min do horário marcado (ou já
+// atrasados), sem "estou a caminho" confirmado -- ver isJobAtRisk(). Mesmo padrão
+// visual de buildDispatchList() (job-card/action-row), botão Realocar reaproveita
+// openReallocModal() ja existente.
+async function buildPendingConfirmations(){
+  const list=document.getElementById('pendingConfList');if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:jobs,error}=await _supabase
+    .from('jobs')
+    .select('id,status,scheduled_date,scheduled_time,en_route_at,services(name),addresses(neighborhood),job_dispatch(status,providers(users(name,phone)))')
+    .eq('status','accepted');
+  if(error){list.innerHTML='<div style="font-size:12px;color:var(--red);text-align:center;padding:12px">Erro ao carregar.</div>';return;}
+  const atRisk=(jobs||[]).filter(isJobAtRisk)
+    .sort((a,b)=> new Date(a.scheduled_date+'T'+a.scheduled_time) - new Date(b.scheduled_date+'T'+b.scheduled_time));
+  list.innerHTML='';
+  if(atRisk.length===0){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma confirmação pendente no momento.</div>';return;}
+  atRisk.forEach(job=>{
+    const accepted=(job.job_dispatch||[]).find(d=>d.status==='accepted');
+    const provName=accepted?.providers?.users?.name||'Prestador';
+    const provPhone=accepted?.providers?.users?.phone||'-';
+    const bairro=job.addresses?.neighborhood||'-';
+    const dt=job.scheduled_date?new Date(job.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    const hora=job.scheduled_time?job.scheduled_time.slice(0,5):'';
+    const atrasado=new Date(job.scheduled_date+'T'+job.scheduled_time).getTime()<Date.now();
+    const d=document.createElement('div');d.className='job-card '+(atrasado?'urgent':'confirmed');
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#${job.id} · ${job.services?.name||'-'}</span><span class="badge ${atrasado?'badge-red':'badge-orange'}">${atrasado?'⏰ Atrasado':'⏰ Em breve'}</span></div><div style="font-size:12px;color:var(--muted)">📍 ${bairro} · ${dt} ${hora}</div><div style="font-size:12px;margin-top:4px">👤 ${provName} · 📞 ${provPhone}</div><div class="action-row"><button class="action-btn ab-suspend" onclick="openReallocModal(${job.id})">Realocar</button></div>`;
+    list.appendChild(d);
+  });
+}
+
 // Abre o modal de realocação manual: busca prestadores aprovados, ordena por score
 // (maior primeiro — Diamante/Ouro/Prata/Bronze são só o rótulo desses mesmos cortes de
 // score) e exclui quem já recebeu oferta para este job (confirmRealloc rejeitaria de
@@ -3422,7 +3462,7 @@ async function resolveSupportTicket(id,newStatus){
 }
 
 // ============ NAV ============
-const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte'};
+const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-pending-confirmations':'Confirmações pendentes','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte'};
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -3461,6 +3501,7 @@ function showScreen(id){
   if(id==='a-services')buildAdminCatalog();
   if(id==='a-providers')buildProviderList();
   if(id==='a-dispatch')buildDispatchList();
+  if(id==='a-pending-confirmations')buildPendingConfirmations();
   if(id==='a-supply')switchSupply(currentSupply);
   if(id==='a-ranking')buildRanking();
   if(id==='a-claims')buildClaims();
@@ -3489,6 +3530,8 @@ async function loadAdminDashboard(){
     const {data:tick} = await _supabase.from('support_tickets').select('id,priority').eq('status','pending');
     const totalTick = (tick||[]).length;
     const urgTick = (tick||[]).filter(t=>t.priority==='urgente').length;
+    const {data:accJobs} = await _supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,en_route_at').eq('status','accepted');
+    const totalPendingConf = (accJobs||[]).filter(isJobAtRisk).length;
     document.getElementById('dash-jobs-hoje').textContent = jobsHoje;
     document.getElementById('dash-jobs-subtitulo').textContent = jobsHoje+' hoje';
     const totalPago=(jobs||[]).filter(j=>j.status==='completed').reduce((s,j)=>s+parseFloat(j.total_price||0),0);
@@ -3500,6 +3543,7 @@ async function loadAdminDashboard(){
     const menuClaims=document.getElementById('menu-claims-pendentes');if(menuClaims)menuClaims.textContent=totalRecl+' pendente'+(totalRecl!==1?'s':'');if(totalRecl>0){document.getElementById('dash-banner-reclamacoes').style.display='block';document.getElementById('dash-banner-reclamacoes-txt').textContent='⚠️ '+totalRecl+' reclamacao'+(totalRecl>1?'oes':'')+' aguardando analise';}
     const menuOcor=document.getElementById('menu-occurrences-pendentes');if(menuOcor)menuOcor.textContent=totalOcor+' pendente'+(totalOcor!==1?'s':'');
     const menuTick=document.getElementById('menu-support-pendentes');if(menuTick)menuTick.textContent=totalTick+' pendente'+(totalTick!==1?'s':'')+(urgTick>0?' · 🚨 '+urgTick+' urgente'+(urgTick>1?'s':''):'');
+    const menuPendingConf=document.getElementById('menu-pendingconf-pendentes');if(menuPendingConf)menuPendingConf.textContent=totalPendingConf+' pendente'+(totalPendingConf!==1?'s':'');
   } catch(e){ console.log('dash erro',e); }
 }
 
@@ -3848,6 +3892,17 @@ function mockUpload(btn){btn.textContent='✓ Enviado';btn.style.background='var
 function showToast(msg){const t=document.createElement('div');t.style.cssText='position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:200;white-space:nowrap;max-width:320px;text-align:center';t.textContent=msg;document.getElementById('app').appendChild(t);setTimeout(()=>t.remove(),2500);}
 
 let _lastJobId = null;
+// FEATURE "Confirmações pendentes": job aceito, sem en_route_at, a <=30min do horário
+// marcado (ou já passado). status='accepted' é o único estágio em que faz sentido --
+// prestador confirmado mas ainda não avisou que está a caminho. Usada tanto no
+// polling do prestador (startRealtimeProvider) quanto na tela do admin
+// (buildPendingConfirmations).
+function isJobAtRisk(job){
+  if(!job || job.status!=='accepted' || job.en_route_at || !job.scheduled_date || !job.scheduled_time) return false;
+  const jobTimeMs = new Date(job.scheduled_date+'T'+job.scheduled_time).getTime();
+  return jobTimeMs - Date.now() <= 30*60*1000;
+}
+
 async function startRealtimeProvider() {
   if (!window._seenOfferIds) window._seenOfferIds = new Set();
   setInterval(async () => {
@@ -3856,6 +3911,28 @@ async function startRealtimeProvider() {
     const {data:provRow} = await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
     const provId = provRow ? provRow.id : null;
     if (!provId) return;
+    // Diferente do banner de oferta/reagendamento (mostra 1x, nunca reavalia): o
+    // lembrete de "estou a caminho" precisa aparecer E desaparecer sozinho -- roda
+    // sempre, antes dos `return` dos blocos abaixo, senão nunca esconderia de volta
+    // assim que en_route_at fosse preenchido.
+    const {data:accJobs} = await _supabase
+      .from('job_dispatch')
+      .select('job_id, jobs(id, status, scheduled_date, scheduled_time, en_route_at)')
+      .eq('provider_id', provId).eq('status', 'accepted');
+    const atRisk = (accJobs||[]).map(d=>d.jobs).filter(isJobAtRisk)
+      .sort((a,b)=> new Date(a.scheduled_date+'T'+a.scheduled_time) - new Date(b.scheduled_date+'T'+b.scheduled_time));
+    const enRouteBanner = document.getElementById('enRouteNotif');
+    if (enRouteBanner) {
+      if (atRisk.length > 0) {
+        const j = atRisk[0];
+        const hora = j.scheduled_time ? j.scheduled_time.slice(0,5) : '';
+        const txt = document.getElementById('enRouteNotifText');
+        if (txt) txt.textContent = '⏰ Seu job das ' + hora + ' começa em breve — confirme que está a caminho';
+        enRouteBanner.style.display = 'flex';
+      } else {
+        enRouteBanner.style.display = 'none';
+      }
+    }
     if (provId) {
       const {data:reschedJobs} = await _supabase.from('job_dispatch').select('job_id').eq('provider_id',provId).eq('status','accepted');
       const reschedIds = (reschedJobs||[]).map(d=>d.job_id);
