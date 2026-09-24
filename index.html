@@ -1097,6 +1097,14 @@ async function buildPayments(){
   el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
   if(document.getElementById('pay-total-recebido'))document.getElementById('pay-total-recebido').textContent='R$ 0';
   if(document.getElementById('pay-total-aguardando'))document.getElementById('pay-total-aguardando').textContent='R$ 0';
+  // DIAGNOSTICO TEMPORARIO (bug do teste, filtro de pagamentos vazio): a aba "Admin"
+  // (switchView('admin')) so troca a tela visivel, nunca autentica -- se a sessao real
+  // do _supabase.auth ja estava logada como cliente (de um teste anterior), toda query
+  // feita a partir das telas de admin roda sob o RLS desse cliente, nao de um admin de
+  // verdade. Confirma direto da sessao real qual conta/role esta ativa.
+  const {data:myAuthUser}=await _supabase.auth.getUser();
+  const {data:myRole}=await _supabase.rpc('get_my_role');
+  console.log('[DIAG pagamentos] sessao real -- uid=',myAuthUser?.user?.id,'email=',myAuthUser?.user?.email,'get_my_role()=',myRole);
   await ensureProviderFilterOptions('paymentsProviderSelect');
   const providerId=document.getElementById('paymentsProviderSelect')?.value;
   let query=_supabase.from('payments').select('id,job_id,amount,method,status,released_at,jobs(scheduled_date,scheduled_time,total_price,payment_method,services(name))').order('id',{ascending:false}).limit(50);
