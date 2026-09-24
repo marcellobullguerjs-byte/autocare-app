@@ -1720,17 +1720,30 @@ function getDayWindows(availability, dateStr) {
 }
 
 // ============ FIX 6: SLOT ENGINE COM AGENDA FLEXÍVEL E BLOQUEIO POR PEÇA ============
-function isPartsConfirmed(svcId){
-  // Serviços com peça só têm slots liberados se a cotação estiver confirmada
+// FLUXO DE PEÇAS (item 2): jobId opcional -- só vem preenchido no reagendamento
+// (s-reschedule, onde o job já existe). Sem jobId (agendamento inicial, job ainda não
+// existe), mantém o comportamento de sempre: casa por nome de serviço, usando o
+// buffer genérico do catálogo. Com jobId, consulta a cotação específica DESSE job --
+// corrige o vazamento em que a cotação confirmada de um cliente liberava a agenda de
+// outro cliente pedindo o mesmo serviço.
+function isPartsConfirmed(svcId,jobId){
   const svc=catalog.find(s=>s.id===svcId);
   if(!svc||!svc.parts)return true; // sem peça = sempre liberado
+  if(jobId){
+    const quot=quotations.find(q=>q.jobId==='#'+jobId);
+    return quot ? quot.status==='confirmed' : false;
+  }
   const quot=quotations.find(q=>q.service===svc.name&&q.status==='confirmed');
   return!!quot;
 }
-function getAvailableSlots(bairro,svcId,dateStr){
+function getAvailableSlots(bairro,svcId,dateStr,jobId){
   const svc=catalog.find(s=>s.id===svcId);if(!svc)return[];
-  const slotsNeeded=svc.slots,leadTimeH=svc.parts?svc.leadTimeH:0;
-  const partsOk=isPartsConfirmed(svcId);
+  const slotsNeeded=svc.slots;
+  const partsOk=isPartsConfirmed(svcId,jobId);
+  // No reagendamento (jobId presente) com cotação confirmada, usa o prazo REAL
+  // digitado pelo admin pra essa cotação -- não mais o buffer genérico do serviço.
+  const quotForJob=jobId?quotations.find(q=>q.jobId==='#'+jobId):null;
+  const leadTimeH=svc.parts?(quotForJob&&quotForJob.status==='confirmed'&&quotForJob.leadTimeH!=null?quotForJob.leadTimeH:svc.leadTimeH):0;
   // ITEM 5: getDayWindows ja resolve turnos que atravessam meia-noite (hoje + o que
   // vazou de ontem), entao o match de prestador nao pode mais olhar so avail[dk].on.
   const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&p.specialty.some(s=>svc.provider.includes(s))&&getDayWindows(p.avail,dateStr).length>0);
@@ -1752,9 +1765,9 @@ function getAvailableSlots(bairro,svcId,dateStr){
   });
   return Object.entries(slotMap).sort((a,b)=>a[0].localeCompare(b[0]));
 }
-function getDaysWithSlots(bairro,svcId,month,year){
+function getDaysWithSlots(bairro,svcId,month,year,jobId){
   const res={};const days=new Date(year,month+1,0).getDate();
-  for(let d=1;d<=days;d++){const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;res[d]=getAvailableSlots(bairro,svcId,ds).filter(([,v])=>v.available).length;}
+  for(let d=1;d<=days;d++){const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;res[d]=getAvailableSlots(bairro,svcId,ds,jobId).filter(([,v])=>v.available).length;}
   return res;
 }
 
@@ -1830,9 +1843,14 @@ function selectJobAddr(type,bairro,addrLabel){
 // ============ CALENDAR ============
 function buildCalendar(calId,daysId,svcId){
   svcId=svcId||1;
+  // FLUXO DE PEÇAS (item 2): reagendamento (reschedDays) é o único caso em que o job
+  // já existe -- window._activeJobId flui daqui até getAvailableSlots() pra checar a
+  // cotação específica desse job, não por nome de serviço.
+  const isResched=daysId==='reschedDays';
+  const jobId=isResched?window._activeJobId:null;
   const lbl=document.getElementById(calId);if(lbl)lbl.textContent=`${MONTHS[calMonth]} ${calYear}`;
   const grid=document.getElementById(daysId);if(!grid)return;grid.innerHTML='';
-  const dws=getDaysWithSlots(jobState.bairro,svcId,calMonth,calYear);
+  const dws=getDaysWithSlots(jobState.bairro,svcId,calMonth,calYear,jobId);
   const firstDay=new Date(calYear,calMonth,1).getDay(),daysInMonth=new Date(calYear,calMonth+1,0).getDate();
   const todayStr=new Date().toISOString().slice(0,10); // dias antes de hoje ficam indisponiveis, independente do padrao semanal
   for(let i=0;i<firstDay;i++){const d=document.createElement('div');d.className='cal-day other';grid.appendChild(d);}
@@ -1843,19 +1861,22 @@ function buildCalendar(calId,daysId,svcId){
     const cnt=dws[d]||0,isSel=jobState.selectedDate===ds;
     el.className='cal-day'+(isPast?' past':isSel?' selected':cnt>0?' has-slots':' no-slots');
     el.textContent=d;
-    if(cnt>0&&!isPast)el.onclick=()=>{jobState.selectedDate=ds;jobState.selectedSlot=null;buildCalendar(calId,daysId,svcId);showSlots(ds,svcId,daysId==='reschedDays'?'reschedSlotsGrid':'slotsGrid',daysId==='reschedDays');};
+    if(cnt>0&&!isPast)el.onclick=()=>{jobState.selectedDate=ds;jobState.selectedSlot=null;buildCalendar(calId,daysId,svcId);showSlots(ds,svcId,isResched?'reschedSlotsGrid':'slotsGrid',isResched);};
     grid.appendChild(el);
   }
   const si=document.getElementById('schedInfo');if(si){const s=jobState.service;si.textContent=`📍 ${jobState.bairro}${s&&s.parts?` · peça ${s.leadTimeH}h antes`:''}${s&&s.parts&&!isPartsConfirmed(s.id)?' · 🔒 aguardando confirmação admin':''}`;}
 }
 function changeCalMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}
   if(currentScreen==='jf-schedule')buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1);
-  if(currentScreen==='s-reschedule')buildCalendar('reschedCalLabel','reschedDays',1);
+  // FLUXO DE PEÇAS (item 2): svcId estava fixo em 1 -- mostrava slots do serviço
+  // errado (specialty/parts/slots de qualquer serviço que fosse legacy_id=1) pra
+  // qualquer job que não fosse esse. window._reschedSvcId vem de loadRescheduleScreen().
+  if(currentScreen==='s-reschedule')buildCalendar('reschedCalLabel','reschedDays',window._reschedSvcId||1);
 }
 function showSlots(ds,svcId,gridId,isResched){
   const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';
   const svc=catalog.find(s=>s.id===svcId)||catalog[0];
-  getAvailableSlots(jobState.bairro,svcId,ds).forEach(([time,data])=>{
+  getAvailableSlots(jobState.bairro,svcId,ds,isResched?window._activeJobId:null).forEach(([time,data])=>{
     // ITEM 5: %1440 evita string de horario invalida (ex "24:30") quando o servico
     // termina depois da meia-noite; "dia seguinte" deixa isso visivel pro cliente.
     const d=document.createElement('div'),totalEndM=t2m(time)+svc.slots*SLOT_MIN,crossesDay=totalEndM>=1440,endTime=m2t(totalEndM)+(crossesDay?' (dia seguinte)':'');
@@ -2709,7 +2730,9 @@ async function confirmCancel(who){
 }
 async function confirmReschedule(){if(!jobState.selectedDate||!jobState.selectedSlot){showToast('Escolha data e horario.');return;}const{error}=await _supabase.from('jobs').update({scheduled_date:jobState.selectedDate,scheduled_time:jobState.selectedSlot,status:'rescheduled'}).eq('id',window._activeJobId);if(error){showToast('Erro ao reagendar.');return;}showToast('Reagendado! Aguardando confirmacao do prestador.');goScreen('s-job-status');loadJobStatus();startJobStatusPolling();}
 async function loadCancelScreen(){const el=document.getElementById('cancelJobSubtitle');if(!el||!window._activeJobId)return;const{data:j}=await _supabase.from('jobs').select('id,scheduled_date,scheduled_time,services(name)').eq('id',window._activeJobId).single();if(!j)return;const dt=j.scheduled_date?new Date(j.scheduled_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';el.textContent=`Job #${j.id} - ${j.services?.name||''} - ${dt} ${j.scheduled_time?.slice(0,5)||''}`;}
-async function loadRescheduleScreen(){const el=document.getElementById('reschedSubtitle');if(!el||!window._activeJobId)return;const{data:j}=await _supabase.from('jobs').select('services(name),vehicles(brand,model,year)').eq('id',window._activeJobId).single();if(!j)return;const veh=j.vehicles?`${j.vehicles.brand} ${j.vehicles.model} ${j.vehicles.year}`:'';el.textContent=`${j.services?.name||''} - ${veh}`;}
+// FLUXO DE PEÇAS (item 2): guarda o legacy_id do serviço real do job em
+// window._reschedSvcId -- buildCalendar()/changeCalMonth() usavam svcId=1 fixo antes.
+async function loadRescheduleScreen(){const el=document.getElementById('reschedSubtitle');if(!el||!window._activeJobId)return;const{data:j}=await _supabase.from('jobs').select('services(name,legacy_id),vehicles(brand,model,year)').eq('id',window._activeJobId).single();if(!j)return;window._reschedSvcId=j.services?.legacy_id||1;const veh=j.vehicles?`${j.vehicles.brand} ${j.vehicles.model} ${j.vehicles.year}`:'';el.textContent=`${j.services?.name||''} - ${veh}`;}
 async function acceptReschedule(jobId){const{error}=await _supabase.from('jobs').update({status:'accepted'}).eq('id',jobId);if(error){showToast('Erro ao aceitar.');return;}showToast('Reagendamento aceito!');loadProviderDashboard();}
 async function rejectReschedule(jobId){const{error}=await _supabase.from('jobs').update({status:'pending'}).eq('id',jobId);if(error){showToast('Erro ao recusar.');return;}showToast('Reagendamento recusado. Job voltou para fila.');loadProviderDashboard();}
 
@@ -3554,7 +3577,14 @@ function showScreen(id){
     const scb=document.getElementById('schedContinueBtn');if(scb)scb.style.display=jobState.selectedSlot?'block':'none';
     loadProviders().then(()=>buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1));
   }
-  if(id==='s-reschedule'){loadProviders().then(()=>buildCalendar('reschedCalLabel','reschedDays',1));loadRescheduleScreen();}if(id==='s-cancel-client')loadCancelScreen();
+  // FLUXO DE PEÇAS (item 2): loadRescheduleScreen() precisa terminar (seta
+  // window._reschedSvcId) ANTES de buildCalendar() rodar com o svcId certo --
+  // as 2 promises corriam em paralelo sem ordem garantida, o que criaria uma
+  // corrida entre o svcId antigo (1) e o novo. loadQuotations() entra aqui pelo
+  // mesmo motivo do loadProviders() do item 5: quotations[] só era carregado 1x
+  // no load da página -- sem isso, isPartsConfirmed(svcId,jobId) checaria uma
+  // cotação desatualizada, e a correção do vazamento não teria efeito prático.
+  if(id==='s-reschedule'){Promise.all([loadProviders(),loadQuotations(),loadRescheduleScreen()]).then(()=>buildCalendar('reschedCalLabel','reschedDays',window._reschedSvcId||1));}if(id==='s-cancel-client')loadCancelScreen();
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
