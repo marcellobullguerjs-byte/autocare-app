@@ -1869,6 +1869,11 @@ function fillConfirm(svc,time,endTime){
 }
 async function createJob(){
   const s=jobState.service;if(!s)return;
+  // ITEM 2 (achado do teste do item 10): sem essa validacao, um job podia ser criado
+  // com scheduled_date/scheduled_time nulos e assignProvider() falhava silenciosamente
+  // (getDayWindows nao acha nenhuma janela pra data invalida -- nenhum erro, nenhum
+  // dispatch, nenhuma oferta). Mesmo guard que ja existia em confirmReschedule().
+  if(!jobState.selectedDate||!jobState.selectedSlot){showToast('Selecione uma data e horário antes de confirmar.');return;}
 
   const { data: customer } = await _supabase
     .from('customers')
