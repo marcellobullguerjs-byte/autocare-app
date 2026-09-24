@@ -3679,6 +3679,20 @@ async function submitProviderRegister(){
     alert('Informe um CNPJ válido (14 dígitos).');
     return;
   }
+  // ITEM 5 (achado no teste do item 10): submitProviderRegister() nunca checava
+  // documentos -- mockUpload() so muda a aparencia do botao clicado, sem guardar
+  // estado em nenhum lugar. Nao usa offsetParent pra filtrar os condicionais de PJ
+  // (#preg4-pj-docs) porque nesse ponto do fluxo p-reg4 ja nao e a tela ativa
+  // (submit acontece a partir de p-reg5) -- .screen{display:none} faria todo botao
+  // reportar offsetParent nulo e bloquear qualquer cadastro. Upload continua mock --
+  // isso so exige o clique.
+  const preg4PjWrap=document.getElementById('preg4-pj-docs');
+  const requiredDocBtns=[...document.querySelectorAll('#p-reg4 .upload-btn')]
+    .filter(b => !(preg4PjWrap && preg4PjWrap.contains(b) && regLegalType!=='pj'));
+  if(requiredDocBtns.length===0 || !requiredDocBtns.every(b=>b.disabled)){
+    alert('Envie todos os documentos obrigatórios antes de continuar.');
+    return;
+  }
 
   // Coletar especialidades selecionadas
   const specs = [...document.querySelectorAll('.spec-chip.selected .sl')].map(el=>el.textContent);
