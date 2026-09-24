@@ -1217,6 +1217,21 @@ async function loadVehicles(){
   console.log(`✓ ${customerVehicles.length} veículos carregados do Supabase`);
 }
 
+// FLUXO DE PEÇAS (item 5): se o prazo real da cotação confirmada (confirmed_at +
+// lead_time_h, digitado pelo admin) ultrapassa o scheduled_date/scheduled_time já
+// escolhido pelo cliente (agendado com o buffer genérico do serviço), retorna o novo
+// horário real em que a peça chega -- pra avisar que precisa reagendar. O sistema só
+// avisa, não reagenda sozinho. Usado em loadRecentJobs() e loadJobStatus().
+function quotationDeadlineInfo(job){
+  const q=(job.quotations||[])[0];
+  if(!q||q.status!=='confirmed'||!q.confirmed_at||q.lead_time_h==null)return null;
+  if(!job.scheduled_date||!job.scheduled_time)return null;
+  const deadlineMs=new Date(q.confirmed_at).getTime()+q.lead_time_h*60*60*1000;
+  const scheduledMs=new Date(job.scheduled_date+'T'+job.scheduled_time).getTime();
+  if(deadlineMs<=scheduledMs)return null;
+  return {deadlineMs};
+}
+
 async function loadRecentJobs() {
   if (!window._currentUser) return;
   const { data, error } = await _supabase
@@ -1225,7 +1240,8 @@ async function loadRecentJobs() {
              en_route_at, delay_reported_at, delay_reason, delay_new_eta,
              services(name),
              vehicles(brand, model, year),
-             addresses(neighborhood)`)
+             addresses(neighborhood),
+             quotations(status, confirmed_at, lead_time_h)`)
     .order('created_at', { ascending: false })
     .limit(5);
 
@@ -1264,6 +1280,10 @@ async function loadRecentJobs() {
     const delayBanner = j.delay_reported_at
       ? `<div class="info-box info-orange" style="margin-top:6px;margin-bottom:0">⏰ Atraso avisado: ${j.delay_reason||'-'} · nova previsão ${j.delay_new_eta?j.delay_new_eta.slice(0,5):'-'}</div>`
       : '';
+    const quotDeadline = quotationDeadlineInfo(j);
+    const quotBanner = quotDeadline
+      ? `<div class="info-box info-red" style="margin-top:6px;margin-bottom:0">⚠️ Peça só chega às ${new Date(quotDeadline.deadlineMs).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}, depois do horário marcado — <span style="text-decoration:underline;cursor:pointer" onclick="event.stopPropagation();window._activeJobId='${j.id}';goScreen('s-reschedule');loadRescheduleScreen()">reagendar</span></div>`
+      : '';
     return `
       <div class="card" style="cursor:pointer;margin-bottom:8px"
            onclick="window._activeJobId='${j.id}'; goScreen('s-job-status');loadJobStatus();startJobStatusPolling()">
@@ -1274,6 +1294,7 @@ async function loadRecentJobs() {
         <div style="font-size:12px;color:var(--muted)">${veh} · ${dt} · ${bairro}</div>
         ${enRouteBanner}
         ${delayBanner}
+        ${quotBanner}
       </div>`;
   }).join('');
 }
@@ -1308,7 +1329,8 @@ async function loadJobStatus() {
              services(name),
              vehicles(brand, model, year),
              addresses(neighborhood),
-             job_dispatch(provider_id, status, providers(score, stats, users(name)))`)
+             job_dispatch(provider_id, status, providers(score, stats, users(name))),
+             quotations(status, confirmed_at, lead_time_h)`)
     .eq('id', window._activeJobId)
     .single();
 
@@ -1381,12 +1403,17 @@ async function loadJobStatus() {
   const delayBanner = j.delay_reported_at
     ? `<div class="info-box info-orange">⏰ Atraso avisado: ${j.delay_reason||'-'} · nova previsão ${j.delay_new_eta?j.delay_new_eta.slice(0,5):'-'}</div>`
     : '';
+  const quotDeadline = quotationDeadlineInfo(j);
+  const quotBanner = quotDeadline
+    ? `<div class="info-box info-red">⚠️ Peça só chega às ${new Date(quotDeadline.deadlineMs).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}, depois do horário marcado. <button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%" onclick="goScreen('s-reschedule');loadRescheduleScreen()">Reagendar →</button></div>`
+    : '';
 
   el.innerHTML = `
     <div class="status-pipeline">${pipelineHTML}</div>
     ${providerCard}
     ${enRouteBanner}
     ${delayBanner}
+    ${quotBanner}
     <div class="map-mock">
       <span style="width:10px;height:10px;background:var(--blue);border-radius:50%;display:inline-block;margin-right:6px"></span>
       ${j.addresses?.neighborhood || '-'} · ${j.status === 'in_progress' || j.status === 'awaiting_approval' ? 'Prestador no local' : 'Aguardando deslocamento'}
