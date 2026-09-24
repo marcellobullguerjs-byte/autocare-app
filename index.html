@@ -1760,8 +1760,13 @@ function isPartsConfirmed(svcId,jobId){
     const quot=quotations.find(q=>q.jobId==='#'+jobId);
     return quot ? quot.status==='confirmed' : false;
   }
-  const quot=quotations.find(q=>q.service===svc.name&&q.status==='confirmed');
-  return!!quot;
+  // P0 (bug do teste): agendamento inicial (sem jobId) exigia cotacao ja confirmada
+  // pra ESSE nome de servico -- pra qualquer servico nunca cotado antes, isso e
+  // sempre false, e partsLocked trava a agenda pra sempre (nunca e liberado por
+  // tempo). Decisao de hoje: agendamento inicial libera direto, usando so o buffer
+  // generico do servico (leadTimeH, via partsWait em getAvailableSlots) pra segurar
+  // os primeiros horarios -- sem exigir confirmacao previa do admin.
+  return true;
 }
 function getAvailableSlots(bairro,svcId,dateStr,jobId){
   const svc=catalog.find(s=>s.id===svcId);if(!svc)return[];
@@ -1771,6 +1776,14 @@ function getAvailableSlots(bairro,svcId,dateStr,jobId){
   // digitado pelo admin pra essa cotação -- não mais o buffer genérico do serviço.
   const quotForJob=jobId?quotations.find(q=>q.jobId==='#'+jobId):null;
   const leadTimeH=svc.parts?(quotForJob&&quotForJob.status==='confirmed'&&quotForJob.leadTimeH!=null?quotForJob.leadTimeH:svc.leadTimeH):0;
+  // P0 (bug do teste): dia de hoje nunca era bloqueado por horario -- so o dia em si
+  // (isPast em buildCalendar()) era checado, nunca a hora dentro do proprio dia.
+  // Horario que ja passou hoje agora nem entra no slotMap (mesma convencao ja usada
+  // no resto do app pra "hoje": toISOString().slice(0,10) pra comparar datas, hora
+  // local pra comparar minutos do dia, ja que scheduled_time e sempre hora local).
+  const nowDt=new Date();
+  const isToday=dateStr===nowDt.toISOString().slice(0,10);
+  const nowM=isToday?(nowDt.getHours()*60+nowDt.getMinutes()):-1;
   // ITEM 5: getDayWindows ja resolve turnos que atravessam meia-noite (hoje + o que
   // vazou de ontem), entao o match de prestador nao pode mais olhar so avail[dk].on.
   const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&p.specialty.some(s=>svc.provider.includes(s))&&getDayWindows(p.avail,dateStr).length>0);
@@ -1780,6 +1793,7 @@ function getAvailableSlots(bairro,svcId,dateStr,jobId){
     getDayWindows(p.avail,dateStr).forEach(({startM,endM,trueStartM})=>{
       const earliestM=trueStartM+(leadTimeH*60);
       for(let m=startM;m<endM;m+=SLOT_MIN){
+        if(isToday&&m<nowM)continue;
         const time=m2t(m);
         if(!slotMap[time])slotMap[time]={available:false,booked:false,partsWait:false,partsLocked:false};
         if(!partsOk){slotMap[time].partsLocked=true;continue;}
