@@ -3939,7 +3939,19 @@ async function submitProviderRegister(){
   const password = document.getElementById('preg-password')?.value?.trim();
 
   if(!name || !email || !password){
-    alert('Preencha nome, e-mail e senha para continuar.');
+    // DIAGNOSTICO (bug do teste, Guincheiro): mensagem generica nao dizia qual campo
+    // estava vazio -- nao consegui reproduzir o bug so lendo o codigo (nenhum
+    // elemento duplicado, resetRegLegalType() so roda 1x no inicio). Isso aponta
+    // exatamente qual campo falhou na proxima ocorrencia, e distingue "campo vazio"
+    // de "elemento nem existe na tela" (bug estrutural diferente).
+    const faltando=[];
+    if(!document.getElementById('preg-name'))faltando.push('nome (campo não encontrado na tela)');
+    else if(!name)faltando.push('nome');
+    if(!document.getElementById('preg-email'))faltando.push('e-mail (campo não encontrado na tela)');
+    else if(!email)faltando.push('e-mail');
+    if(!document.getElementById('preg-password'))faltando.push('senha (campo não encontrado na tela)');
+    else if(!password)faltando.push('senha');
+    alert('Preencha: '+faltando.join(', ')+'.');
     return;
   }
   if(password.length < 6){
