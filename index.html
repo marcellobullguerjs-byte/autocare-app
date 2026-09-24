@@ -860,6 +860,18 @@ function updateModels(){
   sel.innerHTML=marca?'<option value="">Selecione o modelo...</option>':'<option value="">Selecione primeiro a marca</option>';
   if(MODELS_BY_BRAND[marca]){MODELS_BY_BRAND[marca].forEach(m=>{const o=document.createElement('option');o.textContent=m;sel.appendChild(o);});}
 }
+// ITEM 3 (achado no teste do item 10): campos de #s-add-vehicle nunca eram limpos --
+// showScreen() so alterna a classe .active, os <select>/<input> ficam com o ultimo
+// valor digitado ate um F5. Chamado aqui (apos salvar) e na entrada da tela.
+function resetVehicleForm(){
+  ['vehMarca','vehAno','vehComb','vehCor'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ['vehPlaca','vehApelido'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const modelo=document.getElementById('vehModelo');
+  if(modelo)modelo.innerHTML='<option value="">Selecione primeiro a marca</option>';
+  vehDocPhotoUrl=null;
+  const docBox=document.getElementById('vehDocPhotoBox');
+  if(docBox){docBox.classList.remove('uploaded');docBox.innerHTML='<div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para fotografar o CRLV</div>';}
+}
 async function saveVehicle(){
   const marca=document.getElementById('vehMarca').value,modelo=document.getElementById('vehModelo').value,ano=document.getElementById('vehAno').value,placa=document.getElementById('vehPlaca').value.trim();
   if(!marca||!modelo||!ano){showToast('⚠️ Preencha marca, modelo e ano');return;}
@@ -873,9 +885,7 @@ async function saveVehicle(){
   }).select().single();
   if(error){showToast('❌ Erro ao salvar veículo');console.error(error);return;}
   showToast(`✓ ${marca} ${modelo} adicionado!`);
-  vehDocPhotoUrl=null;
-  const docBox=document.getElementById('vehDocPhotoBox');
-  if(docBox){docBox.classList.remove('uploaded');docBox.innerHTML='<div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para fotografar o CRLV</div>';}
+  resetVehicleForm();
   await loadVehicles();
   buildVehicleListScreen();buildVehOptions();
   goBack();
@@ -3416,6 +3426,7 @@ function showScreen(id){
   document.getElementById('topTitle').textContent=SCREEN_TITLES[id]||'AutoCare';
   if(id==='s-home')buildCatGrid();
   if(id==='jf-vehicle')buildVehOptions();
+  if(id==='s-add-vehicle')resetVehicleForm();
   // ITEM 4 (achado no teste do item 10): PROVIDERS so era carregado 1x no load da
   // pagina (initSupabase) -- mudanca de agenda do prestador so aparecia pro cliente
   // apos F5. Recarrega ao entrar nas 2 telas que usam PROVIDERS pra montar o
@@ -3599,9 +3610,16 @@ function doLogin(role){navHistory=[];showScreen(role==='provider'?'p-dashboard':
 // persiste da tela p-reg-info até o submit final (p-reg5).
 let regLegalType = 'pf';
 
+// ITEM 3 (achado no teste do item 10): campos #preg-* nunca eram limpos entre
+// cadastros consecutivos na mesma sessao -- dados de um cadastro PF anterior
+// sobreviviam no inicio de um cadastro PJ novo. Chamado ao clicar "Quero ser
+// parceiro" em p-splash, antes de entrar no wizard.
 function resetRegLegalType(){
   regLegalType = 'pf';
   setRegLegalType('pf');
+  ['preg-name','preg-cpf','preg-cnpj','preg-email','preg-phone','preg-password'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
 }
 
 function setRegLegalType(type){
