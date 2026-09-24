@@ -1111,7 +1111,15 @@ async function buildPayments(){
     const jobIds=await jobIdsForProvider(providerId);
     query=query.in('job_id', jobIds.length?jobIds:[-1]);
   }
-  const {data:pags}=await query;
+  const {data:pags,error:pagsErr}=await query;
+  // DIAGNOSTICO TEMPORARIO (bug do teste, filtro de pagamentos vazio): servidor/RLS/
+  // embed ja foram descartados com evidencia direta (24/24 linhas visiveis testando
+  // a query exata via API, com e sem RLS). error nunca era capturado aqui -- se a
+  // chamada real do navegador estiver falhando por outro motivo, isso mostra a causa
+  // exata. Remover depois de identificar a causa raiz.
+  console.log('[DIAG pagamentos] payTab=',payTab,'providerId=',providerId,'mes=',payTab==='all'?document.getElementById('payMonthSelect')?.value:null);
+  console.log('[DIAG pagamentos] error=',pagsErr,'pags.length=',pags?.length,'pags[0]=',pags?.[0]);
+  console.log('[DIAG pagamentos] paymentsList ainda conectado ao DOM?',el.isConnected);
   el.innerHTML='';
   if(!pags||pags.length===0){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum pagamento encontrado</div>';return;}
   const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovacao',cls:'ps-waiting'},pending:{label:'Pendente',cls:'ps-pending'}};
