@@ -3065,7 +3065,9 @@ async function buildDispatchList(){
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
   const dateFrom=document.getElementById('dispatchDateFrom')?.value;
   const dateTo=document.getElementById('dispatchDateTo')?.value;
-  let query=_supabase.from('jobs').select(`id,status,scheduled_date,scheduled_time,total_price,services(name),addresses(neighborhood),customers(users(name)),job_dispatch(status,provider_id,providers(users(name)))`).order('scheduled_date',{ascending:false});
+  // P2 (achado no teste do item 10): sem ordem clara, decrescente e so por data --
+  // agora ascendente por data + horario, mais proximo primeiro.
+  let query=_supabase.from('jobs').select(`id,status,scheduled_date,scheduled_time,total_price,services(name),addresses(neighborhood),customers(users(name)),job_dispatch(status,provider_id,providers(users(name)))`).order('scheduled_date',{ascending:true}).order('scheduled_time',{ascending:true});
   if(dateFrom)query=query.gte('scheduled_date',dateFrom);
   if(dateTo)query=query.lte('scheduled_date',dateTo);
   const {data:jobs,error}=await query;
@@ -3763,7 +3765,9 @@ async function loadAdminJobs(){
   const dateFrom=document.getElementById('jobsDateFrom')?.value;
   const dateTo=document.getElementById('jobsDateTo')?.value;
   const providerId=document.getElementById('jobsProviderSelect')?.value;
-  let query=_supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,total_price,services(name),addresses(neighborhood)').order('scheduled_date',{ascending:false}).limit(100);
+  // P2 (achado no teste do item 10): mesma correcao de buildDispatchList() -- ascendente
+  // por data + horario, mais proximo primeiro, em vez de decrescente so por data.
+  let query=_supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,total_price,services(name),addresses(neighborhood)').order('scheduled_date',{ascending:true}).order('scheduled_time',{ascending:true}).limit(100);
   if(jobsStatusFilter==='Aguardando')query=query.eq('status','pending');
   else if(jobsStatusFilter==='Em andamento')query=query.in('status',['accepted','in_progress','awaiting_approval']);
   else if(jobsStatusFilter==='Concluido')query=query.eq('status','completed');
