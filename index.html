@@ -3048,15 +3048,26 @@ async function confirmRealloc(jobId){
   if(existing&&existing.length>0){showToast('Este prestador já recebeu oferta para este job.');return;}
   const {error:insErr}=await _supabase.from('job_dispatch').insert({job_id:jobId,provider_id:selectedReallocId,status:'pending',offered_at:new Date().toISOString()});
   if(insErr){showToast('❌ Erro ao realocar: '+insErr.message);return;}
-  // Retira (expira) qualquer oferta anterior que ainda estivesse pending/offered
-  // para este job -- só a oferta recém-criada fica "viva". Sem isso, o prestador
-  // da oferta antiga ainda conseguiria aceitar um job que o admin já substituiu.
+  // Retira (expira) qualquer oferta anterior que ainda estivesse pending/offered/accepted
+  // para este job -- só a oferta recém-criada fica "viva". Sem isso, o prestador da
+  // oferta antiga ainda conseguiria aceitar (ou, pior, continuar executando) um job
+  // que o admin já transferiu pra outro. Inclui 'accepted' (achado na feature de
+  // "Confirmações pendentes"): reallocar um job já aceito deixava o dispatch antigo
+  // intacto, com jobs.status voltando pra 'pending' incoerentemente com ele.
   await _supabase.from('job_dispatch')
     .update({ status: 'expired' })
     .eq('job_id', jobId)
     .neq('provider_id', selectedReallocId)
-    .in('status', ['pending','offered']);
-  const {error:updErr}=await _supabase.from('jobs').update({status:'pending'}).eq('id',jobId);
+    .in('status', ['pending','offered','accepted']);
+  // Reseta os campos de jornada do prestador anterior -- o novo prestador começa do
+  // zero, sem herdar "a caminho"/atraso de quem foi substituído.
+  const {error:updErr}=await _supabase.from('jobs').update({
+    status:'pending',
+    en_route_at:null,
+    delay_reported_at:null,
+    delay_reason:null,
+    delay_new_eta:null
+  }).eq('id',jobId);
   if(updErr){showToast('❌ Erro ao atualizar job.');return;}
   const {data:provName}=await _supabase.from('providers').select('users(name)').eq('id',selectedReallocId).single();
   const nome=provName?.users?.name||'Prestador';
