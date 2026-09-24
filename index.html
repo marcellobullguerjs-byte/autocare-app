@@ -2333,47 +2333,90 @@ async function submitOccurrence(){
 }
 
 // ============ SUPORTE (PRESTADOR) ============
+// FEATURE: canal estruturado prestador->admin, V1. Cenarios pre-definidos em botao
+// (sem texto livre obrigatorio) -- category continua como rotulo de exibicao,
+// scenario_key guarda o botao exato clicado (coluna nova). Prioridade e por
+// categoria (so Emergencia e urgente).
+const SUPPORT_CATEGORIES = {
+  pecas: { label:'📦 Problema com peça', priority:'normal', scenarios: [
+    { key:'peca_errada', desc:'Peça entregue está incorreta ou incompleta para o serviço' },
+    { key:'peca_atraso', desc:'Peça ainda não chegou e o prazo já passou' }
+  ]},
+  cliente_local: { label:'📍 Cliente/local', priority:'normal', scenarios: [
+    { key:'cliente_ausente', desc:'Cliente não está no local combinado' },
+    { key:'endereco_incorreto', desc:'Endereço informado está incorreto ou não encontrado' },
+    { key:'servico_extra', desc:'Cliente pediu um serviço adicional não orçado' }
+  ]},
+  problema_servico: { label:'🔧 Problema no serviço', priority:'normal', scenarios: [
+    { key:'problema_complementar', desc:'Encontrei um problema adicional no veículo durante o atendimento' },
+    { key:'impossibilidade_tecnica', desc:'Não consigo concluir o serviço por um motivo técnico' }
+  ]},
+  emergencia: { label:'🚨 Emergência', priority:'urgente', scenarios: [
+    { key:'emergencia_pessoal', desc:'Preciso ser substituído com urgência neste atendimento' },
+    { key:'risco_seguranca', desc:'Me sinto em risco de segurança nesse atendimento' }
+  ]},
+  duvida_outro: { label:'💬 Dúvida/outro', priority:'normal', scenarios: [
+    { key:'duvida_operacional', desc:'Dúvida sobre como funciona algum processo do app' },
+    { key:'reclamacao_cliente', desc:'Quero reportar o comportamento do cliente neste atendimento' }
+  ]}
+};
+
 function openSupportModal(){
   document.getElementById('modalTitle').textContent='Novo chamado de suporte';
-  document.getElementById('modalContent').innerHTML=`
-    <div class="label">Categoria</div>
-    <select class="input" id="suppCategorySel">
-      <option>Dúvida operacional</option>
-      <option>Problema técnico no app</option>
-      <option>Situação de risco físico</option>
-      <option>Outro</option>
-    </select>
-    <div class="label">Prioridade</div>
-    <select class="input" id="suppPrioritySel">
-      <option value="normal">Normal</option>
-      <option value="urgente">Urgente</option>
-    </select>
-    <div class="label">Descrição</div>
-    <textarea class="input" rows="3" id="suppDescTxt" placeholder="Descreva sua dúvida ou situação..."></textarea>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary btn-sm" style="flex:1" onclick="submitSupportTicket()">Enviar</button>
-    </div>`;
+  const cats = Object.entries(SUPPORT_CATEGORIES).map(([key,c])=>
+    `<button class="btn btn-outline btn-sm" style="width:100%;text-align:left;margin-bottom:8px" onclick="showSupportCategory('${key}')">${c.label}</button>`
+  ).join('');
+  document.getElementById('modalContent').innerHTML = `
+    ${cats}
+    <button class="btn btn-outline btn-sm" style="width:100%;margin-top:4px;color:var(--blue)" onclick="openSupportWhatsAppFallback()">📱 Outro motivo / falar direto</button>`;
   document.getElementById('modalBg').style.display='flex';
 }
-async function submitSupportTicket(){
-  const cat=document.getElementById('suppCategorySel')?.value||'';
-  const pri=document.getElementById('suppPrioritySel')?.value||'normal';
-  const desc=document.getElementById('suppDescTxt')?.value?.trim()||'';
-  if(!desc){showToast('Descreva o que está acontecendo.');return;}
+
+function showSupportCategory(catKey){
+  const cat = SUPPORT_CATEGORIES[catKey]; if(!cat) return;
+  document.getElementById('modalTitle').textContent = cat.label;
+  const scenarios = cat.scenarios.map(s=>
+    `<button class="btn btn-outline btn-sm" style="width:100%;text-align:left;margin-bottom:8px" onclick="submitSupportScenario('${catKey}','${s.key}')">${s.desc}</button>`
+  ).join('');
+  document.getElementById('modalContent').innerHTML = `
+    ${scenarios}
+    <div class="label">Detalhes adicionais (opcional)</div>
+    <textarea class="input" rows="2" id="suppExtraDetailsTxt" placeholder="Se quiser, complemente com mais informações..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="openSupportModal()">← Voltar</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;color:var(--blue)" onclick="openSupportWhatsAppFallback()">📱 Outro motivo</button>
+    </div>`;
+}
+
+async function submitSupportScenario(catKey, scenarioKey){
+  const cat = SUPPORT_CATEGORIES[catKey]; if(!cat) return;
+  const scenario = cat.scenarios.find(s=>s.key===scenarioKey); if(!scenario) return;
+  const extra = document.getElementById('suppExtraDetailsTxt')?.value?.trim() || '';
+  const description = extra ? `${scenario.desc} — ${extra}` : scenario.desc;
   const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
   if(!providerRow){showToast('Erro ao identificar prestador.');return;}
   const {error}=await _supabase.from('support_tickets').insert({
     provider_id:providerRow.id,
-    category:cat,
-    priority:pri,
-    description:desc,
+    category:cat.label,
+    scenario_key:scenarioKey,
+    priority:cat.priority,
+    description,
     status:'pending'
   });
   if(error){showToast('Erro ao enviar. Tente novamente.');return;}
   closeModal();
   showToast('✓ Chamado enviado ao suporte');
   buildSupportProvider();
+}
+
+// "Outro motivo / falar direto": nao cria ticket, abre WhatsApp com o admin de
+// referencia direto (busca dinamica -- so existe 1 admin com telefone hoje).
+async function openSupportWhatsAppFallback(){
+  const {data:admin} = await _supabase.from('users').select('phone').eq('role','admin').limit(1).single();
+  const tel = normalizePhoneForWhatsApp(admin?.phone);
+  if(!tel){showToast('Telefone do admin não configurado.');return;}
+  window.open('https://wa.me/'+tel, '_blank');
+  closeModal();
 }
 async function buildSupportProvider(){
   const list=document.getElementById('pSupportList');if(!list)return;
@@ -3437,17 +3480,37 @@ async function viewSupportTicket(id){
   navHistory.push(currentScreen);showScreen('a-support-detail');
   const {data:t}=await _supabase.from('support_tickets').select('id,provider_id,category,priority,description,status').eq('id',id).single();
   if(!t){el.innerHTML='<div style="padding:16px">Erro ao carregar.</div>';return;}
-  let providerName='-';
-  if(t.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}
+  let providerName='-',providerPhone=null;
+  if(t.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name,phone').eq('id',pu.user_id).single();if(uu){providerName=uu.name;providerPhone=uu.phone;}}}
+  window._supportTicketProviderPhone=providerPhone;
   const urgTag=t.priority==='urgente'?' · <span style="color:#fff">🚨 Urgente</span>':'';
   el.innerHTML=`<div style="background:${t.priority==='urgente'?'var(--red)':'var(--blue)'};margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">${t.category||'Chamado de suporte'}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${providerName}${urgTag}</div></div>
     <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px">MENSAGEM</div><div style="font-size:13px">${t.description||''}</div></div>
+    <div class="label">Respostas rápidas</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      <button class="btn btn-outline btn-sm" style="text-align:left" onclick="quickResolveSupportTicket('${id}','Entendido, providenciando.')">Entendido, providenciando</button>
+      <button class="btn btn-outline btn-sm" style="text-align:left" onclick="quickResolveSupportTicket('${id}','Vou realocar o job.')">Vou realocar o job</button>
+      <button class="btn btn-outline btn-sm" style="text-align:left" onclick="quickResolveSupportTicket('${id}','Confirmado, sem ação necessária.')">Confirmado, sem ação necessária</button>
+      <button class="btn btn-outline btn-sm" style="text-align:left;color:var(--blue)" onclick="openSupportTicketWhatsApp()">📱 Falar via WhatsApp</button>
+    </div>
     <div class="label">Resposta</div>
     <textarea class="input" rows="3" id="suppResolutionTxt" placeholder="Escreva a resposta para o prestador..."></textarea>
     <div style="display:flex;gap:8px">
       <button class="btn btn-outline btn-sm" style="flex:1" onclick="resolveSupportTicket('${id}','in_progress')">Marcar em andamento</button>
       <button class="btn btn-primary btn-sm" style="flex:1" onclick="resolveSupportTicket('${id}','resolved')">Responder e resolver</button>
     </div>`;
+}
+// Botões de resposta rápida: preenchem o textarea com o texto padrão e resolvem
+// direto -- mesmo padrão dos cenários pré-definidos do lado do prestador.
+function quickResolveSupportTicket(id,text){
+  const ta=document.getElementById('suppResolutionTxt');if(ta)ta.value=text;
+  resolveSupportTicket(id,'resolved');
+}
+// Abre WhatsApp com o prestador do ticket -- não resolve, só abre a conversa externa.
+function openSupportTicketWhatsApp(){
+  const tel=normalizePhoneForWhatsApp(window._supportTicketProviderPhone);
+  if(!tel){showToast('Telefone do prestador não disponível.');return;}
+  window.open('https://wa.me/'+tel,'_blank');
 }
 async function resolveSupportTicket(id,newStatus){
   const resolution=document.getElementById('suppResolutionTxt')?.value?.trim()||'';
@@ -3724,6 +3787,17 @@ function isValidCNPJFormat(v){
 function isValidCPFFormat(v){
   const digits = (v||'').replace(/\D/g,'');
   return digits.length === 11;
+}
+
+// FEATURE suporte estruturado: telefones em users.phone vêm sem padrão (com/sem
+// pontuação, nunca com código do país) -- normaliza pra usar em links wa.me/.
+// Mesmo padrão de limpeza (\D) do CPF/CNPJ acima.
+function normalizePhoneForWhatsApp(phone){
+  const digits = (phone||'').replace(/\D/g,'');
+  if(!digits) return '';
+  if(digits.startsWith('55')) return digits;
+  if(digits.length===10||digits.length===11) return '55'+digits;
+  return digits;
 }
 
 async function submitProviderRegister(){
