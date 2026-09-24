@@ -3431,7 +3431,15 @@ function showScreen(id){
   // pagina (initSupabase) -- mudanca de agenda do prestador so aparecia pro cliente
   // apos F5. Recarrega ao entrar nas 2 telas que usam PROVIDERS pra montar o
   // calendario, antes de desenhar -- solucao simples, sem mecanismo de invalidacao.
-  if(id==='jf-schedule')loadProviders().then(()=>buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1));
+  if(id==='jf-schedule'){
+    // #schedContinueBtn so era escondido na marcacao HTML inicial -- showSlots() so
+    // sabe mostrar (display:block), nunca esconder de volta. Sem isso, ficava visivel
+    // pro resto da sessao apos a 1a selecao de slot, mesmo sem slot escolhido nesta
+    // visita. Mantem visivel se ja existe um slot selecionado pra esse job (ex: voltou
+    // pra essa tela depois de ja ter escolhido).
+    const scb=document.getElementById('schedContinueBtn');if(scb)scb.style.display=jobState.selectedSlot?'block':'none';
+    loadProviders().then(()=>buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1));
+  }
   if(id==='s-reschedule'){loadProviders().then(()=>buildCalendar('reschedCalLabel','reschedDays',1));loadRescheduleScreen();}if(id==='s-cancel-client')loadCancelScreen();
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
