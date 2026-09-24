@@ -1966,8 +1966,15 @@ async function createJob(){
   document.getElementById('jobCreatedInfo').textContent=`${s.name} · ${jobState.addrLabel} · ${jobState.selectedDate} ${jobState.selectedSlot}`;
   document.getElementById('jcDate').textContent=`${jobState.selectedDate} às ${jobState.selectedSlot}`;
   window._activeJobId = job.id;
-  showToast('✓ Job #'+job.id+' criado! Alocando prestador...');
-  assignProvider(job.id, jobData.scheduled_date, jobData.scheduled_time);
+  // ITEM 3 (fluxo de peças): serviço com peça só dispara assignProvider() depois que
+  // a cotação for confirmada pelo admin (doConfirmQuot()) -- antes disparava sempre,
+  // em paralelo com a cotação ainda pending. Sem peça, comportamento inalterado.
+  if(s.parts){
+    showToast('✓ Job #'+job.id+' criado! Aguardando confirmação da peça...');
+  } else {
+    showToast('✓ Job #'+job.id+' criado! Alocando prestador...');
+    assignProvider(job.id, jobData.scheduled_date, jobData.scheduled_time);
+  }
   navHistory=[];showScreen('jf-created');
 }
 
@@ -3249,7 +3256,26 @@ function switchSupply(tab){
 async function buildQuotations(){const fr=document.getElementById('quotFilter'),list=document.getElementById('quotationList');if(!fr||!list)return;list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';const {data:allQuots}=await _supabase.from('quotations').select('id,job_id,service_id,total_parts,supplier_id,status,confirmed_at,lead_time_h').order('id',{ascending:false});const quotsData=allQuots||[];const filtered=quotFilter==='Todos'?quotsData:quotsData.filter(q=>q.status===(quotFilter==='Pendente'?'pending':'confirmed'));const cnt={Todos:quotsData.length,Pendente:quotsData.filter(q=>q.status==='pending').length,Confirmada:quotsData.filter(q=>q.status==='confirmed').length};fr.innerHTML='';['Todos','Pendente','Confirmada'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===quotFilter?' active':'');d.textContent=f+' ('+(cnt[f]||0)+')';d.onclick=()=>{quotFilter=f;buildQuotations();};fr.appendChild(d);});const elForn=document.getElementById('supply-total-fornecedores');const elPend=document.getElementById('supply-total-pendentes');const elBanner=document.getElementById('supply-banner-pendentes');const elBannerTxt=document.getElementById('supply-banner-txt');if(elPend)elPend.textContent=cnt.Pendente;if(elBanner&&elBannerTxt){if(cnt.Pendente>0){elBannerTxt.textContent=cnt.Pendente+' job'+(cnt.Pendente>1?'s':'')+' aguardando confirmacao de pecas.';elBanner.style.display='block';}else{elBanner.style.display='none';}}const {data:fornData}=await _supabase.from('suppliers').select('id').eq('active',true);if(elForn)elForn.textContent=(fornData||[]).length;list.innerHTML='';if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma cotacao encontrada.</div>';return;}const {data:suppData}=await _supabase.from('suppliers').select('id,name,lead_time_h');for(const q of filtered){let clientName='-',bairro='-';const {data:jd}=await _supabase.from('jobs').select('id,customer_id,address_id').eq('id',q.job_id).single();if(jd){if(jd.customer_id){const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',jd.customer_id).single();if(cu){const {data:uu}=await _supabase.from('users').select('name').eq('id',cu.user_id).single();if(uu)clientName=uu.name;}}if(jd.address_id){const {data:ad}=await _supabase.from('addresses').select('neighborhood').eq('id',jd.address_id).single();if(ad)bairro=ad.neighborhood||'-';}}const supp=(suppData||[]).find(s=>s.id===q.supplier_id);const isPending=q.status==='pending';const d=document.createElement('div');d.className='svc-card';d.innerHTML='<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">#'+q.job_id+'</span><span class="badge '+(isPending?'badge-yellow':'badge-green')+'">'+(isPending?'Pendente':'Confirmada')+'</span></div><div style="font-size:12px;color:var(--muted)">'+clientName+' · '+bairro+'</div><div style="font-size:13px;font-weight:500;color:var(--blue);margin-top:6px">Total pecas: R$ '+Number(q.total_parts||0).toFixed(2)+'</div>'+(q.status==='confirmed'?'<div style="font-size:11px;color:var(--green);margin-top:2px">'+(supp?supp.name:'-')+' · '+(q.lead_time_h||'-')+'h</div><div class="info-box info-green" style="margin-top:8px;font-size:11px">Agenda do cliente liberada</div>':'')+(isPending?'<div class="info-box info-orange" style="margin-top:8px;font-size:11px">Agenda bloqueada ate confirmacao</div><div class="action-row"><button class="action-btn ab-approve" onclick="confirmQuot(\''+q.id+'\')">Confirmar peca</button></div>':'');list.appendChild(d);}
 }
 async function confirmQuot(id){const {data:suppData}=await _supabase.from('suppliers').select('id,name,lead_time_h').eq('active',true);const opts=(suppData||[]).map(s=>'<option value="'+s.id+'">'+s.name+' ('+s.lead_time_h+'h)</option>').join('');document.getElementById('modalTitle').textContent='Confirmar peca com fornecedor';document.getElementById('modalContent').innerHTML='<div class="info-box info-orange">Pecas entregues no endereco do prestador antes do servico.</div><div class="label">Fornecedor</div><select class="input" id="confSupp"><option value="">Selecione...</option>'+opts+'</select><div class="info-box info-green">Ao confirmar: agenda do cliente e liberada automaticamente.</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-green btn-sm" style="flex:1" onclick="doConfirmQuot(\''+id+'\')">Confirmar e liberar agenda</button></div>';document.getElementById('modalBg').style.display='flex';}
-async function doConfirmQuot(id){const suppId=document.getElementById('confSupp').value;if(!suppId){showToast('Selecione um fornecedor');return;}const {data:supp}=await _supabase.from('suppliers').select('lead_time_h').eq('id',suppId).single();const now=new Date().toISOString();const {error}=await _supabase.from('quotations').update({supplier_id:suppId,lead_time_h:supp?supp.lead_time_h:2,status:'confirmed',confirmed_at:now}).eq('id',id);if(error){showToast('Erro ao confirmar. Tente novamente.');return;}closeModal();buildQuotations();showToast('Pecas confirmadas! Agenda do cliente liberada.');}
+async function doConfirmQuot(id){
+  const suppId=document.getElementById('confSupp').value;
+  if(!suppId){showToast('Selecione um fornecedor');return;}
+  const {data:supp}=await _supabase.from('suppliers').select('lead_time_h').eq('id',suppId).single();
+  const now=new Date().toISOString();
+  // ITEM 3 (fluxo de peças): pede job_id de volta pra disparar assignProvider() logo
+  // em seguida -- é só aqui, com a cotação confirmed, que o dispatch pode rodar pra
+  // um serviço com peça (createJob() não dispara mais nesse caso).
+  const {data:updated,error}=await _supabase.from('quotations').update({supplier_id:suppId,lead_time_h:supp?supp.lead_time_h:2,status:'confirmed',confirmed_at:now}).eq('id',id).select('job_id').single();
+  if(error){showToast('Erro ao confirmar. Tente novamente.');return;}
+  closeModal();
+  buildQuotations();
+  showToast('Peças confirmadas! Alocando prestador...');
+  if(updated?.job_id){
+    const {data:jobRow}=await _supabase.from('jobs').select('scheduled_date,scheduled_time').eq('id',updated.job_id).single();
+    if(jobRow?.scheduled_date&&jobRow?.scheduled_time){
+      assignProvider(updated.job_id,jobRow.scheduled_date,jobRow.scheduled_time);
+    }
+  }
+}
 async function buildPartsAdmin(){
   const list=document.getElementById('partList');if(!list)return;
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
