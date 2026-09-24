@@ -2872,6 +2872,10 @@ async function saveSvc(){
     // Novo serviço
     const {data:newSvc, error} = await _supabase.from('services').insert(data).select().single();
     if(error){ alert('Erro ao criar: ' + error.message); return; }
+    // FIX (mega atualizacao de catalogo): lia newSvc.needs_part/lead_time_h -- as
+    // colunas reais sao requires_parts/part_lead_time_h. O banco sempre gravou certo;
+    // so o catalog[] em memoria ficava com "nao precisa de peca"/lead time 0 ate um
+    // F5 recarregar do banco (initSupabase() ja mapeia certo).
     catalog.push({
       id: nextSvcId++,
       uuid: newSvc.id,
@@ -2881,8 +2885,8 @@ async function saveSvc(){
       price: newSvc.price,
       time: newSvc.duration_min,
       slots: newSvc.slots,
-      parts: newSvc.needs_part,
-      leadTimeH: newSvc.lead_time_h,
+      parts: newSvc.requires_parts,
+      leadTimeH: newSvc.part_lead_time_h,
       active: newSvc.active
     });
   }
