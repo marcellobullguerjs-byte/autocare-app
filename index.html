@@ -2956,10 +2956,10 @@ async function buildDispatchList(){
 // Abre o modal de realocação manual: busca prestadores aprovados, ordena por score
 // (maior primeiro — Diamante/Ouro/Prata/Bronze são só o rótulo desses mesmos cortes de
 // score) e exclui quem já recebeu oferta para este job (confirmRealloc rejeitaria de
-// qualquer forma). Não filtra por região/especialidade: essa tela existe justamente para
-// os casos em que o dispatch automático (que já filtra por isso) falhou ou travou em
-// no_provider — filtrar de novo pelo mesmo critério tenderia a mostrar a lista vazia.
-// Região/especialidade aparecem como informação para o admin julgar, não como exclusão.
+// qualquer forma). ITEM 1 (decisão revertida após achado no teste do item 10): antes
+// não filtrava por especialidade de propósito -- achado real mostrou um job de Detailer
+// ofertado manualmente a um Eletricista, sem nenhum aviso. Agora exige a mesma
+// especialidade do assignProvider() automático; região continua só informativa.
 async function openReallocModal(jobId){
   selectedReallocId = null;
   const {data:job,error:jobErr} = await _supabase
@@ -2968,6 +2968,7 @@ async function openReallocModal(jobId){
     .eq('id', jobId)
     .single();
   if(jobErr || !job){ showToast('Erro ao carregar job.'); return; }
+  const requiredType = job.services?.provider_type || null;
 
   const {data:already} = await _supabase
     .from('job_dispatch')
@@ -2981,9 +2982,17 @@ async function openReallocModal(jobId){
     .eq('status','approved');
   if(provErr){ showToast('Erro ao carregar prestadores.'); return; }
 
-  const candidates = (providers||[])
+  const compatible = (providers||[]).filter(p => !requiredType || (Array.isArray(p.specialties) && p.specialties.includes(requiredType)));
+  const candidates = compatible
     .filter(p => !alreadyIds.has(p.id))
     .sort((a,b) => Number(b.score) - Number(a.score));
+
+  let emptyMsg = 'Nenhum prestador aprovado disponível para realocar.';
+  if((providers||[]).length>0 && compatible.length===0){
+    emptyMsg = `Nenhum prestador aprovado tem a especialidade "${requiredType}" exigida por este serviço.`;
+  } else if(compatible.length>0 && candidates.length===0){
+    emptyMsg = 'Todos os prestadores com a especialidade compatível já receberam oferta para este job.';
+  }
 
   document.getElementById('modalTitle').textContent = `Realocar · #${job.id} ${job.services?.name||''}`;
 
@@ -3005,7 +3014,7 @@ async function openReallocModal(jobId){
 
   document.getElementById('modalContent').innerHTML = `
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px">📍 ${job.addresses?.neighborhood||'-'} · ${job.services?.provider_type||'-'}</div>
-    ${opts || '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Nenhum prestador aprovado disponível para realocar.</p>'}
+    ${opts || `<p style="color:var(--muted);font-size:13px;margin-bottom:12px">${emptyMsg}</p>`}
     <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary btn-sm" style="flex:1" onclick="confirmRealloc(${jobId})">Enviar oferta</button>
