@@ -3628,6 +3628,14 @@ function resetRegLegalType(){
   ['preg-name','preg-cpf','preg-cnpj','preg-email','preg-phone','preg-password'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
+  // Chips de especialidade (p-reg2) e bairro (p-reg3) de volta ao estado inicial da
+  // marcação HTML -- só o 1º de cada continua selecionado.
+  document.querySelectorAll('#p-reg2 .spec-chip').forEach((el,i)=>el.classList.toggle('selected', i===0));
+  document.querySelectorAll('#p-reg3 .region-chip').forEach((el,i)=>el.classList.toggle('selected', i===0));
+  // Botões de documento (p-reg4/p-reg5) de volta a "não enviado".
+  document.querySelectorAll('#p-reg4 .upload-btn, #p-reg5 .upload-btn').forEach(b=>{
+    b.disabled=false;b.textContent='Enviar';b.style.background='';b.style.color='';
+  });
 }
 
 function setRegLegalType(type){
