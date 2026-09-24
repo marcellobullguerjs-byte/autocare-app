@@ -511,7 +511,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
           <button id="auth-submit-btn" class="btn btn-white" onclick="submitLogin()"
             style="width:100%">Entrar</button>
           <div style="height:10px"></div>
-          <button class="btn btn-ghost" onclick="goScreen(_authContext === 'client' ? 's-splash' : 'p-splash')"
+          <button class="btn btn-ghost" onclick="goScreen(_authContext === 'provider' ? 'p-splash' : 's-splash')"
             style="width:100%">← Voltar</button>
         </div>
         <div style="margin-top:24px;font-size:11px;color:rgba(255,255,255,.4)">
@@ -3845,7 +3845,7 @@ async function submitLogin() {
   await handleAuthSession(data.session);
 }
 
-async function handleAuthSession(session) {
+async function handleAuthSession(session, isReconnect) {
   if (!session) return;
   const { data: userData } = await _supabase
     .from('users')
@@ -3857,6 +3857,20 @@ async function handleAuthSession(session) {
     return;
   }
   const role = userData.role;
+  // SEGURANCA: login de admin so pode vir da tela dedicada (#admin -> showLoginScreen
+  // ('admin'), que seta _authContext='admin'). So aplica em login novo (isReconnect
+  // falsy) -- numa sessao restaurada no reload (checkExistingSession() passa
+  // isReconnect=true), _authContext nunca foi setado de verdade (fica no default
+  // 'client'), e a sessao ja era legitima desde o login original; rejeitar aqui
+  // derrubaria um admin ja logado a cada F5.
+  if (role === 'admin' && !isReconnect && _authContext !== 'admin') {
+    await _supabase.auth.signOut();
+    const errEl = document.getElementById('auth-error');
+    if (errEl) errEl.textContent = 'Esta conta é de administrador. Use o acesso administrativo dedicado.';
+    const btn = document.getElementById('auth-submit-btn');
+    if (btn) { btn.textContent = 'Entrar'; btn.disabled = false; }
+    return;
+  }
   window._currentUser = { id: session.user.id, email: session.user.email, role, name: userData.name };
   const _n = userData.name || '';
   const _initials = _n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
@@ -3879,7 +3893,7 @@ async function doLogout() {
 
 async function checkExistingSession() {
   const { data: { session } } = await _supabase.auth.getSession();
-  if (session) await handleAuthSession(session);
+  if (session) await handleAuthSession(session, true);
 }
 function doLogin(role){navHistory=[];showScreen(role==='provider'?'p-dashboard':'s-home');}
 
@@ -4229,7 +4243,17 @@ async function startRealtimeProvider() {
   }, 5000);
 }
 
-initSupabase().then(async ()=>{ await checkExistingSession(); });
+initSupabase().then(async ()=>{
+  await checkExistingSession();
+  // SEGURANCA: ponto de entrada da tela de admin -- hash direto na URL (#admin), sem
+  // botao visivel em nenhuma tela publica (reduz a superficie de ataque, ja que admin
+  // nao e "mais um papel" que qualquer visitante escolhe). So dispara se ninguem ja
+  // estiver logado -- se ja havia sessao, checkExistingSession() acima ja levou pra
+  // tela certa.
+  if (!window._currentUser && location.hash === '#admin') {
+    showLoginScreen('admin');
+  }
+});
 </script>
 
 </body>
