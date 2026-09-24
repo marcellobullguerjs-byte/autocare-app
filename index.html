@@ -2437,7 +2437,8 @@ function openSupportModal(){
   ).join('');
   document.getElementById('modalContent').innerHTML = `
     ${cats}
-    <button class="btn btn-outline btn-sm" style="width:100%;margin-top:4px;color:var(--blue)" onclick="openSupportWhatsAppFallback()">📱 Outro motivo / falar direto</button>`;
+    <button class="btn btn-outline btn-sm" style="width:100%;margin-top:4px;color:var(--blue)" onclick="openSupportWhatsAppFallback()">📱 Outro motivo / falar direto</button>
+    <button class="btn btn-outline btn-sm" style="width:100%;margin-top:8px" onclick="closeModal()">Cancelar</button>`;
   document.getElementById('modalBg').style.display='flex';
 }
 
