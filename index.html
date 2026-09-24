@@ -247,7 +247,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
   <div class="tabs" id="viewTabs" style="display:none">
     <div class="tab" onclick="switchView('client')">Cliente</div>
     <div class="tab" onclick="switchView('provider')">Prestador</div>
-    <div class="tab active" onclick="switchView('admin')">Admin</div>
+    <div class="tab active" id="tabAdmin" onclick="switchView('admin')">Admin</div>
   </div>
   <div id="screens">
 
@@ -3670,6 +3670,11 @@ function showScreen(id){
   const isAuth=AUTH_SCREENS.includes(id),isProv=id.startsWith('p-')&&!isAuth,isClient=(id.startsWith('s-')||id.startsWith('jf-'))&&!isAuth;
   document.getElementById('topbar').style.display=isAuth?'none':'flex';
   document.getElementById('viewTabs').style.display=isAuth?'none':'flex';
+  // FALHA DE SEGURANCA (achada no bug de Pagamentos): a aba Admin so trocava a tela
+  // visivel, nunca autenticava -- qualquer sessao logada (cliente/prestador) podia
+  // clicar e ver/consultar telas de admin sob o proprio RLS restrito dela, nao o de
+  // um admin de verdade. Reavaliado a cada troca de tela, igual isAuth acima.
+  const tabAdmin=document.getElementById('tabAdmin');if(tabAdmin)tabAdmin.style.display=window._currentUser?.role==='admin'?'':'none';
   document.getElementById('bottomNav').style.display=isClient?'flex':'none';
   document.getElementById('provNav').style.display=isProv?'flex':'none';
   document.getElementById('backBtn').style.display=navHistory.length>0&&!isAuth?'block':'none';
@@ -4103,6 +4108,12 @@ async function submitClientRegister(){
   }
 }
 function switchView(v){
+  // FALHA DE SEGURANCA: 2a camada de defesa, caso switchView('admin') seja chamado de
+  // algum outro lugar no futuro sem passar pela aba (ja escondida pra quem nao e
+  // admin). handleAuthSession() ja seta window._currentUser (com o role real vindo do
+  // banco) ANTES de chamar switchView('admin') num login legitimo, entao essa checagem
+  // nao interfere no fluxo de login real.
+  if(v==='admin'&&window._currentUser?.role!=='admin'){showToast('Acesso restrito a administradores');return;}
   currentView=v;navHistory=[];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['client','provider','admin'][i]===v));
   showScreen({client:'s-splash',provider:'p-splash',admin:'a-dashboard'}[v]);
