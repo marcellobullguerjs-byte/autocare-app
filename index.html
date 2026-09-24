@@ -4244,15 +4244,19 @@ async function startRealtimeProvider() {
 }
 
 initSupabase().then(async ()=>{
-  await checkExistingSession();
-  // SEGURANCA: ponto de entrada da tela de admin -- hash direto na URL (#admin), sem
-  // botao visivel em nenhuma tela publica (reduz a superficie de ataque, ja que admin
-  // nao e "mais um papel" que qualquer visitante escolhe). So dispara se ninguem ja
-  // estiver logado -- se ja havia sessao, checkExistingSession() acima ja levou pra
-  // tela certa.
-  if (!window._currentUser && location.hash === '#admin') {
+  // SEGURANCA: checa o hash ANTES de checkExistingSession() rodar. Checar depois
+  // (como estava) tornava o portao inutil na pratica -- qualquer sessao ja salva de
+  // cliente/prestador fazia checkExistingSession() redirecionar embora antes da
+  // checagem de #admin rodar, entao !window._currentUser nunca era verdadeiro pra
+  // quem ja tinha sessao salva no navegador (o caso comum de teste real).
+  // #admin agora sempre mostra a tela dedicada, independente de sessao existente --
+  // login novo substitui a sessao salva normalmente (signInWithPassword sobrescreve
+  // o token), o usuario decide ali se quer autenticar como admin.
+  if (location.hash === '#admin') {
     showLoginScreen('admin');
+    return;
   }
+  await checkExistingSession();
 });
 </script>
 
