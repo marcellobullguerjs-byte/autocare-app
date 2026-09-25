@@ -220,9 +220,11 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 .day-slot-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px}
 .day-slot-row.free{background:var(--green-light)}
 .day-slot-row.occupied{background:#f5f5f5}
+.day-slot-row.blocked{background:var(--red-light)}
 .day-slot-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .dot-free{background:var(--green)}
 .dot-occ{background:#bbb}
+.dot-blocked{background:var(--red)}
 
 /* ===== FIX 3: PAGAMENTOS ===== */
 .pay-item{border:.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px}
@@ -600,6 +602,14 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="chk-item"><div class="chk-box" id="chk3" onclick="doChk(3)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">📷 Foto APÓS</div><div class="photo-box" style="margin-top:8px" id="photoAfter" onclick="uploadExecPhoto('after')"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:11px;color:var(--muted)">Toque para fotografar</div></div></div></div>
         <div class="chk-item"><div class="chk-box" id="chk4" onclick="doChk(4)"></div><div><div style="font-size:13px;font-weight:500">🔧 Confirmar peças</div><div style="font-size:11px;color:var(--muted)" id="chk4Parts">-</div></div></div>
       </div>
+      <!-- FEATURE (preco dinamico do Guincho): so aparece quando o servico do job e
+           Guincho (toggle em loadJobExec(), via provider_type). Sem integracao de
+           mapa/geolocalizacao -- km digitado manualmente pelo prestador. -->
+      <div class="card" id="jobExecKmBox" style="display:none;margin-top:10px">
+        <div class="label">Km percorrido (ida até o local + reboque)</div>
+        <input class="input" type="number" id="jobExecKm" min="0" step="0.1" placeholder="Ex: 12" oninput="updateGuinchoPriceEstimate()">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px" id="jobExecKmEstimate">Preço final = R$ 90 (base) + R$ 5,50 × km percorrido</div>
+      </div>
       <div id="chkWarning" style="display:none" class="info-box info-red"></div>
       <button class="btn btn-green" style="margin-top:8px" onclick="finalizeExec()">✓ Finalizar job</button>
       <div style="height:8px"></div>
@@ -662,6 +672,10 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
           <div class="stat" style="flex:1;padding:10px"><div class="n" id="agOccCount" style="color:var(--orange)">2</div><div class="l">Ocupados</div></div>
           <div class="stat" style="flex:1;padding:10px"><div class="n" id="agEarnCount" style="color:var(--blue)">R$ 660</div><div class="l">Ganhos</div></div>
         </div>
+        <!-- FEATURE (bloqueio pontual): so aparece vendo o dia de hoje de verdade
+             (agendaViewOffset===0) -- toggle em buildAgendaDayView(). Sem seletor de
+             data em lugar nenhum, entao nao tem como bloquear dia futuro por aqui. -->
+        <button class="btn btn-outline-red btn-sm" id="btnBlockToday" style="width:100%;margin-bottom:10px;display:none" onclick="openBlockTodayModal()">🚫 Bloquear horário de hoje</button>
         <div id="agendaDaySlots"></div>
       </div>
 
@@ -959,7 +973,9 @@ async function initSupabase(){
     // Fornecedores
     loadSuppliers(),
     // Cotações
-    loadQuotations()
+    loadQuotations(),
+    // Bloqueios pontuais de hoje
+    loadTodayBlocks()
   ]);
   // Re-renderizar tela atual
   if(currentScreen==='s-home')buildCatGrid();
@@ -1163,6 +1179,9 @@ async function buildAgendaDayView(){
   const dateLabel=document.getElementById('agendaViewDate');
   if(dateLabel)dateLabel.textContent=`${agendaViewOffset===0?'Hoje · ':''}${WEEKDAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()].substring(0,3)}`;
   const el=document.getElementById('agendaDaySlots');if(!el)return;
+  // FEATURE (bloqueio pontual): botao so aparece vendo o dia de hoje de verdade --
+  // sem seletor de data em lugar nenhum, entao nao ha como bloquear dia futuro.
+  const btnBlock=document.getElementById('btnBlockToday');if(btnBlock)btnBlock.style.display=agendaViewOffset===0?'block':'none';
   // ITEM 5: getDayWindows ja soma o turno de hoje com o que vazou de ontem (madrugada) --
   // "nao configurado" agora so aparece se as 2 fontes derem vazio.
   const windows=getDayWindows(providerAgenda,dateStr);
@@ -1172,21 +1191,73 @@ async function buildAgendaDayView(){
   const provId=provRow?provRow.id:_currentUser.id;
   const {data:bookedJobs}=await _supabase.from('job_dispatch').select('jobs(scheduled_time,total_price,status)').eq('provider_id',provId).eq('jobs.scheduled_date',dateStr);
   const bookedTimes=(bookedJobs||[]).filter(b=>b.jobs&&b.jobs.scheduled_time&&['accepted','in_progress','awaiting_approval','completed'].includes(b.jobs.status)).map(b=>b.jobs.scheduled_time.slice(0,5));
+  // FEATURE (bloqueio pontual): so busca quando a tela mostra o dia de hoje de
+  // verdade -- bloqueio pontual nunca se aplica a nenhum outro dia.
+  let dayBlocks=[];
+  if(agendaViewOffset===0){
+    const {data:blocks}=await _supabase.from('provider_blocks').select('id,start_time,end_time').eq('provider_id',provId).eq('block_date',dateStr);
+    dayBlocks=(blocks||[]).map(b=>({id:b.id,startM:t2m(b.start_time),endM:t2m(b.end_time)}));
+  }
   el.innerHTML='';
   let freeCount=0,occCount=0,earn=0;
   windows.forEach(({startM,endM})=>{
     for(let m=startM;m<endM;m+=SLOT_MIN){
       const time=m2t(m),endT=m2t(m+SLOT_MIN);
       const isOcc=bookedTimes.includes(time);
-      if(isOcc){occCount++;earn+=220;}else{freeCount++;}
-      const row=document.createElement('div');row.className=`day-slot-row ${isOcc?'occupied':'free'}`;
-      row.innerHTML=`<div class="day-slot-dot ${isOcc?'dot-occ':'dot-free'}"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div>${isOcc?`<span class="badge badge-orange" style="font-size:10px">Job confirmado</span>`:`<span class="badge badge-green" style="font-size:10px">Livre</span>`}`;
+      const blockHit=dayBlocks.find(b=>m>=b.startM&&m<b.endM);
+      const row=document.createElement('div');
+      if(blockHit){
+        row.className='day-slot-row blocked';
+        row.innerHTML=`<div class="day-slot-dot dot-blocked"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div><span class="badge badge-red" style="font-size:10px;cursor:pointer" onclick="removeBlockToday('${blockHit.id}')">🚫 Bloqueado · remover</span>`;
+      } else {
+        if(isOcc){occCount++;earn+=220;}else{freeCount++;}
+        row.className=`day-slot-row ${isOcc?'occupied':'free'}`;
+        row.innerHTML=`<div class="day-slot-dot ${isOcc?'dot-occ':'dot-free'}"></div><div style="flex:1"><span style="font-size:13px;font-weight:500">${time}</span> <span style="font-size:11px;color:var(--muted)">– ${endT}</span></div>${isOcc?`<span class="badge badge-orange" style="font-size:10px">Job confirmado</span>`:`<span class="badge badge-green" style="font-size:10px">Livre</span>`}`;
+      }
       el.appendChild(row);
     }
   });
   document.getElementById('agFreeCount').textContent=freeCount;
   document.getElementById('agOccCount').textContent=occCount;
   document.getElementById('agEarnCount').textContent=`R$ ${earn}`;
+}
+// FEATURE (bloqueio pontual de agenda): modal simples (Das/Ate), mesmo padrao dos
+// outros modais do app. block_date e sempre a data de hoje calculada aqui -- sem
+// seletor de data na UI, nao tem como escolher um dia futuro por esse caminho.
+function openBlockTodayModal(){
+  document.getElementById('modalTitle').textContent='Bloquear horário de hoje';
+  document.getElementById('modalContent').innerHTML=`
+    <div class="info-box info-yellow">Bloqueia só o dia de hoje — não muda sua agenda semanal.</div>
+    <div class="label">Das</div><input type="time" class="input" id="blockStartTime">
+    <div class="label">Até</div><input type="time" class="input" id="blockEndTime">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-red btn-sm" style="flex:1" onclick="submitBlockToday()">Bloquear</button>
+    </div>`;
+  document.getElementById('modalBg').style.display='flex';
+}
+async function submitBlockToday(){
+  const start=document.getElementById('blockStartTime')?.value;
+  const end=document.getElementById('blockEndTime')?.value;
+  if(!start||!end){showToast('Preencha os dois horários.');return;}
+  if(start>=end){showToast('O horário final precisa ser depois do inicial.');return;}
+  const {data:provRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!provRow){showToast('Erro ao identificar prestador.');return;}
+  const hoje=new Date().toISOString().slice(0,10);
+  const {error}=await _supabase.from('provider_blocks').insert({provider_id:provRow.id, block_date:hoje, start_time:start, end_time:end});
+  if(error){showToast('Erro ao bloquear. Tente novamente.');return;}
+  closeModal();showToast('✓ Horário bloqueado pra hoje.');
+  loadTodayBlocks();
+  buildAgendaDayView();
+}
+// Remove um bloqueio criado por engano -- sem isso, um erro de digitacao ficaria
+// preso ate o admin mexer direto no banco.
+async function removeBlockToday(id){
+  const {error}=await _supabase.from('provider_blocks').delete().eq('id',id);
+  if(error){showToast('Erro ao remover bloqueio. Tente novamente.');return;}
+  showToast('✓ Bloqueio removido.');
+  loadTodayBlocks();
+  buildAgendaDayView();
 }
 
 // ============ PAGAMENTOS ============
@@ -1258,6 +1329,20 @@ async function buildPayments(){
 
 // ============ PROVIDERS ============
 let PROVIDERS=[];
+// FEATURE (bloqueio pontual de agenda): array em memoria, mesmo padrao de PROVIDERS/
+// quotations/suppliers -- getAvailableSlots()/getDaysWithSlots() sao sincronas
+// (chamadas ate 31x por buildCalendar(), 1 por dia do mes) e nao podem virar
+// assincronas so pra checar bloqueio. Recarregado nos mesmos pontos onde
+// loadProviders() ja e recarregado hoje (entrada em jf-schedule/s-reschedule),
+// pra nao ficar desatualizado. assignProvider() (despacho real, ja assincrono)
+// busca direto do banco em vez de usar esse array, por seguranca extra no momento
+// exato da decisao.
+let todayBlocks=[];
+async function loadTodayBlocks(){
+  const hoje=new Date().toISOString().slice(0,10);
+  const {data}=await _supabase.from('provider_blocks').select('provider_id,start_time,end_time').eq('block_date',hoje);
+  todayBlocks=(data||[]).map(b=>({provider_id:b.provider_id,startM:t2m(b.start_time),endM:t2m(b.end_time)}));
+}
 
 async function loadProviders(){
   const {data,error}=await _supabase
@@ -1902,6 +1987,10 @@ function getAvailableSlots(bairro,svcId,dateStr,jobId){
       const earliestM=trueStartM+(leadTimeH*60);
       for(let m=startM;m<endM;m+=SLOT_MIN){
         if(isToday&&m<nowM)continue;
+        // FEATURE (bloqueio pontual de agenda): so hoje, subtrai da disponibilidade
+        // recorrente ja calculada por getDayWindows() -- nao mexe na logica de
+        // turno/meia-noite, so descarta o minuto se cair dentro de um bloqueio.
+        if(isToday&&todayBlocks.some(b=>b.provider_id===p.id&&m>=b.startM&&m<b.endM))continue;
         const time=m2t(m);
         if(!slotMap[time])slotMap[time]={available:false,booked:false,partsWait:false,partsLocked:false};
         if(!partsOk){slotMap[time].partsLocked=true;continue;}
@@ -2210,10 +2299,30 @@ async function assignProvider(jobId, scheduledDate, scheduledTime) {
     // ITEM 5: getDayWindows cobre turno de hoje + o que vazou da madrugada de ontem --
     // scheduledDate ja e a data real de calendario (opcao B), entao basta checar se
     // slotMins cai em alguma das janelas devolvidas pra essa data.
-    const available = compatible.filter(p =>
+    let available = compatible.filter(p =>
       getDayWindows(p.availability, scheduledDate).some(w => slotMins >= w.startM && slotMins < w.endM)
     );
     if (available.length === 0) return;
+
+    // FEATURE (bloqueio pontual de agenda): so hoje, exclui quem bloqueou esse
+    // horario especifico -- busca direto do banco (nao usa o array todayBlocks em
+    // memoria) por seguranca extra no momento exato do despacho real. Qualquer
+    // outra data pula a consulta inteira, sem custo.
+    const hojeStr = new Date().toISOString().slice(0,10);
+    if (scheduledDate === hojeStr) {
+      const { data: blocksHoje } = await _supabase
+        .from('provider_blocks')
+        .select('provider_id, start_time, end_time')
+        .eq('block_date', scheduledDate)
+        .in('provider_id', available.map(p => p.id));
+      const blockedIds = new Set(
+        (blocksHoje || [])
+          .filter(b => slotMins >= t2m(b.start_time) && slotMins < t2m(b.end_time))
+          .map(b => b.provider_id)
+      );
+      available = available.filter(p => !blockedIds.has(p.id));
+      if (available.length === 0) return;
+    }
 
     const { data: busyDispatches } = await _supabase
       .from('job_dispatch')
@@ -2441,9 +2550,20 @@ async function confirmReject(){
 async function loadJobExec() {
   chkState={1:false,2:false,3:false,4:false};
   [1,2,3,4].forEach(n=>{const b=document.getElementById('chk'+n);if(b){b.classList.remove('checked');b.textContent='';}});
+  window._activeJobIsGuincho=false;
+  const kmBox=document.getElementById('jobExecKmBox');if(kmBox)kmBox.style.display='none';
+  const kmInput=document.getElementById('jobExecKm');if(kmInput)kmInput.value='';
+  updateGuinchoPriceEstimate();
   if(!window._activeJobId) return;
-  const { data: j } = await _supabase.from('jobs').select('scheduled_date,scheduled_time,total_price,customer_id,en_route_at,delay_reported_at,delay_reason,delay_new_eta,services(name),vehicles(brand,model),addresses(neighborhood)').eq('id', window._activeJobId).single();
+  const { data: j } = await _supabase.from('jobs').select('scheduled_date,scheduled_time,total_price,customer_id,en_route_at,delay_reported_at,delay_reason,delay_new_eta,services(name,provider_type),vehicles(brand,model),addresses(neighborhood)').eq('id', window._activeJobId).single();
   renderJobExecStatusBoxes(j);
+  // FEATURE (preco dinamico do Guincho): campo de km so aparece nesse servico
+  // especifico -- checado por provider_type (mais robusto que nome), nao afeta
+  // nenhum outro servico do checklist.
+  if(j?.services?.provider_type==='Guincho'){
+    window._activeJobIsGuincho=true;
+    if(kmBox)kmBox.style.display='block';
+  }
   let clienteName='-';
   if(j?.customer_id){const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',j.customer_id).single();if(cu){const {data:uu}=await _supabase.from('users').select('name').eq('id',cu.user_id).single();if(uu)clienteName=uu.name;}}
   if(j){const hdr=document.getElementById('jobExecHeader');if(hdr){hdr.innerHTML='<div style="font-size:15px;font-weight:500;margin-bottom:4px">'+( j.services?.name||'Servico')+'</div><div style="font-size:12px;color:var(--blue);font-weight:500;margin-bottom:4px">Cliente: '+clienteName+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+(j.vehicles?.brand||'')+' '+(j.vehicles?.model||'')+' &middot; '+(j.addresses?.neighborhood||'')+' &middot; '+(j.scheduled_time?.slice(0,5)||'')+'</div>';}const det=document.getElementById('jobExecDetails');if(det){det.innerHTML=`<div class="row"><span style="font-size:13px;color:var(--muted)">Data</span><span>${j.scheduled_date||'-'}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Horario</span><span>${j.scheduled_time?.slice(0,5)||'-'}</span></div><div class="row"><span style="font-size:13px;color:var(--muted)">Valor</span><span style="color:var(--blue);font-weight:500">R$ ${Number(j.total_price||0).toFixed(0)}</span></div>`;}}
@@ -2780,13 +2900,33 @@ function uploadVehicleDocPhoto(){
   };
   input.click();
 }
+// FEATURE (preco dinamico do Guincho): base + taxa fixas em JS por decisao
+// explicita (faixa R$80-100 base / R$5-6 por km, prototipo sem coluna de preco
+// configuravel ainda). Servico so tem esses 2 valores usados hoje.
+const GUINCHO_BASE_PRICE=90;
+const GUINCHO_RATE_PER_KM=5.5;
+function updateGuinchoPriceEstimate(){
+  const el=document.getElementById('jobExecKmEstimate');if(!el)return;
+  const km=parseFloat(document.getElementById('jobExecKm')?.value);
+  if(isNaN(km)||km<0){el.textContent=`Preço final = R$ ${GUINCHO_BASE_PRICE.toFixed(0)} (base) + R$ ${GUINCHO_RATE_PER_KM.toFixed(2).replace('.',',')} × km percorrido`;return;}
+  const total=GUINCHO_BASE_PRICE+km*GUINCHO_RATE_PER_KM;
+  el.textContent=`Preço estimado: R$ ${total.toFixed(2).replace('.',',')} (${GUINCHO_BASE_PRICE.toFixed(0)} + ${km} km × R$ ${GUINCHO_RATE_PER_KM.toFixed(2).replace('.',',')})`;
+}
 async function finalizeExec(){
   const missing=[];
   if(!chkState[1])missing.push('Foto antes');if(!chkState[2])missing.push('Início');if(!chkState[3])missing.push('Foto depois');if(!chkState[4])missing.push('Peças');
   if(missing.length>0){const w=document.getElementById('chkWarning');if(w){w.style.display='block';w.textContent=`⚠️ Pendentes: ${missing.join(', ')}`;}showToast('⚠️ Complete todos os itens');return;}
+  // FEATURE (preco dinamico do Guincho): exige km preenchido antes de liberar --
+  // e o unico dado que falta pra calcular o preco final desse servico.
+  let guinchoUpdate=null;
+  if(window._activeJobIsGuincho){
+    const km=parseFloat(document.getElementById('jobExecKm')?.value);
+    if(isNaN(km)||km<0){showToast('⚠️ Informe o km percorrido antes de finalizar.');return;}
+    guinchoUpdate={distance_km:km,total_price:GUINCHO_BASE_PRICE+km*GUINCHO_RATE_PER_KM};
+  }
   if(window._activeJobId){
     await _supabase.from('jobs')
-      .update({status:'awaiting_approval'})
+      .update({status:'awaiting_approval', ...(guinchoUpdate||{})})
       .eq('id', window._activeJobId);
   }
   goScreen('p-job-done');showToast('✓ Job finalizado! Aguardando aprovação.');
@@ -3991,7 +4131,7 @@ function showScreen(id){
     // visita. Mantem visivel se ja existe um slot selecionado pra esse job (ex: voltou
     // pra essa tela depois de ja ter escolhido).
     const scb=document.getElementById('schedContinueBtn');if(scb)scb.style.display=jobState.selectedSlot?'block':'none';
-    loadProviders().then(()=>buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1));
+    Promise.all([loadProviders(),loadTodayBlocks()]).then(()=>buildCalendar('calMonthLabel','calDays',jobState.service?jobState.service.id:1));
   }
   // FLUXO DE PEÇAS (item 2): loadRescheduleScreen() precisa terminar (seta
   // window._reschedSvcId) ANTES de buildCalendar() rodar com o svcId certo --
@@ -4000,7 +4140,7 @@ function showScreen(id){
   // mesmo motivo do loadProviders() do item 5: quotations[] só era carregado 1x
   // no load da página -- sem isso, isPartsConfirmed(svcId,jobId) checaria uma
   // cotação desatualizada, e a correção do vazamento não teria efeito prático.
-  if(id==='s-reschedule'){Promise.all([loadProviders(),loadQuotations(),loadRescheduleScreen()]).then(()=>buildCalendar('reschedCalLabel','reschedDays',window._reschedSvcId||1));}if(id==='s-cancel-client')loadCancelScreen();
+  if(id==='s-reschedule'){Promise.all([loadProviders(),loadQuotations(),loadTodayBlocks(),loadRescheduleScreen()]).then(()=>buildCalendar('reschedCalLabel','reschedDays',window._reschedSvcId||1));}if(id==='s-cancel-client')loadCancelScreen();
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
   if(id==='s-profile')buildProfileAddresses();
