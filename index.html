@@ -282,11 +282,11 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="auth-body">
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
         <div class="info-box info-blue">📍 Usado para encontrar prestadores na sua região.</div>
-        <div class="label">CEP</div><input class="input" placeholder="05430-000">
-        <div class="label">Rua</div><input class="input" placeholder="Rua Harmonia">
-        <div class="label">Número</div><input class="input" placeholder="120">
+        <div class="label">CEP</div><input class="input" id="reg-addr-cep" placeholder="05430-000">
+        <div class="label">Rua</div><input class="input" id="reg-addr-street" placeholder="Rua Harmonia">
+        <div class="label">Número</div><input class="input" id="reg-addr-number" placeholder="120">
         <div class="label">Bairro</div>
-        <select class="input"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select>
+        <select class="input" id="reg-addr-bairro"><option value="">Selecione o bairro...</option><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select>
         <div style="display:flex;gap:8px">
           <button class="btn btn-outline" onclick="goBack()">← Voltar</button>
           <button class="btn btn-primary" onclick="goScreen('s-reg3')">Continuar →</button>
@@ -298,9 +298,9 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="auth-body">
         <div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div>
         <div class="info-box info-orange">💼 Adicione agora ou depois no perfil.</div>
-        <div class="label">CEP</div><input class="input" placeholder="01310-100">
-        <div class="label">Rua</div><input class="input" placeholder="Av. Paulista">
-        <div class="label">Bairro</div><select class="input"><option>Bela Vista</option><option>Consolação</option><option>Jardins</option></select>
+        <div class="label">CEP</div><input class="input" id="reg-work-cep" placeholder="01310-100">
+        <div class="label">Rua</div><input class="input" id="reg-work-street" placeholder="Av. Paulista">
+        <div class="label">Bairro</div><select class="input" id="reg-work-bairro"><option>Bela Vista</option><option>Consolação</option><option>Jardins</option></select>
         <div style="display:flex;gap:8px">
           <button class="btn btn-outline" onclick="goBack()">← Voltar</button>
           <button class="btn btn-outline" style="flex:1" onclick="submitClientRegister()">Pular</button>
@@ -334,7 +334,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="jf-vehicle"><div class="progress-wrap" id="jp1"></div><div style="font-size:14px;font-weight:500;margin-bottom:2px" id="jfSvcName">Serviço</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="jfSvcMeta"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Qual veículo?</div><div id="vehList"></div><button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="goScreen('s-add-vehicle')">+ Adicionar veículo</button><button class="btn btn-primary" onclick="continueFromVehicle()">Continuar →</button></div>
     <div class="screen" id="jf-problem"><div class="progress-wrap" id="jp2"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Descreva o problema</div><textarea class="input" id="jfDesc" rows="4" placeholder="Ex: Óleo no nível mínimo..."></textarea><div class="photo-upload" id="clientPhotoBox" onclick="uploadClientPhoto()"><div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para adicionar fotos (opcional)</div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goToPartCheck()">Continuar →</button></div></div>
     <div class="screen" id="jf-parts"><div class="progress-wrap" id="jp3"></div><div style="text-align:center;padding:14px 0"><div style="font-size:28px;margin-bottom:8px">📦</div><div style="font-size:15px;font-weight:500;margin-bottom:4px">Verificando peças...</div><div style="font-size:12px;color:var(--muted)">Consultando fornecedores em SP</div><div style="margin:14px auto;width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;background:var(--blue)" id="partsBar"></div></div></div><div class="card" id="partsCard" style="display:none"><div class="row"><span style="font-size:13px;font-weight:500" id="partItemName">Peça</span><span class="badge badge-green">✓ Disponível</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partLeadInfo"></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Preço estimado</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="partTotalPrice">R$ -</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partBreak"></div></div><div class="card" id="partsLeadWarning" style="display:none;background:var(--orange-light);border-color:#FFCCBC"><div style="font-size:12px;font-weight:500;color:var(--orange);margin-bottom:4px">⏱ Horários consideram entrega da peça</div><div style="font-size:11px;color:var(--orange)" id="partsLeadExplain"></div></div><div class="card" id="partsAdminWarning" style="display:none;background:var(--red-light);border-color:#FFCDD2"><div style="font-size:12px;font-weight:500;color:var(--red);margin-bottom:4px">🔒 Peça aguardando confirmação do admin</div><div style="font-size:11px;color:var(--red)">Os horários serão liberados após o admin confirmar a disponibilidade da peça no supply chain.</div></div><button class="btn btn-primary" id="partsContinueBtn" style="display:none;margin-top:8px" onclick="jfGo('jf-address',4)">Escolher endereço →</button></div>
-    <div class="screen" id="jf-address"><div class="progress-wrap" id="jp4"></div><div style="font-size:13px;font-weight:500;margin-bottom:14px">Onde será o serviço?</div><div class="addr-option selected" id="ja-home" onclick="selectJobAddr('home','Vila Madalena','Rua Harmonia, 120')"><div class="addr-icon">🏠</div><div><div style="font-size:13px;font-weight:500">Casa</div><div style="font-size:11px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div></div><div class="addr-option" id="ja-work" onclick="selectJobAddr('work','Bela Vista','Av. Paulista, 1000')"><div class="addr-icon">💼</div><div><div style="font-size:13px;font-weight:500">Trabalho</div><div style="font-size:11px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div><div class="addr-option" id="ja-other" onclick="selectJobAddr('other','','')"><div class="addr-icon">📍</div><div><div style="font-size:13px;font-weight:500">Outro endereço</div></div></div><div id="otherAddrForm" style="display:none;margin-top:4px"><div class="label">Bairro</div><select class="input" id="otherBairro" onchange="selectJobAddr('other',this.value,this.value)"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select></div><div class="card" id="addrMatchCard" style="background:var(--blue-light);margin-top:8px"><div style="font-size:12px;font-weight:500;color:var(--blue)" id="addrMatchTitle">✓ Prestadores disponíveis</div><div style="font-size:11px;color:var(--blue);margin-top:2px" id="addrMatchDetail"></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="jfGo('jf-schedule',5)">Escolher horário →</button></div>
+    <div class="screen" id="jf-address"><div class="progress-wrap" id="jp4"></div><div style="font-size:13px;font-weight:500;margin-bottom:14px">Onde será o serviço?</div><div id="jaSavedAddrs"></div><div class="addr-option" id="ja-other" onclick="selectJobAddr('other','','')"><div class="addr-icon">📍</div><div><div style="font-size:13px;font-weight:500">Outro endereço</div></div></div><div id="otherAddrForm" style="display:none;margin-top:4px"><div class="label">Bairro</div><select class="input" id="otherBairro" onchange="selectJobAddr('other',this.value,this.value)"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select></div><div class="card" id="addrMatchCard" style="background:var(--blue-light);margin-top:8px"><div style="font-size:12px;font-weight:500;color:var(--blue)" id="addrMatchTitle">✓ Prestadores disponíveis</div><div style="font-size:11px;color:var(--blue);margin-top:2px" id="addrMatchDetail"></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="jfGo('jf-schedule',5)">Escolher horário →</button></div>
     <div class="screen" id="jf-schedule">
       <div class="progress-wrap" id="jp5"></div>
       <div style="font-size:13px;font-weight:500;margin-bottom:2px">Data e horário</div>
@@ -472,9 +472,8 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- PERFIL CLIENTE -->
     <div class="screen" id="s-profile">
-      <div class="profile-header"><div class="profile-av" id="profile-av-initials">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="profile-name-display">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="profile-neighborhood-display">📍 Vila Madalena</div></div></div>
-      <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">🏠 Casa</div><div style="font-size:12px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div><span class="badge badge-green">Principal</span></div></div>
-      <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">💼 Trabalho</div><div style="font-size:12px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div></div>
+      <div class="profile-header"><div class="profile-av" id="profile-av-initials">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="profile-name-display">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="profile-neighborhood-display"></div></div></div>
+      <div id="profileAddrList"></div>
       <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('s-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div>
       <hr class="divider">
       <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div>
@@ -1701,7 +1700,7 @@ const vehicleHistory={
 };
 
 // ============ STATE ============
-let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},description:'',bairro:'Vila Madalena',addrLabel:'Rua Harmonia, 120',selectedDate:null,selectedSlot:null,price:0};
+let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},description:'',bairro:'Vila Madalena',addrLabel:'Rua Harmonia, 120',addressId:null,selectedDate:null,selectedSlot:null,price:0};
 let calMonth=new Date().getMonth(),calYear=new Date().getFullYear();
 let navHistory=[],currentScreen='s-splash';
 let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',rankSpecFilter='Todos',claimsFilter='Pendente',currentSupply='q';
@@ -1891,16 +1890,73 @@ function goToPartCheck(){
     },1600);
   } else {navHistory.push(currentScreen);showScreen('jf-address');}
 }
-function selectJobAddr(type,bairro,addrLabel){
+// FIX (achado na investigacao do endereco): addressId novo -- antes createJob()
+// pegava "qualquer 1 endereco" do cliente no banco, sem nenhuma relacao com o
+// botao clicado aqui. Agora o id real do endereco escolhido (Casa/Trabalho) fica
+// guardado em jobState.addressId; "Outro endereco" continua sem persistir (fica
+// null, so serve pra achar o bairro certo pro job atual, por decisao de escopo).
+function selectJobAddr(type,bairro,addrLabel,addressId){
   document.querySelectorAll('.addr-option').forEach(e=>e.classList.remove('selected'));
   const el=document.getElementById('ja-'+type);if(el)el.classList.add('selected');
   document.getElementById('otherAddrForm').style.display=type==='other'?'block':'none';
   if(!bairro)bairro='Vila Madalena';
   jobState.bairro=bairro;jobState.addrLabel=addrLabel||bairro;
+  jobState.addressId=type==='other'?null:(addressId||null);
   const matched=PROVIDERS.filter(p=>p.status==='approved'&&p.region.includes(bairro)&&jobState.service&&p.specialty.some(s=>jobState.service.provider.includes(s)));
   const card=document.getElementById('addrMatchCard'),title=document.getElementById('addrMatchTitle'),detail=document.getElementById('addrMatchDetail');
   if(matched.length>0){card.style.background='var(--blue-light)';title.style.color='var(--blue)';title.textContent='✓ Prestadores disponíveis';detail.textContent=`${matched.length} prestador(es) · ${bairro}`;}
   else{card.style.background='var(--red-light)';title.style.color='var(--red)';title.textContent='⚠️ Sem prestadores';detail.textContent='Tente outro endereço';}
+}
+// FIX (achado na investigacao do endereco): antes os cards "Casa"/"Trabalho" eram
+// HTML estatico com endereco hardcoded, nunca lido do banco. Agora busca os
+// enderecos reais (type='home'/'work') do cliente logado e monta os cards na hora;
+// se nao tiver nenhum, mostra estado vazio em vez de fingir que existe endereco.
+async function buildJobAddressOptions(){
+  const el=document.getElementById('jaSavedAddrs');if(!el)return;
+  el.innerHTML='';
+  const {data:custRow}=await _supabase.from('customers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!custRow)return;
+  const {data:addrs}=await _supabase.from('addresses').select('id,type,street,number,neighborhood,cep').eq('customer_id',custRow.id).in('type',['home','work']);
+  const home=(addrs||[]).find(a=>a.type==='home');
+  const work=(addrs||[]).find(a=>a.type==='work');
+  if(!home&&!work){
+    el.innerHTML='<div style="text-align:center;padding:16px 12px;color:var(--muted);font-size:13px">Você ainda não tem endereço cadastrado.<br>Cadastre um endereço no seu perfil, ou use "Outro endereço" abaixo pra esse pedido.</div>';
+    return;
+  }
+  let html='';
+  if(home){
+    const label=`${home.street||''}, ${home.number||''} · ${home.neighborhood||''}`;
+    html+=`<div class="addr-option" id="ja-home" onclick="selectJobAddr('home','${home.neighborhood||''}','${label.replace(/'/g,"\\'")}','${home.id}')"><div class="addr-icon">🏠</div><div><div style="font-size:13px;font-weight:500">Casa</div><div style="font-size:11px;color:var(--muted)">${label}</div></div></div>`;
+  }
+  if(work){
+    const label=`${work.street||''}, ${work.number||''} · ${work.neighborhood||''}`;
+    html+=`<div class="addr-option" id="ja-work" onclick="selectJobAddr('work','${work.neighborhood||''}','${label.replace(/'/g,"\\'")}','${work.id}')"><div class="addr-icon">💼</div><div><div style="font-size:13px;font-weight:500">Trabalho</div><div style="font-size:11px;color:var(--muted)">${label}</div></div></div>`;
+  }
+  el.innerHTML=html;
+  if(home)selectJobAddr('home',home.neighborhood,`${home.street||''}, ${home.number||''} · ${home.neighborhood||''}`,home.id);
+  else selectJobAddr('work',work.neighborhood,`${work.street||''}, ${work.number||''} · ${work.neighborhood||''}`,work.id);
+}
+// FIX (achado na investigacao do endereco, mesma causa raiz): s-profile mostrava os
+// mesmos 2 cards "Casa"/"Trabalho" hardcoded no HTML. Mesmo padrao de busca de
+// buildJobAddressOptions(), so que exibindo (sem selecionar nada pra job nenhum).
+async function buildProfileAddresses(){
+  const el=document.getElementById('profileAddrList');if(!el)return;
+  el.innerHTML='';
+  const {data:custRow}=await _supabase.from('customers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!custRow)return;
+  const {data:addrs}=await _supabase.from('addresses').select('type,street,number,neighborhood,cep').eq('customer_id',custRow.id).in('type',['home','work']);
+  const home=(addrs||[]).find(a=>a.type==='home');
+  const work=(addrs||[]).find(a=>a.type==='work');
+  const neighEl=document.getElementById('profile-neighborhood-display');
+  if(neighEl)neighEl.textContent=home?.neighborhood?`📍 ${home.neighborhood}`:'';
+  if(!home&&!work){
+    el.innerHTML='<div class="card"><div style="font-size:12px;color:var(--muted);text-align:center;padding:4px">Nenhum endereço cadastrado ainda.</div></div>';
+    return;
+  }
+  let html='';
+  if(home)html+=`<div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">🏠 Casa</div><div style="font-size:12px;color:var(--muted)">${home.street||''}, ${home.number||''} · ${home.neighborhood||''}</div></div><span class="badge badge-green">Principal</span></div></div>`;
+  if(work)html+=`<div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">💼 Trabalho</div><div style="font-size:12px;color:var(--muted)">${work.street||''}, ${work.number||''} · ${work.neighborhood||''}</div></div></div></div>`;
+  el.innerHTML=html;
 }
 
 // ============ CALENDAR ============
@@ -1986,18 +2042,16 @@ async function createJob(){
 
   if(!customer){ showToast('❌ Erro: cliente não encontrado'); return; }
 
-  const { data: address } = await _supabase
-    .from('addresses')
-    .select('id')
-    .eq('customer_id', customer.id)
-    .limit(1)
-    .single();
-
   const jobData = {
     customer_id:     customer.id,
     vehicle_id:      jobState.vehicle?.id || null,
     service_id:      jobState.service.uuid,
-    address_id:      address ? address.id : null,
+    // FIX (achado na investigacao do endereco): antes buscava "qualquer 1 endereco"
+    // do cliente no banco, sem nenhuma relacao com o que foi escolhido em
+    // jf-address -- agora usa o id real do endereco que o cliente de fato clicou
+    // (selectJobAddr() guarda em jobState.addressId; "Outro endereco" fica null,
+    // por decisao de escopo -- nao persiste em addresses).
+    address_id:      jobState.addressId || null,
     status:          'pending',
     scheduled_date:  jobState.selectedDate,
     scheduled_time:  jobState.selectedSlot,
@@ -3793,6 +3847,8 @@ function showScreen(id){
   if(id==='s-reschedule'){Promise.all([loadProviders(),loadQuotations(),loadRescheduleScreen()]).then(()=>buildCalendar('reschedCalLabel','reschedDays',window._reschedSvcId||1));}if(id==='s-cancel-client')loadCancelScreen();
   if(id==='s-vehicle-history'){switchVehicle(selectedVehicle);}
   if(id==='s-vehicles')buildVehicleListScreen();
+  if(id==='s-profile')buildProfileAddresses();
+  if(id==='jf-address')buildJobAddressOptions();
   if(id==='p-offer')startCountdown();else if(countdownInterval&&id!=='p-offer')clearInterval(countdownInterval);
   if(id==='p-ranking')loadProviderRanking();
   if(id==='p-profile')loadProviderProfile();
@@ -4169,6 +4225,18 @@ async function submitClientRegister(){
     alert('A senha precisa ter pelo menos 6 caracteres.');
     return;
   }
+  // FIX (achado na investigacao do endereco): s-reg2/s-reg3 nunca eram lidos --
+  // campos nem tinham id. Bairro do endereco principal agora e obrigatorio (mesmo
+  // padrao de bloqueio dos outros campos acima); resto do endereco (CEP/rua/numero)
+  // fica opcional pra nao travar quem nao tem esses dados na mao no cadastro.
+  const addrCep    = document.getElementById('reg-addr-cep')?.value?.trim();
+  const addrStreet = document.getElementById('reg-addr-street')?.value?.trim();
+  const addrNumber = document.getElementById('reg-addr-number')?.value?.trim();
+  const addrBairro = document.getElementById('reg-addr-bairro')?.value;
+  if(!addrBairro){
+    alert('Selecione o bairro do seu endereço principal.');
+    return;
+  }
 
   try{
     // 1. Criar usuário no Supabase Auth
@@ -4191,12 +4259,42 @@ async function submitClientRegister(){
     });
     if(userError) throw userError;
 
-    // 3. Gravar na tabela customers
-    const {error:custError} = await _supabase.from('customers').insert({
+    // 3. Gravar na tabela customers -- precisa do id gerado (diferente do user_id)
+    // pra poder gravar os enderecos vinculados a ele logo em seguida.
+    const {data:custData, error:custError} = await _supabase.from('customers').insert({
       user_id: uid
-    });
+    }).select().single();
     if(custError) throw custError;
-    // 3. Atualizar sessão global e ir para home
+
+    // 4. Endereco principal (home) -- obrigatorio, sempre grava.
+    const {error:addrHomeError} = await _supabase.from('addresses').insert({
+      customer_id: custData.id,
+      type: 'home',
+      cep: addrCep||null,
+      street: addrStreet||null,
+      number: addrNumber||null,
+      neighborhood: addrBairro
+    });
+    if(addrHomeError) throw addrHomeError;
+
+    // 5. Endereco de trabalho (work) -- opcional, so grava se algo foi preenchido
+    // (cobre tanto "Pular" quanto "Concluir" com o passo em branco, sem precisar
+    // de handler separado pros dois botoes de s-reg3).
+    const workCep    = document.getElementById('reg-work-cep')?.value?.trim();
+    const workStreet = document.getElementById('reg-work-street')?.value?.trim();
+    const workBairro = document.getElementById('reg-work-bairro')?.value;
+    if(workCep||workStreet){
+      await _supabase.from('addresses').insert({
+        customer_id: custData.id,
+        type: 'work',
+        cep: workCep||null,
+        street: workStreet||null,
+        number: null,
+        neighborhood: workBairro||null
+      });
+    }
+
+    // 6. Atualizar sessão global e ir para home
     _currentUser = { id: uid, email, role: 'client', name };
     navHistory = [];
     showScreen('s-home');
