@@ -475,8 +475,16 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="profile-header"><div class="profile-av" id="profile-av-initials">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="profile-name-display">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="profile-neighborhood-display">📍 Vila Madalena</div></div></div>
       <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">🏠 Casa</div><div style="font-size:12px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div><span class="badge badge-green">Principal</span></div></div>
       <div class="card"><div class="row"><div><div style="font-size:13px;font-weight:500">💼 Trabalho</div><div style="font-size:12px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div></div>
+      <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('s-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div>
       <hr class="divider">
       <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div>
+    </div>
+
+    <div class="screen" id="s-support">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte AutoCare</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas, problemas com seu job ou pagamento — fale com o admin</div>
+      <button class="btn btn-primary" style="margin-bottom:14px" onclick="openSupportModal('client')">+ Novo chamado</button>
+      <div id="sSupportList"></div>
     </div>
 
     <!-- ===== PROVIDER AUTH ===== -->
@@ -645,7 +653,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="p-support">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte AutoCare</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas, problemas ou situações de risco — fale com o admin</div>
-      <button class="btn btn-primary" style="margin-bottom:14px" onclick="openSupportModal()">+ Novo chamado</button>
+      <button class="btn btn-primary" style="margin-bottom:14px" onclick="openSupportModal('provider')">+ Novo chamado</button>
       <div id="pSupportList"></div>
     </div>
 
@@ -663,7 +671,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="menu-item" onclick="goScreen('a-ranking')"><div class="menu-icon">⭐</div><div class="menu-text"><div class="t">Ranking de prestadores</div><div class="s">Score · Tiers · Dispatch priority</div></div></div>
       <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s" id="menu-claims-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-occurrences')"><div class="menu-icon">📋</div><div class="menu-text"><div class="t">Ocorrências dos prestadores</div><div class="s" id="menu-occurrences-pendentes">0 pendentes</div></div></div>
-      <div class="menu-item" onclick="goScreen('a-support')"><div class="menu-icon">💬</div><div class="menu-text"><div class="t">Suporte aos prestadores</div><div class="s" id="menu-support-pendentes">0 pendentes</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-support')"><div class="menu-icon">💬</div><div class="menu-text"><div class="t">Suporte</div><div class="s" id="menu-support-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-jobs')"><div class="menu-icon">📄</div><div class="menu-text"><div class="t">Jobs</div><div class="s" id="dash-jobs-subtitulo">0 hoje</div></div></div>
       <!-- FIX 3: Pagamentos funciona agora -->
       <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s" id="dash-payments-subtitulo">R$ 0 hoje</div></div></div>
@@ -731,7 +739,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="a-occurrences"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Ocorrências dos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Danos, problemas técnicos e outras situações reportadas pelo prestador · Não afeta score</div><div class="filter-row" id="occurrencesFilter"></div><div id="occurrencesList"></div></div>
     <div class="screen" id="a-occurrence-detail"><div id="occurrenceDetailContent"></div></div>
 
-    <div class="screen" id="a-support"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte aos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas, problemas e situações de risco reportadas pelo prestador</div><div class="filter-row" id="supportFilter"></div><div id="supportList"></div></div>
+    <div class="screen" id="a-support"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas e problemas reportados por clientes e prestadores</div><div class="filter-row" id="supportFilter"></div><div id="supportList"></div></div>
     <div class="screen" id="a-support-detail"><div id="supportDetailContent"></div></div>
 
     <!-- ADMIN JOBS -->
@@ -2417,12 +2425,15 @@ async function submitOccurrence(){
   showToast('✓ Ocorrência registrada');
 }
 
-// ============ SUPORTE (PRESTADOR) ============
-// FEATURE: canal estruturado prestador->admin, V1. Cenarios pre-definidos em botao
-// (sem texto livre obrigatorio) -- category continua como rotulo de exibicao,
-// scenario_key guarda o botao exato clicado (coluna nova). Prioridade e por
-// categoria (so Emergencia e urgente).
-const SUPPORT_CATEGORIES = {
+// ============ SUPORTE (PRESTADOR + CLIENTE) ============
+// FEATURE: canal estruturado prestador->admin, V1, estendido pra cliente->admin.
+// Cenarios pre-definidos em botao (sem texto livre obrigatorio) -- category continua
+// como rotulo de exibicao, scenario_key guarda o botao exato clicado. Prioridade e
+// por categoria. As duas taxonomias sao independentes (rotulos/cenarios diferentes),
+// mas passam pelo mesmo fluxo de modal/insert/listagem, selecionado por "context"
+// ('provider'|'client') -- guardado em window._supportModalContext enquanto o modal
+// esta aberto, pra "Voltar" conseguir reabrir a mesma taxonomia.
+const SUPPORT_CATEGORIES_PROVIDER = {
   pecas: { label:'📦 Problema com peça', priority:'normal', scenarios: [
     { key:'peca_errada', desc:'Peça entregue está incorreta ou incompleta para o serviço' },
     { key:'peca_atraso', desc:'Peça ainda não chegou e o prazo já passou' }
@@ -2445,10 +2456,35 @@ const SUPPORT_CATEGORIES = {
     { key:'reclamacao_cliente', desc:'Quero reportar o comportamento do cliente neste atendimento' }
   ]}
 };
+// Taxonomia cliente->admin. Nao sobrepoe Reclamacoes (insatisfacao com servico ja
+// concluido continua indo por claims/openClaimModal) -- aqui e problema/duvida
+// durante ou antes do atendimento, ou fora de qualquer job especifico.
+const SUPPORT_CATEGORIES_CLIENT = {
+  problema_job: { label:'🔧 Problema com o job', priority:'normal', scenarios: [
+    { key:'prestador_atrasado', desc:'Prestador está atrasado e não avisou' },
+    { key:'prestador_nao_apareceu', desc:'Prestador não apareceu no horário marcado' },
+    { key:'job_travado_peca', desc:'Meu serviço está parado aguardando confirmação de peça' }
+  ]},
+  pagamento: { label:'💳 Pagamento/cobrança', priority:'normal', scenarios: [
+    { key:'cobranca_errada', desc:'Valor cobrado está diferente do combinado' },
+    { key:'duvida_pagamento', desc:'Dúvida sobre forma de pagamento' }
+  ]},
+  agendamento: { label:'📅 Agendamento', priority:'normal', scenarios: [
+    { key:'remarcar_ajuda', desc:'Preciso remarcar e não encontro a opção' },
+    { key:'duvida_disponibilidade', desc:'Dúvida sobre disponibilidade de horário' }
+  ]},
+  duvida_geral: { label:'❓ Dúvida geral', priority:'normal', scenarios: [
+    { key:'duvida_app', desc:'Dúvida sobre como o app funciona' },
+    { key:'duvida_servico', desc:'Dúvida sobre um serviço específico' }
+  ]}
+};
+function supportTaxonomyFor(context){ return context==='client' ? SUPPORT_CATEGORIES_CLIENT : SUPPORT_CATEGORIES_PROVIDER; }
 
-function openSupportModal(){
+function openSupportModal(context){
+  context = context || window._supportModalContext || 'provider';
+  window._supportModalContext = context;
   document.getElementById('modalTitle').textContent='Novo chamado de suporte';
-  const cats = Object.entries(SUPPORT_CATEGORIES).map(([key,c])=>
+  const cats = Object.entries(supportTaxonomyFor(context)).map(([key,c])=>
     `<button class="btn btn-outline btn-sm" style="width:100%;text-align:left;margin-bottom:8px" onclick="showSupportCategory('${key}')">${c.label}</button>`
   ).join('');
   document.getElementById('modalContent').innerHTML = `
@@ -2459,7 +2495,7 @@ function openSupportModal(){
 }
 
 function showSupportCategory(catKey){
-  const cat = SUPPORT_CATEGORIES[catKey]; if(!cat) return;
+  const cat = supportTaxonomyFor(window._supportModalContext)[catKey]; if(!cat) return;
   document.getElementById('modalTitle').textContent = cat.label;
   const scenarios = cat.scenarios.map(s=>
     `<button class="btn btn-outline btn-sm" style="width:100%;text-align:left;margin-bottom:8px" onclick="submitSupportScenario('${catKey}','${s.key}')">${s.desc}</button>`
@@ -2475,24 +2511,26 @@ function showSupportCategory(catKey){
 }
 
 async function submitSupportScenario(catKey, scenarioKey){
-  const cat = SUPPORT_CATEGORIES[catKey]; if(!cat) return;
+  const context = window._supportModalContext || 'provider';
+  const cat = supportTaxonomyFor(context)[catKey]; if(!cat) return;
   const scenario = cat.scenarios.find(s=>s.key===scenarioKey); if(!scenario) return;
   const extra = document.getElementById('suppExtraDetailsTxt')?.value?.trim() || '';
   const description = extra ? `${scenario.desc} — ${extra}` : scenario.desc;
-  const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
-  if(!providerRow){showToast('Erro ao identificar prestador.');return;}
-  const {error}=await _supabase.from('support_tickets').insert({
-    provider_id:providerRow.id,
-    category:cat.label,
-    scenario_key:scenarioKey,
-    priority:cat.priority,
-    description,
-    status:'pending'
-  });
+  const payload = { category:cat.label, scenario_key:scenarioKey, priority:cat.priority, description, status:'pending' };
+  if(context==='client'){
+    const {data:customerRow}=await _supabase.from('customers').select('id').eq('user_id',window._currentUser.id).single();
+    if(!customerRow){showToast('Erro ao identificar cliente.');return;}
+    payload.customer_id=customerRow.id;
+  } else {
+    const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+    if(!providerRow){showToast('Erro ao identificar prestador.');return;}
+    payload.provider_id=providerRow.id;
+  }
+  const {error}=await _supabase.from('support_tickets').insert(payload);
   if(error){showToast('Erro ao enviar. Tente novamente.');return;}
   closeModal();
   showToast('✓ Chamado enviado ao suporte');
-  buildSupportProvider();
+  if(context==='client')buildSupportClient();else buildSupportProvider();
 }
 
 // "Outro motivo / falar direto": nao cria ticket, abre WhatsApp com o admin de
@@ -2504,12 +2542,10 @@ async function openSupportWhatsAppFallback(){
   window.open('https://wa.me/'+tel, '_blank');
   closeModal();
 }
-async function buildSupportProvider(){
-  const list=document.getElementById('pSupportList');if(!list)return;
-  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
-  const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
-  if(!providerRow){list.innerHTML='';return;}
-  const {data:tickets}=await _supabase.from('support_tickets').select('id,category,priority,description,status,resolution,created_at').eq('provider_id',providerRow.id).order('created_at',{ascending:false});
+// Renderizacao compartilhada da lista de chamados do prestador/cliente -- so muda
+// a origem dos dados (buildSupportProvider/buildSupportClient), o card e igual.
+function renderSupportTicketList(containerId, tickets){
+  const list=document.getElementById(containerId);if(!list)return;
   if(!tickets||tickets.length===0){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum chamado ainda.</div>';return;}
   const statusCfg={pending:{label:'Pendente',badge:'badge-yellow'},in_progress:{label:'Em andamento',badge:'badge-orange'},resolved:{label:'Resolvido',badge:'badge-green'}};
   list.innerHTML=tickets.map(t=>{
@@ -2523,6 +2559,22 @@ async function buildSupportProvider(){
       ${t.resolution?`<div class="info-box info-green" style="margin-top:8px;margin-bottom:0">${t.resolution}</div>`:''}
     </div>`;
   }).join('');
+}
+async function buildSupportProvider(){
+  const list=document.getElementById('pSupportList');if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:providerRow}=await _supabase.from('providers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!providerRow){list.innerHTML='';return;}
+  const {data:tickets}=await _supabase.from('support_tickets').select('id,category,priority,description,status,resolution,created_at').eq('provider_id',providerRow.id).order('created_at',{ascending:false});
+  renderSupportTicketList('pSupportList', tickets);
+}
+async function buildSupportClient(){
+  const list=document.getElementById('sSupportList');if(!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:customerRow}=await _supabase.from('customers').select('id').eq('user_id',window._currentUser.id).single();
+  if(!customerRow){list.innerHTML='';return;}
+  const {data:tickets}=await _supabase.from('support_tickets').select('id,category,priority,description,status,resolution,created_at').eq('customer_id',customerRow.id).order('created_at',{ascending:false});
+  renderSupportTicketList('sSupportList', tickets);
 }
 
 // ============ EXECUÇÃO ============
@@ -3587,7 +3639,7 @@ let supportFilter='Todos';
 async function buildSupportAdmin(){
   const fr=document.getElementById('supportFilter'),list=document.getElementById('supportList');if(!fr||!list)return;
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
-  const {data:all}=await _supabase.from('support_tickets').select('id,provider_id,category,priority,description,status,resolution,created_at').order('created_at',{ascending:false});
+  const {data:all}=await _supabase.from('support_tickets').select('id,provider_id,customer_id,category,priority,description,status,resolution,created_at').order('created_at',{ascending:false});
   const data=all||[];
   const filtered=supportFilter==='Todos'?data:supportFilter==='Urgente'?data.filter(t=>t.priority==='urgente'&&t.status!=='resolved'):supportFilter==='Pendente'?data.filter(t=>['pending','in_progress'].includes(t.status)):data.filter(t=>t.status==='resolved');
   const cnt={Todos:data.length,Urgente:data.filter(t=>t.priority==='urgente'&&t.status!=='resolved').length,Pendente:data.filter(t=>['pending','in_progress'].includes(t.status)).length,Resolvido:data.filter(t=>t.status==='resolved').length};
@@ -3598,14 +3650,24 @@ async function buildSupportAdmin(){
   list.innerHTML='';
   if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhum chamado encontrado.</div>';return;}
   for(const t of filtered){
-    let providerName='-';
-    if(t.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}
+    // Origem do chamado: provider_id OU customer_id, nunca os dois (CHECK no banco).
+    // Badge deixa claro pra quem e a resposta antes de abrir o chamado.
+    let requesterName='-',originBadge='';
+    if(t.provider_id){
+      const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();
+      if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)requesterName=uu.name;}
+      originBadge='<span class="badge badge-gray" style="margin-left:4px">🔧 Prestador</span>';
+    } else if(t.customer_id){
+      const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',t.customer_id).single();
+      if(cu){const {data:uu}=await _supabase.from('users').select('name').eq('id',cu.user_id).single();if(uu)requesterName=uu.name;}
+      originBadge='<span class="badge badge-gray" style="margin-left:4px">👤 Cliente</span>';
+    }
     const dt=t.created_at?new Date(t.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
     const cfg=t.status==='resolved'?{label:'Resolvido',badge:'badge-green'}:t.status==='in_progress'?{label:'Em andamento',badge:'badge-orange'}:{label:'Pendente',badge:'badge-yellow'};
     const urgTag=t.priority==='urgente'?'<span class="badge badge-red" style="margin-left:4px">🚨 Urgente</span>':'';
     const d=document.createElement('div');d.className='card'+(t.priority==='urgente'&&t.status!=='resolved'?' urgent':'');
-    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${t.category||'-'}${urgTag}</span><span class="badge ${cfg.badge}">${cfg.label}</span></div>
-      <div style="font-size:12px;color:var(--muted)">${providerName} · ${dt}</div>
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${t.category||'-'}${urgTag}${originBadge}</span><span class="badge ${cfg.badge}">${cfg.label}</span></div>
+      <div style="font-size:12px;color:var(--muted)">${requesterName} · ${dt}</div>
       <div style="font-size:12px;margin-top:6px">${t.description||''}</div>
       ${t.status!=='resolved'?`<div class="action-row"><button class="action-btn ab-view" onclick="viewSupportTicket('${t.id}')">Responder</button></div>`:`<div class="info-box info-green" style="margin-top:6px;margin-bottom:0">${t.resolution||''}</div>`}`;
     list.appendChild(d);
@@ -3615,13 +3677,21 @@ async function viewSupportTicket(id){
   const el=document.getElementById('supportDetailContent');if(!el)return;
   el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">Carregando...</div>';
   navHistory.push(currentScreen);showScreen('a-support-detail');
-  const {data:t}=await _supabase.from('support_tickets').select('id,provider_id,category,priority,description,status').eq('id',id).single();
+  const {data:t}=await _supabase.from('support_tickets').select('id,provider_id,customer_id,category,priority,description,status').eq('id',id).single();
   if(!t){el.innerHTML='<div style="padding:16px">Erro ao carregar.</div>';return;}
-  let providerName='-',providerPhone=null;
-  if(t.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name,phone').eq('id',pu.user_id).single();if(uu){providerName=uu.name;providerPhone=uu.phone;}}}
-  window._supportTicketProviderPhone=providerPhone;
+  let requesterName='-',requesterPhone=null,originLabel='';
+  if(t.provider_id){
+    const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',t.provider_id).single();
+    if(pu){const {data:uu}=await _supabase.from('users').select('name,phone').eq('id',pu.user_id).single();if(uu){requesterName=uu.name;requesterPhone=uu.phone;}}
+    originLabel='🔧 Prestador';
+  } else if(t.customer_id){
+    const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',t.customer_id).single();
+    if(cu){const {data:uu}=await _supabase.from('users').select('name,phone').eq('id',cu.user_id).single();if(uu){requesterName=uu.name;requesterPhone=uu.phone;}}
+    originLabel='👤 Cliente';
+  }
+  window._supportTicketPhone=requesterPhone;
   const urgTag=t.priority==='urgente'?' · <span style="color:#fff">🚨 Urgente</span>':'';
-  el.innerHTML=`<div style="background:${t.priority==='urgente'?'var(--red)':'var(--blue)'};margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">${t.category||'Chamado de suporte'}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${providerName}${urgTag}</div></div>
+  el.innerHTML=`<div style="background:${t.priority==='urgente'?'var(--red)':'var(--blue)'};margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">${t.category||'Chamado de suporte'}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${originLabel} · ${requesterName}${urgTag}</div></div>
     <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px">MENSAGEM</div><div style="font-size:13px">${t.description||''}</div></div>
     <div class="label">Respostas rápidas</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
@@ -3631,7 +3701,7 @@ async function viewSupportTicket(id){
       <button class="btn btn-outline btn-sm" style="text-align:left;color:var(--blue)" onclick="openSupportTicketWhatsApp()">📱 Falar via WhatsApp</button>
     </div>
     <div class="label">Resposta</div>
-    <textarea class="input" rows="3" id="suppResolutionTxt" placeholder="Escreva a resposta para o prestador..."></textarea>
+    <textarea class="input" rows="3" id="suppResolutionTxt" placeholder="Escreva a resposta..."></textarea>
     <div style="display:flex;gap:8px">
       <button class="btn btn-outline btn-sm" style="flex:1" onclick="resolveSupportTicket('${id}','in_progress')">Marcar em andamento</button>
       <button class="btn btn-primary btn-sm" style="flex:1" onclick="resolveSupportTicket('${id}','resolved')">Responder e resolver</button>
@@ -3643,10 +3713,11 @@ function quickResolveSupportTicket(id,text){
   const ta=document.getElementById('suppResolutionTxt');if(ta)ta.value=text;
   resolveSupportTicket(id,'resolved');
 }
-// Abre WhatsApp com o prestador do ticket -- não resolve, só abre a conversa externa.
+// Abre WhatsApp com quem abriu o ticket (prestador ou cliente) -- não resolve, só
+// abre a conversa externa.
 function openSupportTicketWhatsApp(){
-  const tel=normalizePhoneForWhatsApp(window._supportTicketProviderPhone);
-  if(!tel){showToast('Telefone do prestador não disponível.');return;}
+  const tel=normalizePhoneForWhatsApp(window._supportTicketPhone);
+  if(!tel){showToast('Telefone não disponível.');return;}
   window.open('https://wa.me/'+tel,'_blank');
 }
 async function resolveSupportTicket(id,newStatus){
@@ -3662,7 +3733,7 @@ async function resolveSupportTicket(id,newStatus){
 }
 
 // ============ NAV ============
-const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-pending-confirmations':'Confirmações pendentes','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte'};
+const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-pending-confirmations':'Confirmações pendentes','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte','s-support':'Suporte'};
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -3721,6 +3792,7 @@ function showScreen(id){
   if(id==='a-occurrences')buildOccurrences();
   if(id==='a-support')buildSupportAdmin();
   if(id==='p-support')buildSupportProvider();
+  if(id==='s-support')buildSupportClient();
 }
 async function loadAdminDashboard(){
   try {
