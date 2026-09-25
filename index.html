@@ -3343,6 +3343,7 @@ function renderProviderList(){
         ${p.status==='pending'?`<button class="action-btn ab-approve" onclick="adminChangeProviderStatus('${p.id}','approved')">Aprovar</button><button class="action-btn ab-reject" onclick="adminChangeProviderStatus('${p.id}','rejected')">Rejeitar</button>`:''}
         ${p.status==='approved'?`<button class="action-btn ab-suspend" onclick="adminChangeProviderStatus('${p.id}','suspended')">Suspender</button>`:''}
         ${p.status==='suspended'?`<button class="action-btn ab-approve" onclick="adminChangeProviderStatus('${p.id}','approved')">Reativar</button>`:''}
+        <button class="action-btn ab-view" onclick="openProviderWhatsApp('${(p.users?.phone||'').replace(/'/g,"\\'")}')">📱 WhatsApp</button>
       </div>`;
     list.appendChild(d);
   });
@@ -3358,6 +3359,15 @@ async function adminChangeProviderStatus(providerId, newStatus){
   if(error){ alert('Erro ao atualizar status: ' + error.message); return; }
   showToast('Status atualizado com sucesso!');
   buildProviderList();
+}
+// FEATURE (WhatsApp individual do admin): mesmo padrao/funcao de
+// normalizePhoneForWhatsApp() ja usada no canal de Suporte -- so abre a conversa,
+// nao envia nada automatico, nao e comunicacao em massa (isso continua fora de
+// escopo, depende de WhatsApp Business API, ja registrado como pendencia separada).
+function openProviderWhatsApp(phone){
+  const tel=normalizePhoneForWhatsApp(phone);
+  if(!tel){showToast('Telefone não disponível.');return;}
+  window.open('https://wa.me/'+tel,'_blank');
 }
 function viewProvider(id){
   const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
