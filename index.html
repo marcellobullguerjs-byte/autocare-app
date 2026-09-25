@@ -494,11 +494,17 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- FIX 4: botão voltar em todos os passos do cadastro do prestador -->
     <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div id="preg-cnpj-wrap" style="display:none"><div class="label">CNPJ</div><input id="preg-cnpj" class="input" placeholder="00.000.000/0000-00"></div><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg2')">Continuar →</button></div></div></div>
-    <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚛</div><div class="sl">Guincho</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🔑</div><div class="sl">Chaveiro Automotivo</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🛞</div><div class="sl">Borracheiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🪟</div><div class="sl">Vidraceiro</div></div></div><div class="label">Anos de experiência</div><select class="input"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
-    <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro. Peças entregues no seu endereço.</div><div class="label">Seu endereço base</div><input class="input" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚛</div><div class="sl">Guincho</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🔑</div><div class="sl">Chaveiro Automotivo</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🛞</div><div class="sl">Borracheiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🪟</div><div class="sl">Vidraceiro</div></div></div><div class="label">Anos de experiência</div><select class="input" id="preg-experience"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro — o endereço base é só referência, não é usado pra entrega de peça.</div><div class="label">Seu endereço base</div><input class="input" id="preg-base-address" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📸 Foto do CPF</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div id="preg4-pj-docs" style="display:none"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏢 Cartão CNPJ</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📑 Contrato social ou certificado MEI</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg5')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="submitProviderRegister()">Enviar cadastro</button></div></div></div>
     <div class="screen full" id="p-pending" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px">⏳</div><div style="font-size:20px;font-weight:500;margin-bottom:8px">Cadastro enviado!</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Análise em até <strong>48h</strong>.</div><button class="btn btn-outline" onclick="showLoginScreen('provider')">Acompanhar status</button></div></div>
+
+    <!-- FIX (gate de status no login): prestador rejeitado/suspenso caia direto em
+         p-dashboard, sem checagem nenhuma. Tela autocontida, mesmo padrao de p-pending
+         (entra em AUTH_SCREENS, esconde topbar/provNav automaticamente) -- botoes
+         proprios de Suporte/Sair, ja que nao tem nav pra navegar. -->
+    <div class="screen full" id="p-restricted" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px" id="restrictedIcon">⚠️</div><div style="font-size:20px;font-weight:500;margin-bottom:8px" id="restrictedTitle">Acesso restrito</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6" id="restrictedMsg"></div><button class="btn btn-primary" style="margin-bottom:10px" onclick="goScreen('p-support')">💬 Suporte</button><button class="btn btn-outline" onclick="doLogout()">Sair da conta</button></div></div>
 
     <!-- ===== AUTH LOGIN (REAL) ===== -->
     <div class="screen full" id="auth-login" style="padding:0">
@@ -822,7 +828,7 @@ const DAY_KEYS=['dom','seg','ter','qua','qui','sex','sab'];
 // seta de voltar propria, ligada a goBack()) aparecia JUNTO com o botao manual "<-
 // Voltar" do proprio formulario, 2 controles de voltar com logica diferente ao mesmo
 // tempo. Adicionada aqui, no mesmo padrao das outras telas full-bleed de auth.
-const AUTH_SCREENS=['s-splash','s-reg1','s-reg2','s-reg3','p-splash','p-reg-info','p-reg1','p-reg2','p-reg3','p-reg4','p-reg5','p-pending','auth-login'];
+const AUTH_SCREENS=['s-splash','s-reg1','s-reg2','s-reg3','p-splash','p-reg-info','p-reg1','p-reg2','p-reg3','p-reg4','p-reg5','p-pending','p-restricted','auth-login'];
 const PROV_TYPES=['Mecânico','Eletricista','Eletricista/Mecânico','Funileiro','Detailer','Lavador','Guincho','Chaveiro Automotivo','Borracheiro','Vidraceiro','Chaveiro Automotivo Avançado','Eletricista Predial Credenciado'];
 const MODELS_BY_BRAND={
   'Chevrolet':['Onix','Onix Plus','Tracker','Cruze','S10','Spin','Montana','Equinox'],
@@ -2883,12 +2889,21 @@ async function loadProviderRanking(){
 // ============ CANCEL ============
 function selectCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
 function selectPCancelReason(id){document.querySelectorAll('.cancel-option').forEach(el=>el.classList.remove('selected'));const el=document.getElementById(id);if(el)el.classList.add('selected');}
+// FIX (achado na auditoria de formularios): motivo de cancelamento nunca era lido
+// -- s-cancel-client/p-cancel usam <div onclick="selectCancelReason(...)"> com um
+// radio so decorativo dentro (nunca marcado .checked de verdade, diferente do
+// padrao que ja funciona em confirmReject()/job_dispatch.rejection_reason, que usa
+// <label> em volta do input). Por isso le pela classe .selected (que selectCancelReason()
+// ja mantem certa hoje) em vez de tentar ler :checked.
 async function confirmCancel(who){
   const jobId = window._currentJobId || window._activeJobId;
+  const reasonsWrap = document.getElementById(who==='client' ? 'cancelReasons' : 'pCancelReasons');
+  const selectedOpt = reasonsWrap?.querySelector('.cancel-option.selected');
+  const reason = selectedOpt ? selectedOpt.textContent.trim() : null;
   if(jobId){
     const {error} = await _supabase
       .from('jobs')
-      .update({status: who==='client' ? 'cancelled' : 'cancelled_provider'})
+      .update({status: who==='client' ? 'cancelled' : 'cancelled_provider', cancellation_reason: reason})
       .eq('id', jobId);
     if(error){ alert('Erro ao cancelar: ' + error.message); return; }
   }
@@ -3133,7 +3148,11 @@ function viewProvider(id){
 async function changeStatus(id,status){
   const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
   try {
-    await _supabase.from('providers').update({status}).eq('id', p.id);
+    // FIX (achado na auditoria de formularios): reaprovar um prestador antes
+    // rejeitado/suspenso deixava o motivo antigo (status_reason) parado no banco --
+    // limpa aqui pra nao sobrar motivo de uma punicao que nao vale mais.
+    const payload = status==='approved' ? {status, status_reason:null} : {status};
+    await _supabase.from('providers').update(payload).eq('id', p.id);
     p.status=status;
     closeModal();
     buildProviderList();
@@ -3145,34 +3164,23 @@ async function changeStatus(id,status){
   }
 }
 function promptReject(id){document.getElementById('modalTitle').textContent='Rejeitar';document.getElementById('modalContent').innerHTML=`<select class="input" id="rr"><option>Documentação incompleta</option><option>Documentos inválidos</option><option>Região fora de cobertura</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmRej('${id}')">Confirmar</button></div>`;document.getElementById('modalBg').style.display='flex';}
+// FIX (achado na auditoria de formularios): motivo era lido (variavel `motivo`) mas
+// nunca gravado -- so o status mudava. providers.status_reason (novo) guarda o
+// motivo real escolhido; visivel pro proprio prestador rejeitado (ver tela
+// p-restricted) -- suspenso nao mostra motivo, so "acesso restrito" generico,
+// por decisao explicita.
 async function confirmRej(id){
   const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
   const motivo=document.getElementById('rr')?.value||'Documentação incompleta';
-  await _supabase.from('providers').update({status:'rejected'}).eq('id',id);
+  await _supabase.from('providers').update({status:'rejected',status_reason:motivo}).eq('id',id);
   p.status='rejected';
   closeModal();buildProviderList();showToast(`✗ ${p.name} rejeitado`);
-}
-
-async function confirmSusp(id){
-  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
-  const motivo=document.getElementById('sr')?.value||'Reclamações recorrentes';
-  await _supabase.from('providers').update({status:'suspended'}).eq('id',id);
-  p.status='suspended';
-  closeModal();buildProviderList();showToast(`⚠️ ${p.name} suspenso`);
 }
 function promptSuspend(id){document.getElementById('modalTitle').textContent='Suspender';document.getElementById('modalContent').innerHTML=`<select class="input" id="sr"><option>Reclamações recorrentes</option><option>Descumprimento das regras</option><option>Não comparecimento</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-red btn-sm" style="flex:1" onclick="confirmSusp('${id}')">Suspender</button></div>`;document.getElementById('modalBg').style.display='flex';}
-async function confirmRej(id){
-  const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
-  const motivo=document.getElementById('rr')?.value||'Documentação incompleta';
-  await _supabase.from('providers').update({status:'rejected'}).eq('id',id);
-  p.status='rejected';
-  closeModal();buildProviderList();showToast(`✗ ${p.name} rejeitado`);
-}
-
 async function confirmSusp(id){
   const p=PROVIDERS.find(x=>x.id===id);if(!p)return;
   const motivo=document.getElementById('sr')?.value||'Reclamações recorrentes';
-  await _supabase.from('providers').update({status:'suspended'}).eq('id',id);
+  await _supabase.from('providers').update({status:'suspended',status_reason:motivo}).eq('id',id);
   p.status='suspended';
   closeModal();buildProviderList();showToast(`⚠️ ${p.name} suspenso`);
 }
@@ -4022,7 +4030,33 @@ async function handleAuthSession(session, isReconnect) {
   if(document.getElementById('profile-av-initials')) document.getElementById('profile-av-initials').textContent = _initials;
   navHistory = [];
   if (role === 'admin')    { switchView('admin'); loadAdminDashboard(); return; }
-  if (role === 'provider') { switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); loadProviderDashboard(); return; }
+  if (role === 'provider') {
+    // FIX (gate de status no login): antes caia direto em p-dashboard sem checar
+    // providers.status nenhuma vez -- pendente/rejeitado/suspenso tinham acesso
+    // igual a um aprovado. Checa aqui, cobre login novo E reload (checkExistingSession()
+    // chama essa mesma funcao), entao pega tambem status que mudou entre sessoes.
+    const {data:provRow} = await _supabase.from('providers').select('status,status_reason').eq('user_id', session.user.id).single();
+    const pStatus = provRow?.status;
+    if (pStatus === 'pending') { switchView('provider'); goScreen('p-pending'); return; }
+    if (pStatus === 'rejected' || pStatus === 'suspended') {
+      window._providerRestricted = true;
+      switchView('provider');
+      const iconEl=document.getElementById('restrictedIcon'),titleEl=document.getElementById('restrictedTitle'),msgEl=document.getElementById('restrictedMsg');
+      if (pStatus === 'rejected') {
+        if(iconEl)iconEl.textContent='✗';
+        if(titleEl)titleEl.textContent='Cadastro não aprovado';
+        if(msgEl)msgEl.textContent='Seu cadastro não foi aprovado.'+(provRow.status_reason?' Motivo: '+provRow.status_reason+'.':'')+' Fale com o suporte se quiser mais detalhes.';
+      } else {
+        if(iconEl)iconEl.textContent='⚠️';
+        if(titleEl)titleEl.textContent='Conta suspensa';
+        if(msgEl)msgEl.textContent='Sua conta está suspensa. Fale com o suporte pra entender o motivo e como regularizar.';
+      }
+      goScreen('p-restricted');
+      return;
+    }
+    window._providerRestricted = false;
+    switchView('provider'); goScreen('p-dashboard'); window._realtimeStarted=true; startRealtimeProvider(); loadProviderDashboard(); return;
+  }
   switchView('client'); await loadVehicles(); await loadRecentJobs(); goScreen('s-home');
   const homeUser = document.getElementById('home-username');
   if(homeUser) homeUser.textContent = (userData.name || '').split(' ')[0];
@@ -4031,6 +4065,7 @@ async function handleAuthSession(session, isReconnect) {
 async function doLogout() {
   await _supabase.auth.signOut();
   window._currentUser = null;
+  window._providerRestricted = false;
   navHistory = [];
   goScreen('s-splash');
 }
@@ -4166,8 +4201,16 @@ async function submitProviderRegister(){
   const neighborhoods = [...document.querySelectorAll('.region-chip.selected')].map(el=>el.textContent.trim());
 
   // Coletar experiência
-  const expEl = document.querySelector('#p-reg2 select');
-  const experience = expEl ? expEl.value : '';
+  // FIX (achado na auditoria de formularios): era lido mas nunca ia pro insert --
+  // providers nao tinha coluna nenhuma pra isso ate agora (experience_years, text,
+  // ja que as opcoes sao faixas como "3 a 5 anos", nao um numero exato).
+  const experience = document.getElementById('preg-experience')?.value || '';
+
+  // Coletar endereco base
+  // FIX (achado na auditoria de formularios): campo nem tinha id, nunca era lido.
+  // So referencia (quem e onde o prestador atua) -- peca ja vai pro endereco do
+  // CLIENTE (confirmQuot()), nao usa esse campo pra logistica de entrega.
+  const baseAddress = document.getElementById('preg-base-address')?.value?.trim() || null;
 
   try{
     // 1. Criar usuário no Supabase Auth
@@ -4198,7 +4241,9 @@ async function submitProviderRegister(){
       status: 'pending',
       cpf: cpf,
       legal_type: regLegalType,
-      cnpj: regLegalType==='pj' ? cnpj : null
+      cnpj: regLegalType==='pj' ? cnpj : null,
+      experience_years: experience || null,
+      base_address: baseAddress
     }).select();
     if(provError) throw provError;
 
@@ -4318,7 +4363,13 @@ function switchView(v){
 }
 document.getElementById('backBtn').addEventListener('click',goBack);
 function navTo(n){navHistory=[];document.querySelectorAll('#bottomNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('nav-'+n);if(el)el.classList.add('active');showScreen({home:'s-home',vehicles:'s-vehicles',history:'s-vehicle-history',profile:'s-profile'}[n]||'s-home');if(n==='vehicles'){loadVehicles().then(()=>buildVehicleListScreen());}}
-function pNavTo(n){navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');
+// FIX (gate de status no login): 2a camada de defesa, mesmo espirito do check de
+// switchView('admin') -- #provNav fica escondido pra quem esta restrito (p-restricted
+// entrou em AUTH_SCREENS), entao isso normalmente nem e alcancavel via clique, mas
+// cobre qualquer outro jeito de chamar pNavTo() diretamente.
+function pNavTo(n){
+  if(window._providerRestricted){showToast('Acesso restrito — fale com o Suporte.');goScreen('p-restricted');return;}
+  navHistory=[];document.querySelectorAll('#provNav .nav-item').forEach(ni=>ni.classList.remove('active'));const el=document.getElementById('pnav-'+n);if(el)el.classList.add('active');
   // 'exec' apontava direto pra p-job-exec sem nenhum job selecionado (bug: tela em
   // branco ou com dados de um job antigo). A view principal de jobs já é p-dashboard
   // (lista "JOBS DE HOJE" com status por job) -- as duas abas levam pra lá até decidir
