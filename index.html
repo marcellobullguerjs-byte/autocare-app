@@ -706,6 +706,11 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="a-pending-confirmations">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Confirmações pendentes</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Jobs aceitos a menos de 30 min do horário, sem "estou a caminho" confirmado</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <input type="date" class="input" id="pendingConfDateFrom" style="flex:1;font-size:12px" onchange="buildPendingConfirmations()">
+        <span style="font-size:12px;color:var(--muted)">ate</span>
+        <input type="date" class="input" id="pendingConfDateTo" style="flex:1;font-size:12px" onchange="buildPendingConfirmations()">
+      </div>
       <div id="pendingConfList"></div>
     </div>
 
@@ -733,13 +738,13 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen" id="a-provider-rank"><div id="provRankContent"></div></div>
 
     <!-- ADMIN RECLAMAÇÕES -->
-    <div class="screen" id="a-claims"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Reclamações e garantias</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Análise manual · Impacta ranking</div><div class="filter-row" id="claimsFilter"></div><div id="claimsList"></div></div>
+    <div class="screen" id="a-claims"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Reclamações e garantias</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Análise manual · Impacta ranking</div><div class="filter-row" id="claimsFilter"></div><div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><input type="date" class="input" id="claimsDateFrom" style="flex:1;font-size:12px" onchange="buildClaims()"><span style="font-size:12px;color:var(--muted)">ate</span><input type="date" class="input" id="claimsDateTo" style="flex:1;font-size:12px" onchange="buildClaims()"></div><div id="claimsList"></div></div>
     <div class="screen" id="a-claim-detail"><div id="claimDetailContent"></div></div>
 
-    <div class="screen" id="a-occurrences"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Ocorrências dos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Danos, problemas técnicos e outras situações reportadas pelo prestador · Não afeta score</div><div class="filter-row" id="occurrencesFilter"></div><div id="occurrencesList"></div></div>
+    <div class="screen" id="a-occurrences"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Ocorrências dos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Danos, problemas técnicos e outras situações reportadas pelo prestador · Não afeta score</div><div class="filter-row" id="occurrencesFilter"></div><div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><input type="date" class="input" id="occurrencesDateFrom" style="flex:1;font-size:12px" onchange="buildOccurrences()"><span style="font-size:12px;color:var(--muted)">ate</span><input type="date" class="input" id="occurrencesDateTo" style="flex:1;font-size:12px" onchange="buildOccurrences()"></div><div id="occurrencesList"></div></div>
     <div class="screen" id="a-occurrence-detail"><div id="occurrenceDetailContent"></div></div>
 
-    <div class="screen" id="a-support"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas e problemas reportados por clientes e prestadores</div><div class="filter-row" id="supportFilter"></div><div id="supportList"></div></div>
+    <div class="screen" id="a-support"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas e problemas reportados por clientes e prestadores</div><div class="filter-row" id="supportFilter"></div><div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><input type="date" class="input" id="supportDateFrom" style="flex:1;font-size:12px" onchange="buildSupportAdmin()"><span style="font-size:12px;color:var(--muted)">ate</span><input type="date" class="input" id="supportDateTo" style="flex:1;font-size:12px" onchange="buildSupportAdmin()"></div><div id="supportList"></div></div>
     <div class="screen" id="a-support-detail"><div id="supportDetailContent"></div></div>
 
     <!-- ADMIN JOBS -->
@@ -3169,10 +3174,20 @@ async function buildDispatchList(){
 async function buildPendingConfirmations(){
   const list=document.getElementById('pendingConfList');if(!list)return;
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
-  const {data:jobs,error}=await _supabase
+  const dateFrom=document.getElementById('pendingConfDateFrom')?.value;
+  const dateTo=document.getElementById('pendingConfDateTo')?.value;
+  // Filtro de data narra scheduled_date -- mas isJobAtRisk() sempre calcula contra
+  // Date.now(), entao pra qualquer dia != hoje o resultado e "olhando pra tras": jobs
+  // daquele dia que nunca tiveram en_route_at confirmado aparecem sempre como atrasado
+  // (a badge de urgencia so faz sentido de verdade pro dia de hoje). Decisao consciente:
+  // serve pra achar jobs "esquecidos" no historico, nao so o que e urgente agora.
+  let query=_supabase
     .from('jobs')
     .select('id,status,scheduled_date,scheduled_time,en_route_at,services(name),addresses(neighborhood),job_dispatch(status,providers(users(name,phone)))')
     .eq('status','accepted');
+  if(dateFrom)query=query.gte('scheduled_date',dateFrom);
+  if(dateTo)query=query.lte('scheduled_date',dateTo);
+  const {data:jobs,error}=await query;
   if(error){list.innerHTML='<div style="font-size:12px;color:var(--red);text-align:center;padding:12px">Erro ao carregar.</div>';return;}
   const atRisk=(jobs||[]).filter(isJobAtRisk)
     .sort((a,b)=> new Date(a.scheduled_date+'T'+a.scheduled_time) - new Date(b.scheduled_date+'T'+b.scheduled_time));
@@ -3546,7 +3561,7 @@ async function viewProviderRank(id){
 }
 
 // ============ ADMIN CLAIMS ============
-async function buildClaims(){const fr=document.getElementById('claimsFilter'),list=document.getElementById('claimsList');if(!fr||!list)return;list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';const {data:allClaims}=await _supabase.from('claims').select('id,job_id,customer_id,provider_id,type,description,status,resolution,resolved_at').order('id',{ascending:false});const claimsData=allClaims||[];const filtered=claimsFilter==='Todos'?claimsData:claimsData.filter(c=>claimsFilter==='Pendente'?['pending','in_progress'].includes(c.status):c.status==='resolved');const cnt={Todos:claimsData.length,Pendente:claimsData.filter(c=>['pending','in_progress'].includes(c.status)).length,Resolvido:claimsData.filter(c=>c.status==='resolved').length};fr.innerHTML='';['Todos','Pendente','Resolvido'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===claimsFilter?' active':'');d.textContent=f+' ('+( cnt[f]||0)+')';d.onclick=()=>{claimsFilter=f;buildClaims();};fr.appendChild(d);});list.innerHTML='';if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma reclamacao encontrada.</div>';return;}for(const claim of filtered){let clientName='-',providerName='-',jobLabel='#'+claim.job_id;if(claim.customer_id){const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',claim.customer_id).single();if(cu){const {data:uu}=await _supabase.from('users').select('name').eq('id',cu.user_id).single();if(uu)clientName=uu.name;}}if(claim.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',claim.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}const dt=claim.created_at?new Date(claim.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';const d=document.createElement('div');d.className='svc-card';d.innerHTML='<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">'+jobLabel+'</span><span class="badge '+(claim.status==='pending'?'badge-yellow':'badge-green')+'">'+(claim.status==='pending'?'Pendente':'Resolvido')+'</span></div><div style="font-size:12px;color:var(--muted)">'+clientName+' · '+dt+'</div><div style="font-size:12px;margin-top:6px;font-weight:500">'+claim.type+'</div>'+(claim.status==='resolved'?'<div class="info-box info-green" style="margin-top:6px">'+(claim.resolution||'')+'</div>':claim.status==='in_progress'?'<div class="info-box info-blue" style="margin-top:6px">'+(claim.resolution||'')+'</div><div class="action-row"><button class="action-btn ab-view" onclick="closeClaimFinal(\''+claim.id+'\')">Marcar como resolvido</button></div>':'<div class="action-row"><button class="action-btn ab-view" onclick="viewClaim(\''+claim.id+'\')">Analisar</button></div>');list.appendChild(d);}
+async function buildClaims(){const fr=document.getElementById('claimsFilter'),list=document.getElementById('claimsList');if(!fr||!list)return;list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';const dateFrom=document.getElementById('claimsDateFrom')?.value;const dateTo=document.getElementById('claimsDateTo')?.value;let claimsQuery=_supabase.from('claims').select('id,job_id,customer_id,provider_id,type,description,status,resolution,resolved_at,created_at').order('created_at',{ascending:false});if(dateFrom)claimsQuery=claimsQuery.gte('created_at',dateFrom);if(dateTo)claimsQuery=claimsQuery.lte('created_at',dateTo+'T23:59:59');const {data:allClaims}=await claimsQuery;const claimsData=allClaims||[];const filtered=claimsFilter==='Todos'?claimsData:claimsData.filter(c=>claimsFilter==='Pendente'?['pending','in_progress'].includes(c.status):c.status==='resolved');const cnt={Todos:claimsData.length,Pendente:claimsData.filter(c=>['pending','in_progress'].includes(c.status)).length,Resolvido:claimsData.filter(c=>c.status==='resolved').length};fr.innerHTML='';['Todos','Pendente','Resolvido'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===claimsFilter?' active':'');d.textContent=f+' ('+( cnt[f]||0)+')';d.onclick=()=>{claimsFilter=f;buildClaims();};fr.appendChild(d);});list.innerHTML='';if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma reclamacao encontrada.</div>';return;}for(const claim of filtered){let clientName='-',providerName='-',jobLabel='#'+claim.job_id;if(claim.customer_id){const {data:cu}=await _supabase.from('customers').select('user_id').eq('id',claim.customer_id).single();if(cu){const {data:uu}=await _supabase.from('users').select('name').eq('id',cu.user_id).single();if(uu)clientName=uu.name;}}if(claim.provider_id){const {data:pu}=await _supabase.from('providers').select('user_id').eq('id',claim.provider_id).single();if(pu){const {data:uu}=await _supabase.from('users').select('name').eq('id',pu.user_id).single();if(uu)providerName=uu.name;}}const dt=claim.created_at?new Date(claim.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';const d=document.createElement('div');d.className='svc-card';d.innerHTML='<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">'+jobLabel+'</span><span class="badge '+(claim.status==='pending'?'badge-yellow':'badge-green')+'">'+(claim.status==='pending'?'Pendente':'Resolvido')+'</span></div><div style="font-size:12px;color:var(--muted)">'+clientName+' · '+dt+'</div><div style="font-size:12px;margin-top:6px;font-weight:500">'+claim.type+'</div>'+(claim.status==='resolved'?'<div class="info-box info-green" style="margin-top:6px">'+(claim.resolution||'')+'</div>':claim.status==='in_progress'?'<div class="info-box info-blue" style="margin-top:6px">'+(claim.resolution||'')+'</div><div class="action-row"><button class="action-btn ab-view" onclick="closeClaimFinal(\''+claim.id+'\')">Marcar como resolvido</button></div>':'<div class="action-row"><button class="action-btn ab-view" onclick="viewClaim(\''+claim.id+'\')">Analisar</button></div>');list.appendChild(d);}
 }
 async function closeClaimFinal(id){const{error}=await _supabase.from('claims').update({status:'resolved',resolution:'Seu problema foi resolvido. Obrigado pela paciencia e confianca no AutoCare.',resolved_at:new Date().toISOString()}).eq('id',id);if(error){showToast('Erro ao finalizar. Tente novamente.');return;}showToast('Reclamacao finalizada.');buildClaims();}
 async function viewClaim(id){
@@ -3584,7 +3599,12 @@ let occurrencesFilter='Todos';
 async function buildOccurrences(){
   const fr=document.getElementById('occurrencesFilter'),list=document.getElementById('occurrencesList');if(!fr||!list)return;
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
-  const {data:all}=await _supabase.from('occurrences').select('id,job_id,provider_id,type,description,status,resolution,created_at').order('created_at',{ascending:false});
+  const dateFrom=document.getElementById('occurrencesDateFrom')?.value;
+  const dateTo=document.getElementById('occurrencesDateTo')?.value;
+  let occQuery=_supabase.from('occurrences').select('id,job_id,provider_id,type,description,status,resolution,created_at').order('created_at',{ascending:false});
+  if(dateFrom)occQuery=occQuery.gte('created_at',dateFrom);
+  if(dateTo)occQuery=occQuery.lte('created_at',dateTo+'T23:59:59');
+  const {data:all}=await occQuery;
   const data=all||[];
   const filtered=occurrencesFilter==='Todos'?data:data.filter(o=>occurrencesFilter==='Pendente'?['pending','in_progress'].includes(o.status):o.status==='resolved');
   const cnt={Todos:data.length,Pendente:data.filter(o=>['pending','in_progress'].includes(o.status)).length,Resolvido:data.filter(o=>o.status==='resolved').length};
@@ -3639,7 +3659,12 @@ let supportFilter='Todos';
 async function buildSupportAdmin(){
   const fr=document.getElementById('supportFilter'),list=document.getElementById('supportList');if(!fr||!list)return;
   list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
-  const {data:all}=await _supabase.from('support_tickets').select('id,provider_id,customer_id,category,priority,description,status,resolution,created_at').order('created_at',{ascending:false});
+  const dateFrom=document.getElementById('supportDateFrom')?.value;
+  const dateTo=document.getElementById('supportDateTo')?.value;
+  let supportQuery=_supabase.from('support_tickets').select('id,provider_id,customer_id,category,priority,description,status,resolution,created_at').order('created_at',{ascending:false});
+  if(dateFrom)supportQuery=supportQuery.gte('created_at',dateFrom);
+  if(dateTo)supportQuery=supportQuery.lte('created_at',dateTo+'T23:59:59');
+  const {data:all}=await supportQuery;
   const data=all||[];
   const filtered=supportFilter==='Todos'?data:supportFilter==='Urgente'?data.filter(t=>t.priority==='urgente'&&t.status!=='resolved'):supportFilter==='Pendente'?data.filter(t=>['pending','in_progress'].includes(t.status)):data.filter(t=>t.status==='resolved');
   const cnt={Todos:data.length,Urgente:data.filter(t=>t.priority==='urgente'&&t.status!=='resolved').length,Pendente:data.filter(t=>['pending','in_progress'].includes(t.status)).length,Resolvido:data.filter(t=>t.status==='resolved').length};
