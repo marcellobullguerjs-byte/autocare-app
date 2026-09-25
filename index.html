@@ -331,7 +331,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     </div>
 
     <!-- JOB FLOW -->
-    <div class="screen" id="jf-vehicle"><div class="progress-wrap" id="jp1"></div><div style="font-size:14px;font-weight:500;margin-bottom:2px" id="jfSvcName">Serviço</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="jfSvcMeta"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Qual veículo?</div><div id="vehList"></div><button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="goScreen('s-add-vehicle')">+ Adicionar veículo</button><button class="btn btn-primary" onclick="jfGo('jf-problem',2)">Continuar →</button></div>
+    <div class="screen" id="jf-vehicle"><div class="progress-wrap" id="jp1"></div><div style="font-size:14px;font-weight:500;margin-bottom:2px" id="jfSvcName">Serviço</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="jfSvcMeta"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Qual veículo?</div><div id="vehList"></div><button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="goScreen('s-add-vehicle')">+ Adicionar veículo</button><button class="btn btn-primary" onclick="continueFromVehicle()">Continuar →</button></div>
     <div class="screen" id="jf-problem"><div class="progress-wrap" id="jp2"></div><div style="font-size:13px;font-weight:500;margin-bottom:10px">Descreva o problema</div><textarea class="input" id="jfDesc" rows="4" placeholder="Ex: Óleo no nível mínimo..."></textarea><div class="photo-upload" id="clientPhotoBox" onclick="uploadClientPhoto()"><div style="font-size:22px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Toque para adicionar fotos (opcional)</div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goToPartCheck()">Continuar →</button></div></div>
     <div class="screen" id="jf-parts"><div class="progress-wrap" id="jp3"></div><div style="text-align:center;padding:14px 0"><div style="font-size:28px;margin-bottom:8px">📦</div><div style="font-size:15px;font-weight:500;margin-bottom:4px">Verificando peças...</div><div style="font-size:12px;color:var(--muted)">Consultando fornecedores em SP</div><div style="margin:14px auto;width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;background:var(--blue)" id="partsBar"></div></div></div><div class="card" id="partsCard" style="display:none"><div class="row"><span style="font-size:13px;font-weight:500" id="partItemName">Peça</span><span class="badge badge-green">✓ Disponível</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partLeadInfo"></div><hr class="divider"><div class="row" style="margin-bottom:0"><span style="font-size:13px;font-weight:500">Preço estimado</span><span style="font-size:16px;font-weight:500;color:var(--blue)" id="partTotalPrice">R$ -</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="partBreak"></div></div><div class="card" id="partsLeadWarning" style="display:none;background:var(--orange-light);border-color:#FFCCBC"><div style="font-size:12px;font-weight:500;color:var(--orange);margin-bottom:4px">⏱ Horários consideram entrega da peça</div><div style="font-size:11px;color:var(--orange)" id="partsLeadExplain"></div></div><div class="card" id="partsAdminWarning" style="display:none;background:var(--red-light);border-color:#FFCDD2"><div style="font-size:12px;font-weight:500;color:var(--red);margin-bottom:4px">🔒 Peça aguardando confirmação do admin</div><div style="font-size:11px;color:var(--red)">Os horários serão liberados após o admin confirmar a disponibilidade da peça no supply chain.</div></div><button class="btn btn-primary" id="partsContinueBtn" style="display:none;margin-top:8px" onclick="jfGo('jf-address',4)">Escolher endereço →</button></div>
     <div class="screen" id="jf-address"><div class="progress-wrap" id="jp4"></div><div style="font-size:13px;font-weight:500;margin-bottom:14px">Onde será o serviço?</div><div class="addr-option selected" id="ja-home" onclick="selectJobAddr('home','Vila Madalena','Rua Harmonia, 120')"><div class="addr-icon">🏠</div><div><div style="font-size:13px;font-weight:500">Casa</div><div style="font-size:11px;color:var(--muted)">Rua Harmonia, 120 · Vila Madalena</div></div></div><div class="addr-option" id="ja-work" onclick="selectJobAddr('work','Bela Vista','Av. Paulista, 1000')"><div class="addr-icon">💼</div><div><div style="font-size:13px;font-weight:500">Trabalho</div><div style="font-size:11px;color:var(--muted)">Av. Paulista, 1000 · Bela Vista</div></div></div><div class="addr-option" id="ja-other" onclick="selectJobAddr('other','','')"><div class="addr-icon">📍</div><div><div style="font-size:13px;font-weight:500">Outro endereço</div></div></div><div id="otherAddrForm" style="display:none;margin-top:4px"><div class="label">Bairro</div><select class="input" id="otherBairro" onchange="selectJobAddr('other',this.value,this.value)"><option>Vila Madalena</option><option>Pinheiros</option><option>Jardins</option><option>Itaim Bibi</option><option>Moema</option></select></div><div class="card" id="addrMatchCard" style="background:var(--blue-light);margin-top:8px"><div style="font-size:12px;font-weight:500;color:var(--blue)" id="addrMatchTitle">✓ Prestadores disponíveis</div><div style="font-size:11px;color:var(--blue);margin-top:2px" id="addrMatchDetail"></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="jfGo('jf-schedule',5)">Escolher horário →</button></div>
@@ -495,7 +495,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <!-- FIX 4: botão voltar em todos os passos do cadastro do prestador -->
     <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div id="preg-cnpj-wrap" style="display:none"><div class="label">CNPJ</div><input id="preg-cnpj" class="input" placeholder="00.000.000/0000-00"></div><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg2')">Continuar →</button></div></div></div>
-    <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">❄️</div><div class="sl">Ar-cond.</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚛</div><div class="sl">Guincho</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🔑</div><div class="sl">Chaveiro Automotivo</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🛞</div><div class="sl">Borracheiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🪟</div><div class="sl">Vidraceiro</div></div></div><div class="label">Anos de experiência</div><select class="input"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚛</div><div class="sl">Guincho</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🔑</div><div class="sl">Chaveiro Automotivo</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🛞</div><div class="sl">Borracheiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🪟</div><div class="sl">Vidraceiro</div></div></div><div class="label">Anos de experiência</div><select class="input"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro. Peças entregues no seu endereço.</div><div class="label">Seu endereço base</div><input class="input" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📸 Foto do CPF</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div id="preg4-pj-docs" style="display:none"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏢 Cartão CNPJ</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📑 Contrato social ou certificado MEI</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg5')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="submitProviderRegister()">Enviar cadastro</button></div></div></div>
@@ -519,7 +519,13 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
           <button id="auth-submit-btn" class="btn btn-white" onclick="submitLogin()"
             style="width:100%">Entrar</button>
           <div style="height:10px"></div>
-          <button class="btn btn-ghost" onclick="goScreen(_authContext === 'provider' ? 'p-splash' : 's-splash')"
+          <!-- FIX (auditoria): ternario hardcoded so tratava 'provider', admin sempre
+               caia no else ('s-splash') -- destino errado, e nao existe mais topbar
+               generico aqui pra cobrir a lacuna (auth-login entrou em AUTH_SCREENS).
+               goBack() usa a pilha real (navHistory ja tem o s-splash/p-splash/etc.
+               certo, empilhado por goScreen() antes de mostrar essa tela), entao
+               cobre certo os 3 contextos sem precisar listar cada um. -->
+          <button class="btn btn-ghost" onclick="goBack()"
             style="width:100%">← Voltar</button>
         </div>
         <div style="margin-top:24px;font-size:11px;color:rgba(255,255,255,.4)">
@@ -813,7 +819,11 @@ const WEEKDAYS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'
 const WEEKDAYS_SHORT=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const SLOT_MIN=30;
 const DAY_KEYS=['dom','seg','ter','qua','qui','sex','sab'];
-const AUTH_SCREENS=['s-splash','s-reg1','s-reg2','s-reg3','p-splash','p-reg-info','p-reg1','p-reg2','p-reg3','p-reg4','p-reg5','p-pending'];
+// FIX (auditoria): auth-login tinha ficado fora dessa lista -- topbar generico (com
+// seta de voltar propria, ligada a goBack()) aparecia JUNTO com o botao manual "<-
+// Voltar" do proprio formulario, 2 controles de voltar com logica diferente ao mesmo
+// tempo. Adicionada aqui, no mesmo padrao das outras telas full-bleed de auth.
+const AUTH_SCREENS=['s-splash','s-reg1','s-reg2','s-reg3','p-splash','p-reg-info','p-reg1','p-reg2','p-reg3','p-reg4','p-reg5','p-pending','auth-login'];
 const PROV_TYPES=['Mecânico','Eletricista','Eletricista/Mecânico','Funileiro','Detailer','Lavador','Guincho','Chaveiro Automotivo','Borracheiro','Vidraceiro','Chaveiro Automotivo Avançado','Eletricista Predial Credenciado'];
 const MODELS_BY_BRAND={
   'Chevrolet':['Onix','Onix Plus','Tracker','Cruze','S10','Spin','Montana','Equinox'],
@@ -856,7 +866,7 @@ async function initSupabase(){
           leadTimeH:row.part_lead_time_h||0,
           active:   row.active
         }));
-        console.log(`✓ ${catalog.length} serviços carregados`);updateSvcCount();
+        updateSvcCount();
       }),
     // Prestadores
     loadProviders(),
@@ -871,11 +881,6 @@ async function initSupabase(){
   if(currentScreen==='a-providers')buildProviderList();
 }
 // ============ VEHICLES (FIX 5) ============
-let vehicles=[
-  {id:1,marca:'Volkswagen',modelo:'Gol',ano:'2019',comb:'Flex',placa:'ABC-1234',cor:'Branco',apelido:'Meu Gol'},
-  {id:2,marca:'Toyota',modelo:'Corolla',ano:'2021',comb:'Flex',placa:'XYZ-5678',cor:'Prata',apelido:'Corolla'},
-];
-let nextVehId=3;
 function updateModels(){
   const marca=document.getElementById('vehMarca').value;
   const sel=document.getElementById('vehModelo');
@@ -930,8 +935,17 @@ async function deleteVehicle(id){
 }
 function buildVehOptions(){
   const el=document.getElementById('vehList');if(!el)return;el.innerHTML='';
-  const list=customerVehicles.length>0?customerVehicles:vehicles;
-  list.forEach((v,i)=>{
+  // FIX (auditoria): antes, sem veiculo real cadastrado, caia num array mock
+  // hardcoded (ids inteiros 1/2, sobra do prototipo) -- cliente novo via 2 carros
+  // fake como se fossem dele, e jobState.vehicle ficava com id inteiro, que quebrava
+  // o insert real de jobs.vehicle_id (uuid) em createJob(). Agora mostra estado
+  // vazio de verdade, sem nenhum fallback mock.
+  if(customerVehicles.length===0){
+    el.innerHTML='<div style="text-align:center;padding:20px 12px;color:var(--muted);font-size:13px">Você ainda não tem veículos cadastrados.<br>Cadastre um veículo pra continuar.</div>';
+    jobState.vehicle=null;
+    return;
+  }
+  customerVehicles.forEach((v,i)=>{
     const marca=v.brand||v.marca, modelo=v.model||v.modelo, ano=v.year||v.ano, placa=v.plate||v.placa, comb=v.fuel||v.comb;
     const vid=v.id;
     const d=document.createElement('div');d.className='veh-option'+(i===0?' selected':'');d.id='vopt-'+vid;
@@ -939,7 +953,15 @@ function buildVehOptions(){
     d.onclick=()=>{document.querySelectorAll('.veh-option').forEach(e=>e.classList.remove('selected'));d.classList.add('selected');jobState.vehicle={id:vid,label:`${marca} ${modelo} ${ano}`,plate:placa};};
     el.appendChild(d);
   });
-  if(list.length>0){const v=list[0];const marca=v.brand||v.marca,modelo=v.model||v.modelo,ano=v.year||v.ano,placa=v.plate||v.placa;jobState.vehicle={id:v.id,label:`${marca} ${modelo} ${ano}`,plate:placa};}
+  const v0=customerVehicles[0];const marca0=v0.brand||v0.marca,modelo0=v0.model||v0.modelo,ano0=v0.year||v0.ano,placa0=v0.plate||v0.placa;
+  jobState.vehicle={id:v0.id,label:`${marca0} ${modelo0} ${ano0}`,plate:placa0};
+}
+// FIX (auditoria): "Continuar" seguia pro passo seguinte mesmo sem veiculo selecionado
+// (ex: cliente sem veiculo cadastrado, jobState.vehicle=null pelo bloco acima) -- job
+// seguia com vehicle_id nulo ate o fim do fluxo sem nenhum aviso antes.
+function continueFromVehicle(){
+  if(!jobState.vehicle){showToast('Cadastre um veículo antes de continuar.');return;}
+  jfGo('jf-problem',2);
 }
 
 // ============ FIX 1: AGENDA FLEXÍVEL ============
@@ -1110,14 +1132,6 @@ async function buildPayments(){
   el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Carregando...</div>';
   if(document.getElementById('pay-total-recebido'))document.getElementById('pay-total-recebido').textContent='R$ 0';
   if(document.getElementById('pay-total-aguardando'))document.getElementById('pay-total-aguardando').textContent='R$ 0';
-  // DIAGNOSTICO TEMPORARIO (bug do teste, filtro de pagamentos vazio): a aba "Admin"
-  // (switchView('admin')) so troca a tela visivel, nunca autentica -- se a sessao real
-  // do _supabase.auth ja estava logada como cliente (de um teste anterior), toda query
-  // feita a partir das telas de admin roda sob o RLS desse cliente, nao de um admin de
-  // verdade. Confirma direto da sessao real qual conta/role esta ativa.
-  const {data:myAuthUser}=await _supabase.auth.getUser();
-  const {data:myRole}=await _supabase.rpc('get_my_role');
-  console.log('[DIAG pagamentos] sessao real -- uid=',myAuthUser?.user?.id,'email=',myAuthUser?.user?.email,'get_my_role()=',myRole);
   await ensureProviderFilterOptions('paymentsProviderSelect');
   const providerId=document.getElementById('paymentsProviderSelect')?.value;
   let query=_supabase.from('payments').select('id,job_id,amount,method,status,released_at,jobs(scheduled_date,scheduled_time,total_price,payment_method,services(name))').order('id',{ascending:false}).limit(50);
@@ -1132,15 +1146,7 @@ async function buildPayments(){
     const jobIds=await jobIdsForProvider(providerId);
     query=query.in('job_id', jobIds.length?jobIds:[-1]);
   }
-  const {data:pags,error:pagsErr}=await query;
-  // DIAGNOSTICO TEMPORARIO (bug do teste, filtro de pagamentos vazio): servidor/RLS/
-  // embed ja foram descartados com evidencia direta (24/24 linhas visiveis testando
-  // a query exata via API, com e sem RLS). error nunca era capturado aqui -- se a
-  // chamada real do navegador estiver falhando por outro motivo, isso mostra a causa
-  // exata. Remover depois de identificar a causa raiz.
-  console.log('[DIAG pagamentos] payTab=',payTab,'providerId=',providerId,'mes=',payTab==='all'?document.getElementById('payMonthSelect')?.value:null);
-  console.log('[DIAG pagamentos] error=',pagsErr,'pags.length=',pags?.length,'pags[0]=',pags?.[0]);
-  console.log('[DIAG pagamentos] paymentsList ainda conectado ao DOM?',el.isConnected);
+  const {data:pags}=await query;
   el.innerHTML='';
   if(!pags||pags.length===0){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">Nenhum pagamento encontrado</div>';return;}
   const statusCfg={released:{label:'Liberado',cls:'ps-released'},waiting:{label:'Aguard. aprovacao',cls:'ps-waiting'},pending:{label:'Pendente',cls:'ps-pending'}};
@@ -1215,7 +1221,6 @@ async function loadProviders(){
       }
     });
   }
-  console.log(`✓ ${PROVIDERS.length} prestadores carregados do Supabase`);
 }
 
 // ============ VEHICLES ============
@@ -1243,7 +1248,6 @@ async function loadVehicles(){
   }));
   if(customerVehicles.length>0)
     jobState.vehicle={id:customerVehicles[0].id,label:customerVehicles[0].label,plate:customerVehicles[0].plate};
-  console.log(`✓ ${customerVehicles.length} veículos carregados do Supabase`);
 }
 
 // FLUXO DE PEÇAS (item 5): se o prazo real da cotação confirmada (confirmed_at +
@@ -1644,7 +1648,6 @@ async function loadSuppliers(){
     leadTimeH:row.lead_time_h,
     active:   row.active
   }));
-  console.log(`✓ ${suppliers.length} fornecedores carregados do Supabase`);
 }
 const parts=[
   {id:1,name:'Óleo motor 5W30 (1L)',cat:'Fluidos',supplierId:1,price:38,unit:'litro',available:true},
@@ -1680,7 +1683,6 @@ async function loadQuotations(){
     leadTimeH:     row.lead_time_h||null,
     parts:         row.parts_json||[]
   }));
-  console.log(`✓ ${quotations.length} cotações carregadas do Supabase`);
 }
 
 
@@ -1710,7 +1712,7 @@ const vehicleHistory={
 // ============ STATE ============
 let jobState={service:null,vehicle:{id:1,label:'VW Gol 2019',plate:'ABC-1234'},description:'',bairro:'Vila Madalena',addrLabel:'Rua Harmonia, 120',selectedDate:null,selectedSlot:null,price:0};
 let calMonth=new Date().getMonth(),calYear=new Date().getFullYear();
-let currentView='client',navHistory=[],currentScreen='s-splash';
+let navHistory=[],currentScreen='s-splash';
 let dispatchFilterState='Todos',quotFilter='Todos',rankFilter='Todos',rankSpecFilter='Todos',claimsFilter='Pendente',currentSupply='q';
 let selectedReallocId=null;
 let currentStar=0,chkState={1:false,2:false,3:false,4:false};
@@ -2023,14 +2025,13 @@ async function createJob(){
   if(error){ console.error('Erro job completo:', JSON.stringify(error)); showToast('❌ ' + JSON.stringify(error)); return; }
 
   if(s.parts){
-    const { data: quot, error: quotErr } = await _supabase.from('quotations').insert({
+    await _supabase.from('quotations').insert({
       job_id:      job.id,
       service_id:  s.uuid,
       status:      'pending',
       parts_json:  {},
       total_parts: s.price || 0
     }).select().single();
-    console.log('QUOTATION result:', quot, 'error:', quotErr);
   }
 
   document.getElementById('jobCreatedInfo').textContent=`${s.name} · ${jobState.addrLabel} · ${jobState.selectedDate} ${jobState.selectedSlot}`;
@@ -2931,7 +2932,7 @@ function openSvcForm(id){
   const s=id?catalog.find(x=>x.id===id):null;
   editingId=s?.uuid || id;
   document.getElementById('modalTitle').textContent=id?'Editar serviço':'Novo serviço';
-  document.getElementById('modalContent').innerHTML=`<div class="label">Nome</div><input class="input" id="f-name" value="${s?s.name:''}" placeholder="Nome"><div class="label">Categoria</div><select class="input" id="f-cat">${CATEGORIES.map(c=>`<option${s&&s.cat===c?' selected':''}>${c}</option>`).join('')}</select><div class="label">Prestador</div><select class="input" id="f-prov">${PROV_TYPES.map(p=>`<option${s&&s.provider===p?' selected':''}>${p}</option>`).join('')}</select><div class="label">Preço (R$)</div><input class="input" id="f-price" type="number" value="${s?s.price:''}" placeholder="180"><div class="label">Tempo (min)</div><input class="input" id="f-time" type="number" value="${s?s.time:''}" placeholder="30"><div class="label">Slots</div><input class="input" id="f-slots" type="number" value="${s?s.slots:1}"><div class="row" style="padding:8px 0"><span style="font-size:13px">Precisa de peça</span><div class="toggle ${s&&s.parts?'on':''}" id="f-parts" onclick="this.classList.toggle('on')"></div></div><div class="label">Lead time peça (h)</div><input class="input" id="f-lead" type="number" value="${s?s.leadTimeH:0}"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="saveSvc()">Salvar</button></div>`;
+  document.getElementById('modalContent').innerHTML=`<div class="label">Nome</div><input class="input" id="f-name" value="${s?s.name:''}" placeholder="Nome"><div class="label">Categoria</div><select class="input" id="f-cat">${CATEGORIES.map(c=>`<option${s&&s.cat===c?' selected':''}>${c}</option>`).join('')}</select><div class="label">Prestador</div><select class="input" id="f-prov">${PROV_TYPES.filter(p=>p!=='Eletricista/Mecânico').map(p=>`<option${s&&s.provider===p?' selected':''}>${p}</option>`).join('')}</select><div class="label">Preço (R$)</div><input class="input" id="f-price" type="number" value="${s?s.price:''}" placeholder="180"><div class="label">Tempo (min)</div><input class="input" id="f-time" type="number" value="${s?s.time:''}" placeholder="30"><div class="label">Slots</div><input class="input" id="f-slots" type="number" value="${s?s.slots:1}"><div class="row" style="padding:8px 0"><span style="font-size:13px">Precisa de peça</span><div class="toggle ${s&&s.parts?'on':''}" id="f-parts" onclick="this.classList.toggle('on')"></div></div><div class="label">Lead time peça (h)</div><input class="input" id="f-lead" type="number" value="${s?s.leadTimeH:0}"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="saveSvc()">Salvar</button></div>`;
   document.getElementById('modalBg').style.display='flex';
 }
 async function saveSvc(){
@@ -2983,7 +2984,6 @@ async function saveSvc(){
   buildCatGrid();
 }
 function updateSvcCount(){const el=document.getElementById('adminSvcCount');if(el)el.textContent=`${catalog.filter(s=>s.active).length} serviços ativos`;}async function toggleSvc(uuid){const s=catalog.find(x=>x.uuid===uuid);if(!s)return;const newActive=!s.active;await _supabase.from('services').update({active:newActive}).eq('id',uuid);s.active=newActive;buildAdminCatalog();buildCatGrid();}
-function delSvc(id){catalog=catalog.filter(x=>x.id!==id);buildAdminCatalog();buildCatGrid();}
 
 /// ============ ADMIN PROVIDERS ============
 let _adminProviders = [];
@@ -3853,7 +3853,7 @@ async function loadAdminDashboard(){
     const menuOcor=document.getElementById('menu-occurrences-pendentes');if(menuOcor)menuOcor.textContent=totalOcor+' pendente'+(totalOcor!==1?'s':'');
     const menuTick=document.getElementById('menu-support-pendentes');if(menuTick)menuTick.textContent=totalTick+' pendente'+(totalTick!==1?'s':'')+(urgTick>0?' · 🚨 '+urgTick+' urgente'+(urgTick>1?'s':''):'');
     const menuPendingConf=document.getElementById('menu-pendingconf-pendentes');if(menuPendingConf)menuPendingConf.textContent=totalPendingConf+' pendente'+(totalPendingConf!==1?'s':'');
-  } catch(e){ console.log('dash erro',e); }
+  } catch(e){}
 }
 
 let jobsStatusFilter='Todos';
@@ -3992,7 +3992,6 @@ async function checkExistingSession() {
   const { data: { session } } = await _supabase.auth.getSession();
   if (session) await handleAuthSession(session, true);
 }
-function doLogin(role){navHistory=[];showScreen(role==='provider'?'p-dashboard':'s-home');}
 
 // ITEM 6: modalidade PF/PJ do cadastro do prestador -- variável de módulo,
 // persiste da tela p-reg-info até o submit final (p-reg5).
@@ -4145,7 +4144,7 @@ async function submitProviderRegister(){
     if(userError) throw userError;
 
     // 3. Gravar na tabela providers
-    const {data:provData, error:provError} = await _supabase.from('providers').insert({
+    const {error:provError} = await _supabase.from('providers').insert({
       user_id: uid,
       specialties: specs,
       regions: neighborhoods,
@@ -4154,7 +4153,6 @@ async function submitProviderRegister(){
       legal_type: regLegalType,
       cnpj: regLegalType==='pj' ? cnpj : null
     }).select();
-    console.log('providers insert result:', provData, provError);
     if(provError) throw provError;
 
     // 4. Ir para tela de pendente
@@ -4225,7 +4223,7 @@ function switchView(v){
   // banco) ANTES de chamar switchView('admin') num login legitimo, entao essa checagem
   // nao interfere no fluxo de login real.
   if(v==='admin'&&window._currentUser?.role!=='admin'){showToast('Acesso restrito a administradores');return;}
-  currentView=v;navHistory=[];
+  navHistory=[];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['client','provider','admin'][i]===v));
   showScreen({client:'s-splash',provider:'p-splash',admin:'a-dashboard'}[v]);
 }
