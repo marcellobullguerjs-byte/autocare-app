@@ -273,7 +273,9 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="label">E-mail</div><input id="reg-email" class="input" type="email" placeholder="seu@email.com">
         <div class="label">Telefone</div><input id="reg-phone" class="input" type="tel" placeholder="(11) 99999-9999">
         <div class="label">Senha</div><input id="reg-password" class="input" type="password" placeholder="Mínimo 6 caracteres">
-        <button class="btn btn-primary" onclick="goScreen('s-reg2')">Continuar →</button>
+        <label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0 6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="reg-terms-check" style="margin-top:2px"><span>Li e aceito os <span style="color:var(--blue);text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacyPolicy('client')">Termos de Uso e a Política de Privacidade</span></span></label>
+        <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="reg-marketing-check" style="margin-top:2px"><span>Quero receber novidades e promoções por WhatsApp</span></label>
+        <button class="btn btn-primary" onclick="continueFromRegStep1()">Continuar →</button>
         <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)">Já tem conta? <span style="color:var(--blue);cursor:pointer" onclick="showLoginScreen('client')">Entrar</span></div>
       </div>
     </div>
@@ -475,6 +477,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="profile-header"><div class="profile-av" id="profile-av-initials">MC</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="profile-name-display">Marcello Costa</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="profile-neighborhood-display"></div></div></div>
       <div id="profileAddrList"></div>
       <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('s-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div>
+      <div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">MEUS DADOS</div><div class="row" style="cursor:pointer" onclick="showPrivacyPolicy('client')"><span style="font-size:13px">📜 Política de Privacidade</span><span>›</span></div><div class="row" style="cursor:pointer" onclick="requestDataCopy()"><span style="font-size:13px">📄 Solicitar cópia dos meus dados</span><span>›</span></div><div class="row" style="cursor:pointer;margin-bottom:0" onclick="requestAccountDeletion()"><span style="font-size:13px;color:var(--red)">🗑️ Solicitar exclusão da minha conta e dados</span><span>›</span></div></div>
       <hr class="divider">
       <div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div>
     </div>
@@ -486,6 +489,15 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div id="sSupportList"></div>
     </div>
 
+    <!-- LGPD: tela unica, conteudo trocado por showPrivacyPolicy(context) -- mesmo
+         padrao ja usado em showLoginScreen(context), evita duplicar 2 telas quase
+         identicas. Acessivel do link no checkbox de cadastro e do Perfil. -->
+    <div class="screen" id="s-privacy">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Política de Privacidade</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="privacyVersion"></div>
+      <div id="privacyContent" style="font-size:13px;line-height:1.7"></div>
+    </div>
+
     <!-- ===== PROVIDER AUTH ===== -->
     <div class="screen full" id="p-splash" style="padding:0"><div class="splash"><div class="splash-logo">🔧</div><h1 style="color:#fff;font-size:24px;font-weight:500;margin-bottom:8px">AutoCare Parceiros</h1><p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:40px;line-height:1.6">Trabalhe com flexibilidade.<br>Atenda na sua região.</p><button class="btn btn-white" onclick="showLoginScreen('provider')">Já sou parceiro · Entrar</button><div style="height:10px"></div><button class="btn btn-ghost" onclick="resetRegLegalType();goScreen('p-reg-info')">Quero ser parceiro</button></div></div>
 
@@ -493,10 +505,10 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen full" id="p-reg-info" style="padding:0"><div class="auth-header"><h2>Antes de começar</h2><p>Modalidade e documentos necessários</p></div><div class="auth-body"><div class="label">Como você vai atuar?</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"><div class="legal-chip selected" id="regType-pf" onclick="setRegLegalType('pf')">Autônomo (PF)</div><div class="legal-chip" id="regType-pj" onclick="setRegLegalType('pj')">Micro-empresa (PJ)</div></div><div class="info-box info-blue">📋 Documentos necessários para o cadastro:</div><div class="card" style="padding:0 0 4px" id="regInfoDocsList"></div><div style="height:16px"></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg1')">Entendi, continuar</button></div></div></div>
 
     <!-- FIX 4: botão voltar em todos os passos do cadastro do prestador -->
-    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div id="preg-cnpj-wrap" style="display:none"><div class="label">CNPJ</div><input id="preg-cnpj" class="input" placeholder="00.000.000/0000-00"></div><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg2')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div id="preg-cnpj-wrap" style="display:none"><div class="label">CNPJ</div><input id="preg-cnpj" class="input" placeholder="00.000.000/0000-00"></div><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0 6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-terms-check" style="margin-top:2px"><span>Li e aceito os <span style="color:var(--blue);text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacyPolicy('provider')">Termos de Uso e a Política de Privacidade</span></span></label><label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-marketing-check" style="margin-top:2px"><span>Quero receber novidades e promoções por WhatsApp</span></label><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="continueFromPRegStep1()">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚛</div><div class="sl">Guincho</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🔑</div><div class="sl">Chaveiro Automotivo</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🛞</div><div class="sl">Borracheiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🪟</div><div class="sl">Vidraceiro</div></div></div><div class="label">Anos de experiência</div><select class="input" id="preg-experience"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro — o endereço base é só referência, não é usado pra entrega de peça.</div><div class="label">Seu endereço base</div><input class="input" id="preg-base-address" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
-    <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📸 Foto do CPF</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div id="preg4-pj-docs" style="display:none"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏢 Cartão CNPJ</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📑 Contrato social ou certificado MEI</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg5')">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📸 Foto do CPF</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div id="preg4-pj-docs" style="display:none"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏢 Cartão CNPJ</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📑 Contrato social ou certificado MEI</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div></div><label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-doc-auth-check" style="margin-top:2px"><span>Autorizo o AutoCare a verificar os documentos enviados para fins de aprovação do meu cadastro.</span></label><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="continueFromPReg4()">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg5" style="padding:0"><div class="auth-header"><h2>Certificados</h2><p>Passo 5 de 5 · Opcional</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏫 Curso técnico</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏆 Certificado de especialização</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="submitProviderRegister()">Enviar cadastro</button></div></div></div>
     <div class="screen full" id="p-pending" style="padding:0"><div style="padding:40px 24px;text-align:center"><div style="font-size:52px;margin-bottom:16px">⏳</div><div style="font-size:20px;font-weight:500;margin-bottom:8px">Cadastro enviado!</div><div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Análise em até <strong>48h</strong>.</div><button class="btn btn-outline" onclick="showLoginScreen('provider')">Acompanhar status</button></div></div>
 
@@ -659,7 +671,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       </div>
     </div>
 
-    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('p-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
+    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('p-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">MEUS DADOS</div><div class="row" style="cursor:pointer" onclick="showPrivacyPolicy('provider')"><span style="font-size:13px">📜 Política de Privacidade</span><span>›</span></div><div class="row" style="cursor:pointer" onclick="requestDataCopy()"><span style="font-size:13px">📄 Solicitar cópia dos meus dados</span><span>›</span></div><div class="row" style="cursor:pointer;margin-bottom:0" onclick="requestAccountDeletion()"><span style="font-size:13px;color:var(--red)">🗑️ Solicitar exclusão da minha conta e dados</span><span>›</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
 
     <div class="screen" id="p-support">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte AutoCare</div>
@@ -683,6 +695,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       <div class="menu-item" onclick="goScreen('a-claims')"><div class="menu-icon">⚠️</div><div class="menu-text"><div class="t">Reclamações e garantias</div><div class="s" id="menu-claims-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-occurrences')"><div class="menu-icon">📋</div><div class="menu-text"><div class="t">Ocorrências dos prestadores</div><div class="s" id="menu-occurrences-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-support')"><div class="menu-icon">💬</div><div class="menu-text"><div class="t">Suporte</div><div class="s" id="menu-support-pendentes">0 pendentes</div></div></div>
+      <div class="menu-item" onclick="goScreen('a-privacy')"><div class="menu-icon">🔒</div><div class="menu-text"><div class="t">Privacidade (LGPD)</div><div class="s" id="menu-privacy-pendentes">0 pendentes</div></div></div>
       <div class="menu-item" onclick="goScreen('a-jobs')"><div class="menu-icon">📄</div><div class="menu-text"><div class="t">Jobs</div><div class="s" id="dash-jobs-subtitulo">0 hoje</div></div></div>
       <!-- FIX 3: Pagamentos funciona agora -->
       <div class="menu-item" onclick="goScreen('a-payments')"><div class="menu-icon">💰</div><div class="menu-text"><div class="t">Pagamentos</div><div class="s" id="dash-payments-subtitulo">R$ 0 hoje</div></div></div>
@@ -754,6 +767,12 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
 
     <div class="screen" id="a-occurrences"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Ocorrências dos prestadores</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Danos, problemas técnicos e outras situações reportadas pelo prestador · Não afeta score</div><div class="filter-row" id="occurrencesFilter"></div><div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><input type="date" class="input" id="occurrencesDateFrom" style="flex:1;font-size:12px" onchange="buildOccurrences()"><span style="font-size:12px;color:var(--muted)">ate</span><input type="date" class="input" id="occurrencesDateTo" style="flex:1;font-size:12px" onchange="buildOccurrences()"></div><div id="occurrencesList"></div></div>
     <div class="screen" id="a-occurrence-detail"><div id="occurrenceDetailContent"></div></div>
+
+    <!-- LGPD: aba propria, separada de Suporte -- prazo/acao de fundo/trilha de
+         auditoria sao diferentes de um chamado comum (ver investigacao). Mesmo
+         padrao visual de a-occurrences. -->
+    <div class="screen" id="a-privacy"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Privacidade (LGPD)</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Solicitações de exclusão e cópia de dados dos titulares</div><div class="filter-row" id="privacyFilter"></div><div id="privacyList"></div></div>
+    <div class="screen" id="a-privacy-detail"><div id="privacyDetailContent"></div></div>
 
     <div class="screen" id="a-support"><div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Dúvidas e problemas reportados por clientes e prestadores</div><div class="filter-row" id="supportFilter"></div><div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><input type="date" class="input" id="supportDateFrom" style="flex:1;font-size:12px" onchange="buildSupportAdmin()"><span style="font-size:12px;color:var(--muted)">ate</span><input type="date" class="input" id="supportDateTo" style="flex:1;font-size:12px" onchange="buildSupportAdmin()"></div><div id="supportList"></div></div>
     <div class="screen" id="a-support-detail"><div id="supportDetailContent"></div></div>
@@ -830,6 +849,68 @@ const DAY_KEYS=['dom','seg','ter','qua','qui','sex','sab'];
 // tempo. Adicionada aqui, no mesmo padrao das outras telas full-bleed de auth.
 const AUTH_SCREENS=['s-splash','s-reg1','s-reg2','s-reg3','p-splash','p-reg-info','p-reg1','p-reg2','p-reg3','p-reg4','p-reg5','p-pending','p-restricted','auth-login'];
 const PROV_TYPES=['Mecânico','Eletricista','Eletricista/Mecânico','Funileiro','Detailer','Lavador','Guincho','Chaveiro Automotivo','Borracheiro','Vidraceiro','Chaveiro Automotivo Avançado','Eletricista Predial Credenciado'];
+
+// ============ LGPD ============
+// Versao do documento AutoCare_LGPD_v1.md -- gravada em consents.version a cada
+// aceite. Muda aqui se o texto da politica for revisado (proxima versao, v2 etc.).
+const PRIVACY_POLICY_VERSION='v1';
+const PRIVACY_INFRA_TEXT='<p><strong>Infraestrutura e ferramentas que usamos:</strong> seus dados são armazenados em servidores de um provedor de tecnologia especializado, contratado pelo AutoCare. Pagamentos são processados por um parceiro de pagamento (a definir). Quando você abre uma conversa de WhatsApp a partir do app (com um prestador, cliente ou o suporte), essa conversa acontece diretamente no WhatsApp, fora do AutoCare.</p>';
+const PRIVACY_TEXT_CLIENT=`
+  <p><strong>Política de Privacidade — AutoCare</strong></p>
+  <p>Ao usar o AutoCare, você compartilha alguns dados pessoais para que possamos conectar você a um prestador de serviço automotivo. Esta política explica o que coletamos e como usamos.</p>
+  <p><strong>O que coletamos:</strong> nome, e-mail, telefone, endereço (para localizar prestadores disponíveis na sua região), dados do seu veículo, e histórico dos serviços solicitados. Quando você faz um pagamento, os dados do seu cartão são processados diretamente pelo nosso parceiro de pagamento — o AutoCare não armazena o número do seu cartão.</p>
+  <p><strong>Por que coletamos:</strong> para viabilizar o agendamento e execução do serviço que você solicita, para conectar você ao prestador certo na sua região, e para processar o pagamento.</p>
+  <p><strong>Com quem compartilhamos:</strong> com o prestador designado para o seu serviço (apenas os dados necessários para ele realizar o atendimento: nome, endereço do serviço, dados do veículo), e com nosso parceiro de processamento de pagamento (quando você realiza um pagamento).</p>
+  <p><strong>Seus direitos:</strong> você pode solicitar a qualquer momento a confirmação de quais dados temos sobre você, correção de dados incorretos, ou exclusão da sua conta e dos dados associados, entrando em contato pelo canal de Suporte dentro do app ou pelo e-mail [email&nbsp;de&nbsp;contato&nbsp;a&nbsp;definir].</p>
+  <p><strong>Por quanto tempo guardamos:</strong> enquanto sua conta estiver ativa, e por um período adicional após o encerramento, conforme exigido por obrigações legais e fiscais.</p>
+  ${PRIVACY_INFRA_TEXT}`;
+const PRIVACY_TEXT_PROVIDER=`
+  <p><strong>Política de Privacidade para Prestadores — AutoCare</strong></p>
+  <p>Para se cadastrar como prestador parceiro do AutoCare, coletamos dados pessoais adicionais para viabilizar sua aprovação, o repasse de pagamento pelos serviços que você realiza, e sua conexão com clientes.</p>
+  <p><strong>O que coletamos:</strong> nome, e-mail, telefone, CPF (e CNPJ, se você for cadastrado como micro-empresa), documentos de identificação (RG/CNH, comprovante de residência, selfie), especialidades e região de atuação, dados bancários/chave PIX para repasse de pagamento.</p>
+  <p><strong>Por que coletamos:</strong> para verificar sua identidade e habilitação a prestar o serviço, para conectar você a clientes na sua região de especialidade, e para viabilizar o repasse financeiro pelos serviços concluídos.</p>
+  <p><strong>Com quem compartilhamos:</strong> com o cliente que solicitou o serviço (nome, avaliação e informações necessárias para o atendimento), e com nosso parceiro de processamento de pagamento (dados bancários e CPF/CNPJ, para viabilizar o repasse).</p>
+  <p><strong>Seus direitos:</strong> os mesmos descritos na política do cliente — confirmação, correção e exclusão de dados, mediante solicitação pelo canal de Suporte ou pelo e-mail [email&nbsp;de&nbsp;contato&nbsp;a&nbsp;definir].</p>
+  <p><strong>Sobre avaliações e ranking:</strong> seu histórico de avaliações, taxa de conclusão e eventuais reclamações são usados para calcular sua posição no sistema de distribuição de serviços (ranking). Isso é parte necessária do funcionamento da plataforma.</p>
+  ${PRIVACY_INFRA_TEXT}`;
+function showPrivacyPolicy(context){
+  const el=document.getElementById('privacyContent');if(!el)return;
+  el.innerHTML = context==='provider' ? PRIVACY_TEXT_PROVIDER : PRIVACY_TEXT_CLIENT;
+  const vEl=document.getElementById('privacyVersion');if(vEl)vEl.textContent='Versão '+PRIVACY_POLICY_VERSION;
+  goScreen('s-privacy');
+}
+// Validacao do checkbox de termos, 1a camada (bloqueia o "Continuar" da propria
+// tela) -- submitClientRegister()/submitProviderRegister() checam de novo no
+// submit final, 2a camada, mesmo padrao ja usado pros documentos do prestador.
+function continueFromRegStep1(){
+  if(!document.getElementById('reg-terms-check')?.checked){alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.');return;}
+  goScreen('s-reg2');
+}
+function continueFromPRegStep1(){
+  if(!document.getElementById('preg-terms-check')?.checked){alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.');return;}
+  goScreen('p-reg2');
+}
+function continueFromPReg4(){
+  if(!document.getElementById('preg-doc-auth-check')?.checked){alert('Você precisa autorizar a verificação dos documentos para continuar.');return;}
+  goScreen('p-reg5');
+}
+// LGPD: "Meus Dados" (s-profile/p-profile) -- sem pipeline automatizado ainda, so
+// grava a solicitacao em privacy_requests pro admin processar manualmente (ver
+// a-privacy no painel). Sem due_date automatico -- nao ha prazo definido no texto
+// da politica hoje, entao o codigo nao inventa um.
+async function requestDataCopy(){
+  if(!window._currentUser?.id)return;
+  const {error}=await _supabase.from('privacy_requests').insert({user_id:window._currentUser.id, type:'data_copy'});
+  if(error){showToast('Erro ao enviar solicitação. Tente novamente.');return;}
+  showToast('✓ Solicitação enviada. O admin vai preparar seus dados.');
+}
+async function requestAccountDeletion(){
+  if(!window._currentUser?.id)return;
+  if(!confirm('Tem certeza? Isso solicita a exclusão da sua conta e dos dados associados.'))return;
+  const {error}=await _supabase.from('privacy_requests').insert({user_id:window._currentUser.id, type:'deletion'});
+  if(error){showToast('Erro ao enviar solicitação. Tente novamente.');return;}
+  showToast('✓ Solicitação de exclusão enviada. O admin vai processar.');
+}
 const MODELS_BY_BRAND={
   'Chevrolet':['Onix','Onix Plus','Tracker','Cruze','S10','Spin','Montana','Equinox'],
   'Fiat':['Pulse','Fastback','Cronos','Argo','Mobi','Toro','Strada','Doblo'],
@@ -3707,6 +3788,73 @@ async function resolveOccurrence(id,newStatus){
   goScreen('a-occurrences');
 }
 
+// ============ PRIVACIDADE (LGPD, ADMIN) ============
+// Aba propria, separada de Suporte -- pedido de exclusao/copia tem acao de fundo
+// (admin processa manualmente, sem pipeline automatizado) e trilha de auditoria
+// diferentes de um chamado comum. SEM due_date/SLA automatico -- a politica de
+// privacidade atual nao declara um prazo em dias, entao o codigo nao inventa um;
+// so mostra ha quantos dias a solicitacao esta aberta.
+let privacyFilter='Todos';
+async function buildPrivacyAdmin(){
+  const fr=document.getElementById('privacyFilter'),list=document.getElementById('privacyList');if(!fr||!list)return;
+  list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Carregando...</div>';
+  const {data:all}=await _supabase.from('privacy_requests').select('id,user_id,type,status,notes,created_at,resolved_at').order('created_at',{ascending:false});
+  const data=all||[];
+  const filtered=privacyFilter==='Todos'?data:privacyFilter==='Pendente'?data.filter(r=>['pending','in_progress'].includes(r.status)):privacyFilter==='Concluído'?data.filter(r=>r.status==='completed'):data.filter(r=>r.status==='denied');
+  const cnt={Todos:data.length,Pendente:data.filter(r=>['pending','in_progress'].includes(r.status)).length,'Concluído':data.filter(r=>r.status==='completed').length,Negado:data.filter(r=>r.status==='denied').length};
+  fr.innerHTML='';
+  ['Todos','Pendente','Concluído','Negado'].forEach(f=>{const d=document.createElement('div');d.className='filter-chip'+(f===privacyFilter?' active':'');d.textContent=f+' ('+(cnt[f]||0)+')';d.onclick=()=>{privacyFilter=f;buildPrivacyAdmin();};fr.appendChild(d);});
+  list.innerHTML='';
+  if(!filtered.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Nenhuma solicitação encontrada.</div>';return;}
+  const typeLabel={deletion:'🗑️ Exclusão de conta',data_copy:'📄 Cópia dos dados'};
+  const cfgByStatus={pending:{label:'Pendente',badge:'badge-yellow'},in_progress:{label:'Em andamento',badge:'badge-orange'},completed:{label:'Concluído',badge:'badge-green'},denied:{label:'Negado',badge:'badge-red'}};
+  for(const r of filtered){
+    let reqName='-',reqRole='';
+    const {data:uu}=await _supabase.from('users').select('name,role').eq('id',r.user_id).single();
+    if(uu){reqName=uu.name;reqRole=uu.role==='provider'?'Prestador':uu.role==='client'?'Cliente':uu.role;}
+    const dt=r.created_at?new Date(r.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    const diasAberto=r.created_at?Math.floor((Date.now()-new Date(r.created_at).getTime())/86400000):0;
+    const cfg=cfgByStatus[r.status]||{label:r.status,badge:'badge-gray'};
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML=`<div class="row" style="margin-bottom:6px"><span style="font-size:13px;font-weight:500">${typeLabel[r.type]||r.type}</span><span class="badge ${cfg.badge}">${cfg.label}</span></div>
+      <div style="font-size:12px;color:var(--muted)">${reqName}${reqRole?' · '+reqRole:''} · ${dt}${['pending','in_progress'].includes(r.status)?' · '+diasAberto+' dia(s) em aberto':''}</div>
+      ${!['pending','in_progress'].includes(r.status)?`<div class="info-box ${r.status==='denied'?'info-red':'info-green'}" style="margin-top:6px;margin-bottom:0">${r.notes||''}</div>`:`<div class="action-row"><button class="action-btn ab-view" onclick="viewPrivacyRequest('${r.id}')">Analisar</button></div>`}`;
+    list.appendChild(d);
+  }
+}
+async function viewPrivacyRequest(id){
+  const el=document.getElementById('privacyDetailContent');if(!el)return;
+  el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">Carregando...</div>';
+  navHistory.push(currentScreen);showScreen('a-privacy-detail');
+  const {data:r}=await _supabase.from('privacy_requests').select('id,user_id,type,status,created_at').eq('id',id).single();
+  if(!r){el.innerHTML='<div style="padding:16px">Erro ao carregar.</div>';return;}
+  let reqName='-',reqEmail='',reqRole='';
+  const {data:uu}=await _supabase.from('users').select('name,email,role').eq('id',r.user_id).single();
+  if(uu){reqName=uu.name;reqEmail=uu.email||'';reqRole=uu.role==='provider'?'Prestador':uu.role==='client'?'Cliente':uu.role;}
+  const typeLabel={deletion:'Exclusão de conta',data_copy:'Cópia dos dados'};
+  const dt=r.created_at?new Date(r.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'';
+  el.innerHTML=`<div style="background:var(--blue);margin:-16px -16px 16px;padding:20px 16px"><div style="color:#fff;font-size:16px;font-weight:500">${typeLabel[r.type]||r.type}</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:4px">${reqName}${reqRole?' · '+reqRole:''}</div></div>
+    <div class="card"><div class="row"><span style="font-size:13px;color:var(--muted)">E-mail</span><span>${reqEmail}</span></div><div class="row" style="margin-bottom:0"><span style="font-size:13px;color:var(--muted)">Solicitado em</span><span>${dt}</span></div></div>
+    <div class="label">Nota / justificativa (ex: o que foi feito, ou por que foi negado)</div>
+    <textarea class="input" rows="3" id="privacyNotesTxt" placeholder="Ex: conta excluída em DD/MM; dados fiscais retidos conforme obrigação legal..."></textarea>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="resolvePrivacyRequest('${id}','in_progress')">Marcar em andamento</button>
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="resolvePrivacyRequest('${id}','completed')">Marcar concluído</button>
+    </div>
+    <button class="btn btn-outline-red btn-sm" style="width:100%" onclick="resolvePrivacyRequest('${id}','denied')">Negar solicitação</button>`;
+}
+async function resolvePrivacyRequest(id,newStatus){
+  const notes=document.getElementById('privacyNotesTxt')?.value?.trim()||'';
+  if((newStatus==='completed'||newStatus==='denied')&&!notes){showToast('Escreva uma nota antes de concluir ou negar.');return;}
+  const payload={status:newStatus};
+  if(notes)payload.notes=notes;
+  if(newStatus==='completed'||newStatus==='denied')payload.resolved_at=new Date().toISOString();
+  const {error}=await _supabase.from('privacy_requests').update(payload).eq('id',id);
+  if(error){showToast('Erro ao salvar. Tente novamente.');return;}
+  showToast(newStatus==='completed'?'Solicitação concluída.':newStatus==='denied'?'Solicitação negada.':'Solicitação em andamento.');
+  goScreen('a-privacy');
+}
+
 // ============ SUPORTE (ADMIN) — chamado único, sem thread ============
 let supportFilter='Todos';
 async function buildSupportAdmin(){
@@ -3811,7 +3959,7 @@ async function resolveSupportTicket(id,newStatus){
 }
 
 // ============ NAV ============
-const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-pending-confirmations':'Confirmações pendentes','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte','s-support':'Suporte'};
+const SCREEN_TITLES={'s-splash':'AutoCare','s-reg1':'Criar conta','s-reg2':'Endereço','s-reg3':'Trabalho','s-home':'AutoCare','s-svc-list':'Serviços','jf-vehicle':'Veículo','jf-problem':'Problema','jf-parts':'Validar peça','jf-address':'Local','jf-schedule':'Horário','jf-confirm':'Confirmar','jf-created':'Job criado!','s-job-status':'Status do job','s-approve':'Aprovar serviço','s-approved':'Aprovado!','s-cancel-client':'Cancelar job','s-reschedule':'Reagendar','s-vehicle-history':'Histórico','s-add-vehicle':'Adicionar veículo','s-vehicles':'Meus veículos','s-profile':'Perfil','p-splash':'AutoCare Parceiros','p-reg1':'Cadastro','p-reg2':'Especialidades','p-reg3':'Bairros','p-reg4':'Documentos','p-reg5':'Certificados','p-pending':'Cadastro enviado','p-dashboard':'AutoCare Parceiros','p-offer':'Nova oferta','p-offer-accepted':'Job aceito','p-offer-rejected':'Oferta recusada','p-job-exec':'Executando Job','p-job-done':'Aguardando aprovação','p-cancel':'Cancelar job','p-ranking':'Meu ranking','p-agenda':'Minha Agenda','p-profile':'Meu Perfil','a-dashboard':'AutoCare · Admin','a-services':'Catálogo','a-providers':'Prestadores','a-provider-detail':'Detalhe','a-dispatch':'Dispatch · Jobs','a-dispatch-detail':'Detalhe do Job','a-pending-confirmations':'Confirmações pendentes','a-supply':'Supply Chain','a-ranking':'Ranking','a-provider-rank':'Ranking · Detalhe','a-claims':'Reclamações','a-claim-detail':'Analisar Reclamação','a-jobs':'Jobs','a-payments':'Pagamentos','a-occurrences':'Ocorrências','a-occurrence-detail':'Analisar Ocorrência','a-support':'Suporte','a-support-detail':'Analisar Chamado','p-support':'Suporte','s-support':'Suporte','s-privacy':'Privacidade','a-privacy':'Privacidade (LGPD)','a-privacy-detail':'Analisar Solicitação'};
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -3870,6 +4018,7 @@ function showScreen(id){
   if(id==='a-claims')buildClaims();
   if(id==='a-payments'){switchPayTab('today');}
   if(id==='a-occurrences')buildOccurrences();
+  if(id==='a-privacy')buildPrivacyAdmin();
   if(id==='a-support')buildSupportAdmin();
   if(id==='p-support')buildSupportProvider();
   if(id==='s-support')buildSupportClient();
@@ -3896,6 +4045,8 @@ async function loadAdminDashboard(){
     const urgTick = (tick||[]).filter(t=>t.priority==='urgente').length;
     const {data:accJobs} = await _supabase.from('jobs').select('id,status,scheduled_date,scheduled_time,en_route_at').eq('status','accepted');
     const totalPendingConf = (accJobs||[]).filter(isJobAtRisk).length;
+    const {data:privReq} = await _supabase.from('privacy_requests').select('id').in('status',['pending','in_progress']);
+    const totalPriv = (privReq||[]).length;
     document.getElementById('dash-jobs-hoje').textContent = jobsHoje;
     document.getElementById('dash-jobs-subtitulo').textContent = jobsHoje+' hoje';
     const totalPago=(jobs||[]).filter(j=>j.status==='completed').reduce((s,j)=>s+parseFloat(j.total_price||0),0);
@@ -3908,6 +4059,7 @@ async function loadAdminDashboard(){
     const menuOcor=document.getElementById('menu-occurrences-pendentes');if(menuOcor)menuOcor.textContent=totalOcor+' pendente'+(totalOcor!==1?'s':'');
     const menuTick=document.getElementById('menu-support-pendentes');if(menuTick)menuTick.textContent=totalTick+' pendente'+(totalTick!==1?'s':'')+(urgTick>0?' · 🚨 '+urgTick+' urgente'+(urgTick>1?'s':''):'');
     const menuPendingConf=document.getElementById('menu-pendingconf-pendentes');if(menuPendingConf)menuPendingConf.textContent=totalPendingConf+' pendente'+(totalPendingConf!==1?'s':'');
+    const menuPriv=document.getElementById('menu-privacy-pendentes');if(menuPriv)menuPriv.textContent=totalPriv+' pendente'+(totalPriv!==1?'s':'');
   } catch(e){}
 }
 
@@ -4193,6 +4345,17 @@ async function submitProviderRegister(){
     alert('Envie todos os documentos obrigatórios antes de continuar.');
     return;
   }
+  // LGPD: 2a camada de validacao (1a ja bloqueia o "Continuar" da propria tela em
+  // continueFromPRegStep1()/continueFromPReg4()) -- mesmo padrao de defesa em
+  // profundidade ja usado pros documentos acima.
+  if(!document.getElementById('preg-terms-check')?.checked){
+    alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+    return;
+  }
+  if(!document.getElementById('preg-doc-auth-check')?.checked){
+    alert('Você precisa autorizar a verificação dos documentos.');
+    return;
+  }
 
   // Coletar especialidades selecionadas
   const specs = [...document.querySelectorAll('.spec-chip.selected .sl')].map(el=>el.textContent);
@@ -4232,6 +4395,19 @@ async function submitProviderRegister(){
       role: 'provider'
     });
     if(userError) throw userError;
+
+    // LGPD: registra o consentimento -- termos+autorizacao de documento sempre
+    // (bloquearam o submit acima), marketing so se marcado. Cada aceite grava uma
+    // linha nova, nunca sobrescreve (historico completo).
+    const consentRows=[
+      {user_id:uid, type:'terms_privacy', accepted:true, version:PRIVACY_POLICY_VERSION},
+      {user_id:uid, type:'document_verification', accepted:true, version:PRIVACY_POLICY_VERSION}
+    ];
+    if(document.getElementById('preg-marketing-check')?.checked){
+      consentRows.push({user_id:uid, type:'marketing', accepted:true, version:PRIVACY_POLICY_VERSION});
+    }
+    const {error:consentError} = await _supabase.from('consents').insert(consentRows);
+    if(consentError) throw consentError;
 
     // 3. Gravar na tabela providers
     const {error:provError} = await _supabase.from('providers').insert({
@@ -4282,6 +4458,12 @@ async function submitClientRegister(){
     alert('Selecione o bairro do seu endereço principal.');
     return;
   }
+  // LGPD: 2a camada de validacao (1a ja bloqueia o "Continuar" da propria tela em
+  // continueFromRegStep1()).
+  if(!document.getElementById('reg-terms-check')?.checked){
+    alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+    return;
+  }
 
   try{
     // 1. Criar usuário no Supabase Auth
@@ -4303,6 +4485,15 @@ async function submitClientRegister(){
       role: 'client'
     });
     if(userError) throw userError;
+
+    // LGPD: registra o consentimento -- termos sempre (bloqueou o submit acima),
+    // marketing so se marcado. Cada aceite grava uma linha nova, nunca sobrescreve.
+    const consentRows=[{user_id:uid, type:'terms_privacy', accepted:true, version:PRIVACY_POLICY_VERSION}];
+    if(document.getElementById('reg-marketing-check')?.checked){
+      consentRows.push({user_id:uid, type:'marketing', accepted:true, version:PRIVACY_POLICY_VERSION});
+    }
+    const {error:consentError} = await _supabase.from('consents').insert(consentRows);
+    if(consentError) throw consentError;
 
     // 3. Gravar na tabela customers -- precisa do id gerado (diferente do user_id)
     // pra poder gravar os enderecos vinculados a ele logo em seguida.
