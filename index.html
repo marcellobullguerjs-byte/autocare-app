@@ -275,6 +275,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
         <div class="label">E-mail</div><input id="reg-email" class="input" type="email" placeholder="seu@email.com">
         <div class="label">Telefone</div><input id="reg-phone" class="input" type="tel" placeholder="(11) 99999-9999">
         <div class="label">Senha</div><input id="reg-password" class="input" type="password" placeholder="Mínimo 6 caracteres">
+        <div class="label">Código de indicação (opcional)</div><input id="reg-referral-code" class="input" placeholder="Ex: K7X2QP" style="text-transform:uppercase">
         <label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0 6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="reg-terms-check" style="margin-top:2px"><span>Li e aceito os <span style="color:var(--blue);text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacyPolicy('client')">Termos de Uso e a Política de Privacidade</span></span></label>
         <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="reg-marketing-check" style="margin-top:2px"><span>Quero receber novidades e promoções por WhatsApp</span></label>
         <button class="btn btn-primary" onclick="continueFromRegStep1()">Continuar →</button>
@@ -507,7 +508,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
     <div class="screen full" id="p-reg-info" style="padding:0"><div class="auth-header"><h2>Antes de começar</h2><p>Modalidade e documentos necessários</p></div><div class="auth-body"><div class="label">Como você vai atuar?</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"><div class="legal-chip selected" id="regType-pf" onclick="setRegLegalType('pf')">Autônomo (PF)</div><div class="legal-chip" id="regType-pj" onclick="setRegLegalType('pj')">Micro-empresa (PJ)</div></div><div class="info-box info-blue">📋 Documentos necessários para o cadastro:</div><div class="card" style="padding:0 0 4px" id="regInfoDocsList"></div><div style="height:16px"></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg1')">Entendi, continuar</button></div></div></div>
 
     <!-- FIX 4: botão voltar em todos os passos do cadastro do prestador -->
-    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div id="preg-cnpj-wrap" style="display:none"><div class="label">CNPJ</div><input id="preg-cnpj" class="input" placeholder="00.000.000/0000-00"></div><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0 6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-terms-check" style="margin-top:2px"><span>Li e aceito os <span style="color:var(--blue);text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacyPolicy('provider')">Termos de Uso e a Política de Privacidade</span></span></label><label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-marketing-check" style="margin-top:2px"><span>Quero receber novidades e promoções por WhatsApp</span></label><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="continueFromPRegStep1()">Continuar →</button></div></div></div>
+    <div class="screen full" id="p-reg1" style="padding:0"><div class="auth-header"><h2>Seja um parceiro</h2><p>Passo 1 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="label">Nome completo</div><input id="preg-name" class="input" placeholder="Seu nome"><div class="label">CPF</div><input id="preg-cpf" class="input" placeholder="000.000.000-00"><div id="preg-cnpj-wrap" style="display:none"><div class="label">CNPJ</div><input id="preg-cnpj" class="input" placeholder="00.000.000/0000-00"></div><div class="label">E-mail</div><input id="preg-email" class="input" type="email" placeholder="seu@email.com"><div class="label">Telefone</div><input id="preg-phone" class="input" type="tel" placeholder="(11) 99999-9999"><div class="label">Senha</div><input id="preg-password" class="input" type="password" placeholder="Mínimo 6 caracteres"><div class="label">Código de indicação (opcional)</div><input id="preg-referral-code" class="input" placeholder="Ex: K7X2QP" style="text-transform:uppercase"><label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0 6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-terms-check" style="margin-top:2px"><span>Li e aceito os <span style="color:var(--blue);text-decoration:underline" onclick="event.preventDefault();event.stopPropagation();showPrivacyPolicy('provider')">Termos de Uso e a Política de Privacidade</span></span></label><label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-marketing-check" style="margin-top:2px"><span>Quero receber novidades e promoções por WhatsApp</span></label><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="continueFromPRegStep1()">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg2" style="padding:0"><div class="auth-header"><h2>Especialidades</h2><p>Passo 2 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="spec-chip selected" onclick="this.classList.toggle('selected')"><div class="si">🔧</div><div class="sl">Mecânico</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">⚡</div><div class="sl">Eletricista</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🎨</div><div class="sl">Funileiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">✨</div><div class="sl">Detailer</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚿</div><div class="sl">Lavador</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🚛</div><div class="sl">Guincho</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🔑</div><div class="sl">Chaveiro Automotivo</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🛞</div><div class="sl">Borracheiro</div></div><div class="spec-chip" onclick="this.classList.toggle('selected')"><div class="si">🪟</div><div class="sl">Vidraceiro</div></div></div><div class="label">Anos de experiência</div><select class="input" id="preg-experience"><option>1 a 2 anos</option><option selected>3 a 5 anos</option><option>6 a 10 anos</option><option>Mais de 10 anos</option></select><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg3')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg3" style="padding:0"><div class="auth-header"><h2>Bairros de atuação</h2><p>Passo 3 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div><div class="info-box info-blue">📍 Matching por bairro — o endereço base é só referência, não é usado pra entrega de peça.</div><div class="label">Seu endereço base</div><input class="input" id="preg-base-address" placeholder="CEP ou endereço"><div class="label" style="margin-top:4px">Selecione os bairros</div><div style="margin-bottom:12px"><span class="region-chip selected" onclick="this.classList.toggle('selected')">Vila Madalena</span><span class="region-chip" onclick="this.classList.toggle('selected')">Pinheiros</span><span class="region-chip" onclick="this.classList.toggle('selected')">Jardins</span><span class="region-chip" onclick="this.classList.toggle('selected')">Itaim Bibi</span><span class="region-chip" onclick="this.classList.toggle('selected')">Moema</span><span class="region-chip" onclick="this.classList.toggle('selected')">Consolação</span></div><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="goScreen('p-reg4')">Continuar →</button></div></div></div>
     <div class="screen full" id="p-reg4" style="padding:0"><div class="auth-header"><h2>Documentos</h2><p>Passo 4 de 5</p></div><div class="auth-body"><div class="step-dots"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div><div class="card" style="padding:0 0 4px"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📄 RG ou CNH</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📸 Foto do CPF</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏠 Comprovante de residência</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🤳 Selfie com documento</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">💳 Dados bancários</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div id="preg4-pj-docs" style="display:none"><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">🏢 Cartão CNPJ</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div><div class="doc-item" style="padding:10px 14px"><div><div style="font-size:13px;font-weight:500">📑 Contrato social ou certificado MEI</div></div><button class="upload-btn" onclick="mockUpload(this)">Enviar</button></div></div></div><label style="display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="preg-doc-auth-check" style="margin-top:2px"><span>Autorizo o AutoCare a verificar os documentos enviados para fins de aprovação do meu cadastro.</span></label><div style="display:flex;gap:8px"><button class="btn btn-outline" onclick="goBack()">← Voltar</button><button class="btn btn-primary" onclick="continueFromPReg4()">Continuar →</button></div></div></div>
@@ -685,7 +686,7 @@ body{font-family:system-ui,sans-serif;color:var(--text);font-size:14px}
       </div>
     </div>
 
-    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('p-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">MEUS DADOS</div><div class="row" style="cursor:pointer" onclick="showPrivacyPolicy('provider')"><span style="font-size:13px">📜 Política de Privacidade</span><span>›</span></div><div class="row" style="cursor:pointer" onclick="requestDataCopy()"><span style="font-size:13px">📄 Solicitar cópia dos meus dados</span><span>›</span></div><div class="row" style="cursor:pointer;margin-bottom:0" onclick="requestAccountDeletion()"><span style="font-size:13px;color:var(--red)">🗑️ Solicitar exclusão da minha conta e dados</span><span>›</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
+    <div class="screen" id="p-profile"><div class="profile-header"><div class="profile-av" id="p-profile-av">CR</div><div><div style="color:#fff;font-size:16px;font-weight:500" id="p-profile-nome">...</div><div style="color:rgba(255,255,255,.8);font-size:12px" id="p-profile-email">...</div><span class="badge badge-green" style="margin-top:4px;display:inline-block" id="p-profile-score">✓ Aprovado · Score ...</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">ESPECIALIDADES</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-specs"></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">BAIRROS</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="p-profile-bairros"></div></div><div class="card" id="p-profile-referral"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">🎁 INDIQUE E GANHE</div><div style="font-size:12px;color:var(--muted)">Carregando...</div></div><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="goScreen('p-support')"><span style="font-size:13px">💬 Suporte</span><span>›</span></div></div><div class="card"><div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">MEUS DADOS</div><div class="row" style="cursor:pointer" onclick="showPrivacyPolicy('provider')"><span style="font-size:13px">📜 Política de Privacidade</span><span>›</span></div><div class="row" style="cursor:pointer" onclick="requestDataCopy()"><span style="font-size:13px">📄 Solicitar cópia dos meus dados</span><span>›</span></div><div class="row" style="cursor:pointer;margin-bottom:0" onclick="requestAccountDeletion()"><span style="font-size:13px;color:var(--red)">🗑️ Solicitar exclusão da minha conta e dados</span><span>›</span></div></div><hr class="divider"><div class="card"><div class="row" style="cursor:pointer;margin-bottom:0" onclick="doLogout()"><span style="font-size:13px;color:var(--red)">Sair da conta</span><span>›</span></div></div></div>
 
     <div class="screen" id="p-support">
       <div style="font-size:15px;font-weight:500;margin-bottom:4px">Suporte AutoCare</div>
@@ -2245,6 +2246,15 @@ async function createJob(){
 
   if(error){ console.error('Erro job completo:', JSON.stringify(error)); showToast('❌ ' + JSON.stringify(error)); return; }
 
+  // FEATURE (Indicacoes): "de fato pediu um servico" = criou um job de verdade --
+  // gatilho de qualificacao de indicacao de cliente. So atualiza se ainda estiver
+  // pending (a linha so existe 1x por cliente indicado, entao isso so acontece
+  // uma vez, no 1o job).
+  await _supabase.from('referrals')
+    .update({status:'qualified', qualified_at:new Date().toISOString()})
+    .eq('referred_customer_id', customer.id)
+    .eq('status','pending');
+
   if(s.parts){
     await _supabase.from('quotations').insert({
       job_id:      job.id,
@@ -2347,13 +2357,31 @@ async function assignProvider(jobId, scheduledDate, scheduledTime) {
     const idleValues = free.map(p => p.last_job_completed_at ? (nowMs - new Date(p.last_job_completed_at).getTime()) : null);
     const maxIdle = Math.max(0, ...idleValues.filter(v => v !== null));
 
+    // FEATURE (Indicacoes): +0,05 por indicacao qualificada, ate 4 de cada tipo
+    // (prestador indicado aprovado / cliente indicado que pediu servico), tetos
+    // separados -- ate +0,40 no total. Busca tudo de uma vez so (mesmo padrao do
+    // busyDispatches acima), nao 1 query por prestador dentro do .map().
+    const { data: refRows } = await _supabase
+      .from('referrals')
+      .select('referrer_id, referred_provider_id, referred_customer_id')
+      .eq('status', 'qualified')
+      .in('referrer_id', free.map(p => p.id));
+    const refCounts = {};
+    (refRows || []).forEach(r => {
+      if (!refCounts[r.referrer_id]) refCounts[r.referrer_id] = { provider: 0, client: 0 };
+      if (r.referred_provider_id) refCounts[r.referrer_id].provider++;
+      else if (r.referred_customer_id) refCounts[r.referrer_id].client++;
+    });
+
     const scored = free.map((p, i) => {
       const scoreNorm = Number(p.score || 0) / 10;
       // sem last_job_completed_at (nunca completou job) = ociosidade máxima, não entra na conta do maxIdle
       const idleNorm = idleValues[i] === null ? 1 : (maxIdle > 0 ? idleValues[i] / maxIdle : 1);
       const jobsConcluidos = p.stats?.jobsConcluidos || 0;
       const bonusNovato = Math.max(0, 0.20 * (1 - jobsConcluidos / 15)); // zera no 15º job
-      const pontuacaoFinal = (scoreNorm * 0.45) + (idleNorm * 0.35) + bonusNovato;
+      const rc = refCounts[p.id] || { provider: 0, client: 0 };
+      const bonusIndicacao = Math.min(rc.provider, 4) * 0.05 + Math.min(rc.client, 4) * 0.05;
+      const pontuacaoFinal = (scoreNorm * 0.45) + (idleNorm * 0.35) + bonusNovato + bonusIndicacao;
       return { provider: p, pontuacaoFinal };
     });
 
@@ -3052,7 +3080,7 @@ async function submitClaim(){const sel=document.querySelector('#modalContent sel
 // ============ PROVIDER RANKING ============
 async function loadProviderProfile(){
   if(!window._currentUser||window._currentUser.role!=='provider')return;
-  const {data:prov}=await _supabase.from('providers').select('score,specialties,regions,status').eq('user_id',window._currentUser.id).single();
+  const {data:prov}=await _supabase.from('providers').select('id,score,specialties,regions,status,referral_code').eq('user_id',window._currentUser.id).single();
   if(!prov)return;
   const nome=window._currentUser.name||'Prestador';
   const email=window._currentUser.email||'';
@@ -3066,6 +3094,17 @@ async function loadProviderProfile(){
   if(document.getElementById('p-profile-score')) document.getElementById('p-profile-score').textContent='✓ Aprovado · Score '+score;
   if(document.getElementById('p-profile-specs')) document.getElementById('p-profile-specs').innerHTML=specs.map(s=>`<span class="badge badge-blue">${s}</span>`).join('');
   if(document.getElementById('p-profile-bairros')) document.getElementById('p-profile-bairros').innerHTML=bairros.map(b=>`<span class="badge badge-blue">${b}</span>`).join('');
+  // FEATURE (Indicacoes): mostra o codigo proprio + quantas indicacoes ja
+  // qualificaram de cada tipo, ate o teto de 4 -- transparencia de quanto falta.
+  const refEl=document.getElementById('p-profile-referral');
+  if(refEl){
+    const {data:refs}=await _supabase.from('referrals').select('referred_provider_id,referred_customer_id').eq('referrer_id',prov.id).eq('status','qualified');
+    const qtdProv=Math.min((refs||[]).filter(r=>r.referred_provider_id).length,4);
+    const qtdCli=Math.min((refs||[]).filter(r=>r.referred_customer_id).length,4);
+    refEl.innerHTML=`<div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px">🎁 INDIQUE E GANHE</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Seu código: <span style="font-weight:500;color:var(--text);letter-spacing:1px">${prov.referral_code||'-'}</span></div>
+      <div style="font-size:11px;color:var(--muted)">Prestadores indicados aprovados: ${qtdProv}/4 · Clientes indicados ativos: ${qtdCli}/4</div>`;
+  }
 }
 
 async function loadProviderRanking(){
@@ -3357,6 +3396,15 @@ async function adminChangeProviderStatus(providerId, newStatus){
     .update({status: newStatus})
     .eq('id', providerId);
   if(error){ alert('Erro ao atualizar status: ' + error.message); return; }
+  // FEATURE (Indicacoes): aprovacao e o gatilho de qualificacao de indicacao de
+  // prestador -- so atualiza se ainda estiver pending, entao reaprovar depois de
+  // uma suspensao nao duplica nem sobrescreve nada.
+  if(newStatus==='approved'){
+    await _supabase.from('referrals')
+      .update({status:'qualified', qualified_at:new Date().toISOString()})
+      .eq('referred_provider_id', providerId)
+      .eq('status','pending');
+  }
   showToast('Status atualizado com sucesso!');
   buildProviderList();
 }
@@ -4445,6 +4493,36 @@ function normalizePhoneForWhatsApp(phone){
   return digits;
 }
 
+// ============ INDICAÇÕES ============
+// Codigo curto (nao o uuid do prestador, inviavel de digitar manualmente) --
+// alfanumerico maiusculo sem 0/O/1/I, pra evitar confusao de leitura/digitacao.
+function generateReferralCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='';
+  for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+async function generateUniqueReferralCode(){
+  for(let i=0;i<5;i++){
+    const code=generateReferralCode();
+    const {data:existing}=await _supabase.from('providers').select('id').eq('referral_code',code).single();
+    if(!existing)return code;
+  }
+  // colisao 5x seguidas e praticamente impossivel nessa escala -- sufixo extra so
+  // como rede de seguranca, nunca deve ser alcançado na pratica.
+  return generateReferralCode()+Date.now().toString(36).slice(-2).toUpperCase();
+}
+// Le o campo de codigo de indicacao (se preenchido no cadastro), acha o prestador
+// indicador pelo referral_code, grava a linha pendente em referrals. Campo
+// opcional -- codigo invalido/digitado errado nao bloqueia o cadastro, so nao cria
+// a indicacao.
+async function registerReferralIfAny(fieldId, target){
+  const raw=document.getElementById(fieldId)?.value?.trim().toUpperCase();
+  if(!raw)return;
+  const {data:referrer}=await _supabase.from('providers').select('id').eq('referral_code',raw).single();
+  if(!referrer)return;
+  await _supabase.from('referrals').insert({referrer_id:referrer.id, ...target, status:'pending'});
+}
 async function submitProviderRegister(){
   const name     = document.getElementById('preg-name')?.value?.trim();
   const cpf      = document.getElementById('preg-cpf')?.value?.trim();
@@ -4559,8 +4637,13 @@ async function submitProviderRegister(){
     const {error:consentError} = await _supabase.from('consents').insert(consentRows);
     if(consentError) throw consentError;
 
+    // FEATURE (Indicacoes): codigo curto proprio, gerado agora -- nao reaproveita o
+    // uuid do prestador (inviavel de digitar manualmente no cadastro de quem ele
+    // indicar depois).
+    const referralCode = await generateUniqueReferralCode();
+
     // 3. Gravar na tabela providers
-    const {error:provError} = await _supabase.from('providers').insert({
+    const {data:newProv, error:provError} = await _supabase.from('providers').insert({
       user_id: uid,
       specialties: specs,
       regions: neighborhoods,
@@ -4569,9 +4652,17 @@ async function submitProviderRegister(){
       legal_type: regLegalType,
       cnpj: regLegalType==='pj' ? cnpj : null,
       experience_years: experience || null,
-      base_address: baseAddress
-    }).select();
+      base_address: baseAddress,
+      referral_code: referralCode
+    }).select().single();
     if(provError) throw provError;
+
+    // FEATURE (Indicacoes): se um codigo de quem indicou foi digitado, registra a
+    // indicacao (pendente ate a aprovacao deste cadastro -- ver
+    // adminChangeProviderStatus(), o caminho real; a-provider-detail/changeStatus()
+    // e tela orfa hoje, nao mexida por decisao explicita). Nao bloqueia o cadastro
+    // se o codigo nao existir, campo e opcional.
+    await registerReferralIfAny('preg-referral-code', {referred_provider_id: newProv.id});
 
     // 4. Ir para tela de pendente
     goScreen('p-pending');
@@ -4651,6 +4742,11 @@ async function submitClientRegister(){
       user_id: uid
     }).select().single();
     if(custError) throw custError;
+
+    // FEATURE (Indicacoes): se um codigo de quem indicou foi digitado, registra a
+    // indicacao (pendente ate o cliente de fato pedir um servico -- ver createJob()).
+    // Nao bloqueia o cadastro se o codigo nao existir, campo e opcional.
+    await registerReferralIfAny('reg-referral-code', {referred_customer_id: custData.id});
 
     // 4. Endereco principal (home) -- obrigatorio, sempre grava.
     const {error:addrHomeError} = await _supabase.from('addresses').insert({
